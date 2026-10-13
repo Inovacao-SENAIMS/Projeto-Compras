@@ -83,7 +83,7 @@ class TramitacaoForm(forms.Form):
     )
     modalidade = forms.ChoiceField(
         label="Modalidade (RCA)",
-        required=False,
+        required=True,
         choices=[("", "Selecione a modalidade RCA")] + list(Modalidade.choices),
         widget=forms.Select(attrs={"class": "campo"}),
     )
@@ -106,6 +106,8 @@ class TramitacaoForm(forms.Form):
             self.fields["status"].choices = [
                 (s.value, s.label) for s in pedido.transicoes_permitidas
             ]
+            if pedido.modalidade:
+                self.fields["modalidade"].initial = pedido.modalidade
 
     def clean(self):
         dados = super().clean()

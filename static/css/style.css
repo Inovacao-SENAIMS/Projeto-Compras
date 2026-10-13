@@ -150,6 +150,10 @@ body {
     text-decoration: underline;
 }
 
+.obrigatorio {
+    color: var(--cor-erro);
+}
+
 h3 {
     margin-bottom: 0.5rem;
 }

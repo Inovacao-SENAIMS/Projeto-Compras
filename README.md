@@ -64,8 +64,8 @@ Anexo · Ações
 
 - **Nº da Requisição:** texto único gerado automaticamente (`REQ-000001`).
 - **Aquisição:** o campo `produto` da requisição.
-- **Modalidade (RCA):** preenchida pela equipe na **tramitação**, conforme o
-  Regulamento RCA (SENAI): Seleção com Disputa (Aberta/Fechada), Seleção sem
+- **Modalidade (RCA):** preenchida pela equipe na **tramitação** — **obrigatória** —
+  conforme o Regulamento RCA (SENAI): Seleção com Disputa (Aberta/Fechada), Seleção sem
   Disputa (Dispensa/Inexigibilidade), Credenciamento, Pré-qualificação, Diálogo
   Prévio e Registro de Preço.
 - **Data de Abertura:** data de criação (`criado_em`).
