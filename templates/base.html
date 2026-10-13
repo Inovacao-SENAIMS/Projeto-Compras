@@ -16,9 +16,9 @@
     <aside class="sidebar">
         <a class="sidebar-marca" href="{% url 'core:home' %}">
             <span class="sidebar-logo"><img src="{% static 'img/SENAI.png' %}" alt="SENAI | Sistema FIEMS"></span>
-            <span class="sidebar-nome">Projeto Compras</span>
         </a>
 
+        <div class="sidebar-meio">
         <nav class="sidebar-nav">
             {% if user.is_authenticated %}
                 <a class="nav-item {% if request.resolver_match.view_name == 'core:home' %}ativo{% endif %}"
@@ -44,6 +44,7 @@
                    href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> <span>Entrar</span></a>
             {% endif %}
         </nav>
+        </div>
 
         {% if user.is_authenticated %}
         <div class="sidebar-rodape">

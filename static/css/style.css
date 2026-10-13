@@ -73,32 +73,32 @@ a {
 
 .sidebar-marca {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.65rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     text-decoration: none;
-    padding: 0 1.25rem 1.25rem;
 }
 
 .sidebar-logo {
     display: inline-flex;
     background: #fff;
     border-radius: var(--raio-sm);
-    padding: 0.35rem 0.55rem;
+    padding: 0.55rem 0.9rem;
 }
 
 .sidebar-logo img {
-    height: 24px;
+    height: 36px;
     width: auto;
     display: block;
 }
 
-.sidebar-nome {
-    color: #fff;
-    font-family: var(--fonte-titulo);
-    font-weight: 700;
-    font-size: 1.05rem;
-    letter-spacing: -0.3px;
+.sidebar-meio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 0;
 }
 
 .sidebar-nav {
