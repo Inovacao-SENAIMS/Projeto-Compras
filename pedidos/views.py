@@ -1,10 +1,11 @@
+import csv
 from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -12,6 +13,7 @@ from accounts.decorators import equipe_required, gestor_required, solicitante_re
 from accounts.perfis import nome_exibicao, usuarios_time_compras
 
 from . import permissoes, services
+from .dashboard import STATUS_CORES, STATUS_ORDEM
 from .forms import AnexosForm, PedidoForm, TramitacaoForm
 from .models import Anexo, Pedido, Status, TipoAnexo
 
@@ -247,17 +249,56 @@ def _data(valor):
         return None
 
 
+def _csv_performance(linhas, inicio, fim):
+    resposta = HttpResponse(content_type="text/csv; charset=utf-8")
+    resposta["Content-Disposition"] = 'attachment; filename="performance_time.csv"'
+    resposta.write("\ufeff")  # BOM (Excel reconhece acentos)
+    escritor = csv.writer(resposta, delimiter=";")
+    escritor.writerow(
+        [f"Performance do Time de Compras - periodo: {inicio or '...'} a {fim or '...'}"]
+    )
+    escritor.writerow([])
+    escritor.writerow(
+        [
+            "Membro",
+            "Total atribuidas",
+            "Em analise",
+            "Concluidas",
+            "Canceladas",
+            "Lead time medio (dias)",
+        ]
+    )
+    for linha in linhas:
+        escritor.writerow(
+            [
+                linha["nome"],
+                linha["total"],
+                linha["em_analise"],
+                linha["concluida"],
+                linha["cancelada"],
+                linha["lead_medio"] if linha["lead_medio"] is not None else "",
+            ]
+        )
+    return resposta
+
+
 @gestor_required
 def performance(request):
     """Painel de performance do Time de Compras (apenas Gestão/Superusuário)."""
     inicio = _data(request.GET.get("inicio"))
     fim = _data(request.GET.get("fim"))
+    usuario_id = request.GET.get("usuario") or ""
 
     pedidos = Pedido.objects.all()
     if inicio:
         pedidos = pedidos.filter(criado_em__date__gte=inicio)
     if fim:
         pedidos = pedidos.filter(criado_em__date__lte=fim)
+
+    # Cards e gráfico de status também respeitam o filtro por usuário.
+    resumo = pedidos.filter(responsavel_id=usuario_id) if usuario_id.isdigit() else pedidos
+
+    membros = usuarios_time_compras(incluir_inativos=True)
 
     contagens = {
         item["responsavel"]: item
@@ -272,7 +313,7 @@ def performance(request):
     }
 
     linhas = []
-    for membro in usuarios_time_compras(incluir_inativos=True):
+    for membro in membros:
         item = contagens.get(membro.pk, {})
         tempos = [
             d
@@ -294,7 +335,10 @@ def performance(request):
             }
         )
 
-    totais = pedidos.aggregate(
+    if request.GET.get("formato") == "csv":
+        return _csv_performance(linhas, inicio, fim)
+
+    totais = resumo.aggregate(
         total=Count("id"),
         sem_responsavel=Count("id", filter=Q(responsavel__isnull=True)),
         em_analise=Count("id", filter=Q(status=Status.EM_ANALISE)),
@@ -302,10 +346,14 @@ def performance(request):
         cancelada=Count("id", filter=Q(status=Status.CANCELADA)),
     )
 
-    grafico = {
-        "labels": [linha["nome"] for linha in linhas],
-        "valores": [linha["total"] for linha in linhas],
+    contagem_status = {
+        item["status"]: item["n"]
+        for item in resumo.values("status").annotate(n=Count("id"))
     }
+    status_json = [
+        [s.label, contagem_status.get(s.value, 0), STATUS_CORES[s.value]]
+        for s in STATUS_ORDEM
+    ]
 
     return render(
         request,
@@ -313,7 +361,13 @@ def performance(request):
         {
             "linhas": linhas,
             "totais": totais,
-            "grafico": grafico,
+            "membros": membros,
+            "grafico": {
+                "labels": [linha["nome"] for linha in linhas],
+                "valores": [linha["total"] for linha in linhas],
+            },
+            "status_json": status_json,
+            "usuario_id": usuario_id,
             "inicio": inicio.isoformat() if inicio else "",
             "fim": fim.isoformat() if fim else "",
         },

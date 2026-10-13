@@ -91,12 +91,14 @@ Compras; a exclusão é bloqueada quando o usuário possui requisições vincula
 Página exclusiva da **Gestão/SuperUsuário** (`/compras/performance/`,
 decorator `gestor_required`) para acompanhar a performance do Time de Compras:
 
-- **Filtro por período** (De/Até) sobre a data de abertura das requisições;
-- **Indicadores** do período: no período, sem responsável, em análise, concluídas,
-  canceladas;
+- **Filtros**: por **período** (De/Até, sobre a data de abertura) e por
+  **usuário** (membro do Time);
+- **Indicadores** (em uma única linha): no período, sem responsável, em análise,
+  concluídas, canceladas;
 - **Tabela por membro** do Time: total atribuídas, em análise, concluídas,
   canceladas e **lead time médio**;
-- **Gráfico** de requisições atribuídas por membro (Chart.js).
+- **Gráficos** (Chart.js): requisições por **status** e atribuídas **por membro**;
+- **Exportar CSV** do relatório (respeitando os filtros), pronto para o Excel.
 
 ### Requisições (solicitante)
 
