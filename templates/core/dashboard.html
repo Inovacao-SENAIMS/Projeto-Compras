@@ -50,10 +50,14 @@
 
     <div class="card-grafico">
         <div class="card-grafico-cabecalho"><h3>Requisições por Instituto</h3></div>
-        <div class="grafico-vazio">
-            <i class="bi bi-building"></i>
-            <p class="meta">Não informado — aguardando definição da origem do instituto.</p>
-        </div>
+        {% if tem_instituto %}
+            <div class="grafico-wrap"><canvas id="graficoInstituto"></canvas></div>
+        {% else %}
+            <div class="grafico-vazio">
+                <i class="bi bi-building"></i>
+                <p class="meta">Nenhuma requisição com instituto informado ainda.</p>
+            </div>
+        {% endif %}
     </div>
 
     <div class="card-grafico card-grafico-largo">
@@ -96,6 +100,7 @@
 
 {{ status_json|json_script:"dados-status" }}
 {{ mes_json|json_script:"dados-mes" }}
+{{ instituicao_json|json_script:"dados-instituto" }}
 {% endblock %}
 
 {% block scripts %}

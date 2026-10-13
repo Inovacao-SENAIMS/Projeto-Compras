@@ -6,6 +6,8 @@ from django.db.models import Count
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 
+from accounts.instituicoes import Instituto
+
 from .models import Status
 
 MESES_ABREV = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
@@ -71,6 +73,20 @@ def dados_dashboard(pedidos):
         n for s, n in por_status if s in (Status.ABERTA, Status.ENVIADA, Status.EM_ANALISE)
     )
 
+    contagem_inst = {
+        item["criado_por__perfil__instituto"]: item["n"]
+        for item in pedidos.filter(criado_por__perfil__isnull=False)
+        .values("criado_por__perfil__instituto")
+        .annotate(n=Count("id"))
+    }
+    nao_informado = pedidos.filter(criado_por__perfil__isnull=True).count()
+
+    inst_labels = [inst.label for inst in Instituto]
+    inst_valores = [contagem_inst.get(inst.value, 0) for inst in Instituto]
+    if nao_informado:
+        inst_labels.append("Não informado")
+        inst_valores.append(nao_informado)
+
     return {
         "total": total,
         "pendentes": pendentes,
@@ -79,4 +95,6 @@ def dados_dashboard(pedidos):
         "por_status": por_status,
         "status_json": status_json,
         "mes_json": mes_json,
+        "instituicao_json": {"labels": inst_labels, "valores": inst_valores},
+        "tem_instituto": sum(inst_valores) > 0,
     }

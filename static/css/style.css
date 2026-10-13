@@ -176,6 +176,35 @@ body {
     text-align: left;
 }
 
+.login-rodape {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.cadastro-card {
+    max-width: 640px;
+    margin: 2rem auto;
+    text-align: center;
+}
+
+.cadastro-card .formulario {
+    max-width: none;
+    text-align: left;
+}
+
+.campo-duplo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1rem;
+}
+
+@media (max-width: 520px) {
+    .campo-duplo {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Ações na tabela do painel */
 .acoes-tabela {
     white-space: nowrap;

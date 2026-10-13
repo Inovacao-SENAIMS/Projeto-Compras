@@ -21,5 +21,10 @@
         <input type="hidden" name="next" value="{{ next }}">
         <button type="submit" class="botao"><i class="bi bi-box-arrow-in-right"></i> Entrar</button>
     </form>
+
+    <p class="login-rodape">
+        Não tem conta?
+        <a href="{% url 'accounts:cadastro' %}"><i class="bi bi-person-plus"></i> Cadastre-se</a>
+    </p>
 </div>
 {% endblock %}

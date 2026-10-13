@@ -54,4 +54,31 @@
             },
         });
     }
+
+    var elInstituto = document.getElementById("dados-instituto");
+    var canvasInstituto = document.getElementById("graficoInstituto");
+    if (canvasInstituto && elInstituto) {
+        var dadosInstituto = JSON.parse(elInstituto.textContent);
+        new Chart(canvasInstituto, {
+            type: "bar",
+            data: {
+                labels: dadosInstituto.labels,
+                datasets: [{
+                    label: "Requisições",
+                    data: dadosInstituto.valores,
+                    backgroundColor: ["#0d3b66", "#185fa5", "#7fb2e6", "#94a3b8"],
+                    borderRadius: 4,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } },
+                    x: { ticks: { autoSkip: false, maxRotation: 40, minRotation: 0 } },
+                },
+            },
+        });
+    }
 })();

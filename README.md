@@ -44,12 +44,26 @@ A Home (`/`) exibe um **dashboard** inspirado no design de referência
 - **Cards de números**: Total, Pendentes, Concluídas e Canceladas;
 - **Requisições por Mês** (gráfico de linha — Chart.js);
 - **Requisições por Status** (rosca) + lista de números por status;
-- **Requisições por Instituto** — *pendente* (exibe "Não informado" até
-  definirmos a origem do dado);
+- **Requisições por Instituto** — gráfico de barras usando o **instituto do
+  solicitante** (definido no cadastro);
 - **Ações Rápidas** (atalhos conforme o perfil).
 
 Os dados seguem o perfil: o **solicitante** vê as próprias requisições; o **Time**
 e a **Gestão** veem todas.
+
+### Cadastro de usuário (auto-registro)
+
+Na tela de entrada (`/entrar/`) há o link **"Cadastre-se"** (`/cadastro/`), com um
+formulário que solicita: **Nome completo**, **E-mail institucional** (aceito
+apenas com domínio **@ms.senai.br**), **Área de atuação**, **Cargo**,
+**Instituto** (IST Alimentos e Bebidas - Dourados · ISI Biomassa - Três Lagoas ·
+IST Eficiência Operacional - Campo Grande), **Contato (telefone)**, **Ramal**,
+**Senha** e **Confirmar senha**.
+
+O usuário criado entra como **UserISI_IST** (usuário comum/solicitante), já ativo,
+e faz login pelo **e-mail** (usado como usuário). O **Instituto** fica associado ao
+usuário (modelo `Perfil`, em `accounts`) e alimenta o gráfico "Requisições por
+Instituto" do dashboard.
 
 ### Requisições (solicitante)
 
