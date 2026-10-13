@@ -1072,7 +1072,12 @@ button.link {
 .filtro-periodo .campo {
     width: auto;
     min-width: 150px;
+    height: 42px;
     padding: 0.55rem 0.75rem;
+}
+
+.filtro-periodo select.campo {
+    min-width: 220px;
 }
 
 .filtro-acoes {
@@ -1080,6 +1085,12 @@ button.link {
     align-items: center;
     gap: 0.6rem;
     margin-left: auto;
+}
+
+.filtro-acoes .botao {
+    height: 42px;
+    padding: 0 1.1rem;
+    white-space: nowrap;
 }
 
 .botao-contorno {
