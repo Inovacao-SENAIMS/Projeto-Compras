@@ -251,7 +251,10 @@ python manage.py createsuperuser
 python manage.py criar_equipe
 python manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
 
-# 6. Executar o servidor
+# 6. (Opcional) Dados de exemplo para testar/visualizar
+python manage.py seed --reset
+
+# 7. Executar o servidor
 python manage.py runserver
 ```
 
@@ -299,3 +302,18 @@ até a conclusão.
 > Em produção, troque a `SECRET_KEY`, desative `DEBUG` e defina
 > `ALLOWED_HOSTS`. Os anexos continuam sem exposição pública graças ao download
 > mediado por view.
+
+## 8. Dados de exemplo (seed)
+
+O comando `seed` popula o banco com **usuários** (equipe, gestor e solicitantes com
+perfil/instituto) e **requisições** variadas (status, meses, responsáveis, anexos e
+histórico), para visualizar o dashboard, a performance e as tabelas com dados.
+
+```powershell
+python manage.py seed             # gera 80 requisições
+python manage.py seed --pedidos 200
+python manage.py seed --reset     # apaga as requisições antes de gerar
+```
+
+Ao final, o comando imprime o **resumo por status**, as **rotas** para conferir e as
+**credenciais** de acesso.
