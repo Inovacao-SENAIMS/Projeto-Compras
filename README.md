@@ -39,12 +39,19 @@ Todas as telas usam um layout com sidebar sensível ao perfil:
 
 Página única (`/requisicoes/`, view `painel`) onde o solicitante:
 
-- **registra** uma nova requisição (produto, nome, urgência) com anexos;
+- clica em **"+ Nova Requisição"**, que abre um **modal (popup)** de registro;
+- o modal contém: **Nome do Produto**, **Urgência**, **Possui cotação? (Sim/Não)**
+  e, quando a resposta é **Sim**, o campo de **anexo** passa a ser exibido;
+  botão **Registrar**. O nome do solicitante é preenchido automaticamente com o
+  usuário logado;
 - **consulta** a lista das próprias requisições (status, responsável, datas);
 - **exclui** as requisições que lançou, **desde que ainda não tenham sido
   assumidas** (status "Novo" e sem responsável). Após a assunção pela equipe, a
   exclusão é bloqueada para preservar o histórico. Ao excluir, os arquivos dos
   anexos também são removidos do disco.
+
+Se houver erro de validação no envio, o modal reabre automaticamente com as
+mensagens.
 
 ## 2. Decisões de modelagem
 

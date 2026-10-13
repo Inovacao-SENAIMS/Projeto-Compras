@@ -10,6 +10,7 @@
     <dt>Produto</dt><dd>{{ pedido.produto }}</dd>
     <dt>Solicitante</dt><dd>{{ pedido.solicitante_nome }}</dd>
     <dt>Urgência</dt><dd><span class="tag urgencia-{{ pedido.urgencia }}">{{ pedido.get_urgencia_display }}</span></dd>
+    <dt>Possui cotação</dt><dd>{% if pedido.possui_cotacao %}Sim{% else %}Não{% endif %}</dd>
     <dt>Status</dt><dd><span class="tag status-{{ pedido.status }}">{{ pedido.get_status_display }}</span></dd>
     <dt>Responsável</dt><dd>{{ pedido.responsavel.get_username|default:"Aguardando assunção pela equipe" }}</dd>
     <dt>Criado em</dt><dd>{{ pedido.criado_em|date:"d/m/Y H:i" }}</dd>

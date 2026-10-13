@@ -28,20 +28,31 @@ class MultipleFileField(forms.FileField):
 
 
 class PedidoForm(forms.ModelForm):
-    """Criação de pedido pelo solicitante (produto, nome e urgência)."""
+    """Registro de requisição pelo solicitante (produto, urgência e cotação)."""
+
+    possui_cotacao = forms.TypedChoiceField(
+        label="Possui cotação?",
+        choices=[("sim", "Sim"), ("nao", "Não")],
+        coerce=lambda valor: valor == "sim",
+        widget=forms.RadioSelect(),
+        initial="nao",
+    )
 
     class Meta:
         model = Pedido
-        fields = ["produto", "solicitante_nome", "urgencia"]
+        fields = ["produto", "urgencia", "possui_cotacao"]
         widgets = {
             "produto": forms.TextInput(
                 attrs={"class": "campo", "placeholder": "Ex.: Cadeira de escritório"}
             ),
-            "solicitante_nome": forms.TextInput(
-                attrs={"class": "campo", "placeholder": "Seu nome"}
-            ),
             "urgencia": forms.Select(attrs={"class": "campo"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.is_bound:
+            atual = self.initial.get("possui_cotacao")
+            self.initial["possui_cotacao"] = "sim" if atual in (True, "sim") else "nao"
 
 
 class AnexosForm(forms.Form):

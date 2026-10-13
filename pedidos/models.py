@@ -62,6 +62,7 @@ class Pedido(models.Model):
     urgencia = models.CharField(
         "Urgência", max_length=10, choices=Urgencia.choices, default=Urgencia.BAIXA
     )
+    possui_cotacao = models.BooleanField("Possui cotação", default=False)
     status = models.CharField(
         "Status", max_length=30, choices=Status.choices, default=Status.NOVO
     )

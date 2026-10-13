@@ -1,39 +1,13 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Painel de Requisições - Projeto Compras{% endblock %}
 
 {% block content %}
-<h2>Painel de Requisições</h2>
-
-<h3>Registrar nova requisição</h3>
-<form method="post" enctype="multipart/form-data" class="formulario">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-
-    <p>
-        <label for="{{ form.produto.id_for_label }}">Produto</label>
-        {{ form.produto }}
-        {{ form.produto.errors }}
-    </p>
-    <p>
-        <label for="{{ form.solicitante_nome.id_for_label }}">Nome do solicitante</label>
-        {{ form.solicitante_nome }}
-        {{ form.solicitante_nome.errors }}
-    </p>
-    <p>
-        <label for="{{ form.urgencia.id_for_label }}">Urgência</label>
-        {{ form.urgencia }}
-        {{ form.urgencia.errors }}
-    </p>
-    <p>
-        <label for="{{ anexos_form.arquivos.id_for_label }}">Anexos (opcional)</label>
-        {{ anexos_form.arquivos }}
-        <small class="ajuda">{{ anexos_form.arquivos.help_text }}</small>
-        {{ anexos_form.arquivos.errors }}
-    </p>
-
-    <button type="submit" class="botao">Registrar requisição</button>
-</form>
+<div class="cabecalho-pagina">
+    <h2>Painel de Requisições</h2>
+    <button type="button" class="botao" id="btn-nova-requisicao">+ Nova Requisição</button>
+</div>
 
 <h3>Minhas requisições</h3>
 <table class="tabela">
@@ -79,4 +53,54 @@
         {% endfor %}
     </tbody>
 </table>
+
+<!-- Modal de nova requisição (suspenso) -->
+<div class="modal-overlay" id="modal-requisicao" {% if abrir_modal %}data-abrir="1"{% endif %}>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-modal">
+        <div class="modal-cabecalho">
+            <h3 id="titulo-modal">Nova Requisição</h3>
+            <button type="button" class="modal-fechar" data-fechar aria-label="Fechar">&times;</button>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="formulario formulario-modal">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <p>
+                <label for="{{ form.produto.id_for_label }}">Nome do Produto</label>
+                {{ form.produto }}
+                {{ form.produto.errors }}
+            </p>
+            <p>
+                <label for="{{ form.urgencia.id_for_label }}">Urgência</label>
+                {{ form.urgencia }}
+                {{ form.urgencia.errors }}
+            </p>
+
+            <div class="campo-radio" id="grupo-cotacao">
+                <span class="rotulo">Possui cotação?</span>
+                {% for radio in form.possui_cotacao %}
+                    <label class="opcao">{{ radio.tag }} {{ radio.choice_label }}</label>
+                {% endfor %}
+                {{ form.possui_cotacao.errors }}
+            </div>
+
+            <p id="campo-anexo" class="oculto">
+                <label for="{{ anexos_form.arquivos.id_for_label }}">Anexo da cotação</label>
+                {{ anexos_form.arquivos }}
+                <small class="ajuda">{{ anexos_form.arquivos.help_text }}</small>
+                {{ anexos_form.arquivos.errors }}
+            </p>
+
+            <div class="modal-acoes">
+                <button type="submit" class="botao">Registrar</button>
+                <button type="button" class="link-secundario" data-fechar>Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/painel.js' %}"></script>
 {% endblock %}

@@ -30,6 +30,7 @@ def salvar_anexos(pedido, arquivos, usuario):
 @solicitante_required
 def painel(request):
     """Painel de Requisições: registra, lista e exclui requisições próprias."""
+    abrir_modal = False
     if request.method == "POST":
         form = PedidoForm(request.POST)
         anexos_form = AnexosForm(request.POST, request.FILES)
@@ -40,20 +41,22 @@ def painel(request):
             )
             messages.success(request, "Requisição registrada com sucesso.")
             return redirect("pedidos:painel")
+        # Houve erro de validação: reabre o modal com as mensagens.
+        abrir_modal = True
     else:
-        form = PedidoForm(
-            initial={
-                "solicitante_nome": request.user.get_full_name()
-                or request.user.get_username()
-            }
-        )
+        form = PedidoForm()
         anexos_form = AnexosForm()
 
     pedidos = Pedido.objects.filter(criado_por=request.user)
     return render(
         request,
         "pedidos/solicitante/painel.html",
-        {"form": form, "anexos_form": anexos_form, "pedidos": pedidos},
+        {
+            "form": form,
+            "anexos_form": anexos_form,
+            "pedidos": pedidos,
+            "abrir_modal": abrir_modal,
+        },
     )
 
 

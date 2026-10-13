@@ -98,6 +98,11 @@ def criar_pedido(form, solicitante):
     """Cria o pedido a partir de um PedidoForm (dados validados)."""
     pedido = form.save(commit=False)
     pedido.criado_por = solicitante
+    pedido.solicitante_nome = (
+        pedido.solicitante_nome
+        or solicitante.get_full_name()
+        or solicitante.get_username()
+    )
     pedido.status = Status.NOVO
     pedido.save()
 
