@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Novo pedido - Projeto Compras{% endblock %}
+
+{% block content %}
+<h2>Novo pedido</h2>
+
+<form method="post" enctype="multipart/form-data" class="formulario">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <p>
+        <label for="{{ form.produto.id_for_label }}">Produto</label>
+        {{ form.produto }}
+        {{ form.produto.errors }}
+    </p>
+    <p>
+        <label for="{{ form.solicitante_nome.id_for_label }}">Nome do solicitante</label>
+        {{ form.solicitante_nome }}
+        {{ form.solicitante_nome.errors }}
+    </p>
+    <p>
+        <label for="{{ form.urgencia.id_for_label }}">Urgência</label>
+        {{ form.urgencia }}
+        {{ form.urgencia.errors }}
+    </p>
+
+    <hr>
+    <p>
+        <label for="{{ anexos_form.arquivos.id_for_label }}">Anexos (opcional)</label>
+        {{ anexos_form.arquivos }}
+        <small class="ajuda">{{ anexos_form.arquivos.help_text }}</small>
+        {{ anexos_form.arquivos.errors }}
+    </p>
+
+    <button type="submit" class="botao">Criar pedido</button>
+    <a class="link-secundario" href="{% url 'pedidos:meus_pedidos' %}">Cancelar</a>
+</form>
+{% endblock %}

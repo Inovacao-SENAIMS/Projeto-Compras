@@ -8,11 +8,34 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header>
-        <h1><a href="{% url 'core:home' %}">Projeto Compras</a></h1>
+    <header class="topo">
+        <a class="marca" href="{% url 'core:home' %}">Projeto Compras</a>
+        <nav class="menu">
+            {% if user.is_authenticated %}
+                {% if is_equipe %}
+                    <a href="{% url 'pedidos:equipe_lista' %}">Painel de compras</a>
+                {% else %}
+                    <a href="{% url 'pedidos:meus_pedidos' %}">Meus pedidos</a>
+                    <a href="{% url 'pedidos:pedido_criar' %}">Novo pedido</a>
+                {% endif %}
+                <span class="usuario">{{ user.get_username }} · {{ perfil_nome }}</span>
+                <form method="post" action="{% url 'logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="link">Sair</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Entrar</a>
+            {% endif %}
+        </nav>
     </header>
 
     <main>
+        {% if messages %}
+            <ul class="mensagens">
+                {% for m in messages %}<li class="msg msg-{{ m.tags }}">{{ m }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+
         {% block content %}{% endblock %}
     </main>
 </body>

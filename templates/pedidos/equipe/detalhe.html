@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Pedido #{{ pedido.pk }} - Equipe de compras{% endblock %}
+
+{% block content %}
+<p><a href="{% url 'pedidos:equipe_lista' %}">← Voltar para o painel de compras</a></p>
+<h2>Pedido #{{ pedido.pk }}</h2>
+
+<dl class="dados">
+    <dt>Produto</dt><dd>{{ pedido.produto }}</dd>
+    <dt>Solicitante</dt><dd>{{ pedido.solicitante_nome }}</dd>
+    <dt>Urgência</dt><dd><span class="tag urgencia-{{ pedido.urgencia }}">{{ pedido.get_urgencia_display }}</span></dd>
+    <dt>Status</dt><dd><span class="tag status-{{ pedido.status }}">{{ pedido.get_status_display }}</span></dd>
+    <dt>Responsável</dt><dd>
+        {% if pedido.responsavel %}
+            {{ pedido.responsavel.get_username }}{% if pedido.responsavel == user %} <strong>(você)</strong>{% endif %}
+        {% else %}
+            <span class="sem-responsavel">Sem responsável</span>
+        {% endif %}
+    </dd>
+    <dt>Criado em</dt><dd>{{ pedido.criado_em|date:"d/m/Y H:i" }}</dd>
+    <dt>Atualizado em</dt><dd>{{ pedido.atualizado_em|date:"d/m/Y H:i" }}</dd>
+</dl>
+
+<div class="acoes">
+    {% if pedido.status == 'novo' and not pedido.responsavel %}
+        <form method="post" action="{% url 'pedidos:equipe_assumir' pedido.pk %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="botao">Assumir pedido</button>
+        </form>
+    {% elif pedido.responsavel == user and pedido.transicoes_permitidas %}
+        <a class="botao" href="{% url 'pedidos:equipe_tramitar' pedido.pk %}">Tramitar pedido</a>
+    {% elif pedido.responsavel and pedido.responsavel != user %}
+        <p class="aviso">Este pedido já está sob responsabilidade de {{ pedido.responsavel.get_username }}.</p>
+    {% endif %}
+</div>
+
+{% if pedido.retorno_final %}
+<div class="retorno">
+    <h3>Retorno final registrado</h3>
+    <p>{{ pedido.retorno_final|linebreaksbr }}</p>
+</div>
+{% endif %}
+
+{% include "pedidos/_anexos.html" %}
+{% include "pedidos/_historico.html" %}
+{% endblock %}

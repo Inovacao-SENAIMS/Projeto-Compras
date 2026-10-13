@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Painel de compras - Projeto Compras{% endblock %}
+
+{% block content %}
+<h2>Painel de compras</h2>
+<p class="meta">Todos os pedidos. Assuma um pedido para conduzir a tramitação.</p>
+
+<table class="tabela">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Produto</th>
+            <th>Solicitante</th>
+            <th>Urgência</th>
+            <th>Status</th>
+            <th>Responsável</th>
+            <th>Criado em</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in pedidos %}
+        <tr>
+            <td>{{ p.pk }}</td>
+            <td>{{ p.produto }}</td>
+            <td>{{ p.solicitante_nome }}</td>
+            <td><span class="tag urgencia-{{ p.urgencia }}">{{ p.get_urgencia_display }}</span></td>
+            <td><span class="tag status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+            <td>
+                {% if p.responsavel %}
+                    {{ p.responsavel.get_username }}{% if p.responsavel == user %} <strong>(você)</strong>{% endif %}
+                {% else %}
+                    <span class="sem-responsavel">Sem responsável</span>
+                {% endif %}
+            </td>
+            <td>{{ p.criado_em|date:"d/m/Y H:i" }}</td>
+            <td><a href="{% url 'pedidos:equipe_detalhe' p.pk %}">Ver</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="vazio">Nenhum pedido registrado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

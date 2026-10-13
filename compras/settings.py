@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core",
+    "accounts",
+    "pedidos",
 ]
 
 MIDDLEWARE = [
@@ -62,6 +64,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.perfil",
             ],
         },
     },
@@ -118,6 +121,32 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+
+# Media (uploads)
+# Arquivos enviados ficam em MEDIA_ROOT e NAO sao servidos publicamente:
+# o download e feito por uma view que verifica permissao (ver pedidos/views.py).
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+
+# Autenticacao
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "core:home"
+LOGOUT_REDIRECT_URL = "login"
+
+
+# Usuarios iniciais da equipe de compras (usados pelo comando `criar_equipe`).
+# Estrutura: (username, email, senha). Nome do grupo vem de accounts.grupos.
+
+EQUIPE_INICIAL = [
+    ("compras1", "compras1@example.com", "Compras@2026"),
+    ("compras2", "compras2@example.com", "Compras@2026"),
+    ("compras3", "compras3@example.com", "Compras@2026"),
+    ("compras4", "compras4@example.com", "Compras@2026"),
+]
 
 
 # Email
