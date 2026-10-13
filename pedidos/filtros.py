@@ -28,7 +28,7 @@ def _data(valor):
 
 
 def _fmt(dt):
-    return timezone.localtime(dt).strftime("%d/%m/%Y %H:%M") if dt else ""
+    return timezone.localtime(dt).strftime("%d/%m/%Y - %H:%M") if dt else ""
 
 
 def aplicar_filtros(request, queryset):
@@ -89,6 +89,64 @@ def contexto_filtros(request):
         "filtro_valores": valores,
         "filtro_ativo": any(valores.values()),
     }
+
+
+ORDENACAO = {
+    "numero": "numero",
+    "responsavel": "responsavel__first_name",
+    "item": "produto",
+    "modalidade": "modalidade",
+    "abertura": "criado_em",
+    "envio": "data_envio",
+    "status": "status",
+    "encerramento": "concluido_em",
+}
+
+
+def _chave_ordenacao(campo):
+    def chave(pedido):
+        if campo == "numero":
+            return pedido.numero or ""
+        if campo == "responsavel":
+            return pedido.responsavel.get_full_name().lower() if pedido.responsavel_id else ""
+        if campo == "item":
+            return pedido.produto.lower()
+        if campo == "modalidade":
+            return pedido.get_modalidade_display() or ""
+        if campo == "status":
+            return pedido.get_status_display() or ""
+        if campo == "abertura":
+            return (pedido.criado_em is None, pedido.criado_em or timezone.now())
+        if campo == "envio":
+            return (pedido.data_envio is None, pedido.data_envio or timezone.now())
+        if campo == "encerramento":
+            return (pedido.concluido_em is None, pedido.concluido_em or timezone.now())
+        if campo == "lead":
+            return (pedido.lead_time_dias is None, pedido.lead_time_dias or 0)
+        return ""
+
+    return chave
+
+
+def aplicar_ordenacao(request, pedidos):
+    """Ordena a lista conforme ?ordenar=<campo>&dir=asc|desc."""
+    campo = request.GET.get("ordenar") or ""
+    reverso = (request.GET.get("dir") or "asc") == "desc"
+
+    if isinstance(pedidos, list):
+        if campo:
+            pedidos.sort(key=_chave_ordenacao(campo), reverse=reverso)
+        return pedidos
+
+    if campo == "lead":
+        lista = list(pedidos)
+        lista.sort(key=_chave_ordenacao("lead"), reverse=reverso)
+        return lista
+
+    campo_db = ORDENACAO.get(campo)
+    if not campo_db:
+        return pedidos
+    return pedidos.order_by(("-" if reverso else "") + campo_db)
 
 
 def exportar_csv(pedidos):

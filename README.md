@@ -160,6 +160,9 @@ necessário, e **20px** de espaçamento entre a tabela, a sidebar e as bordas.
 **Responsável**, **Modalidade (RCA)**, **Abertura**, **Envio** e **Encerramento**
 (de/até) e **Lead time** (dias), com botão **Exportar CSV** (respeitando os filtros).
 
+**Ordenação:** clique em qualquer **cabeçalho** da tabela para ordenar (crescente/
+decrescente), preservando os filtros aplicados. Funciona também no CSV exportado.
+
 ## 2. Decisões de modelagem
 
 - **`Pedido`** guarda `produto`, `solicitante_nome`, `urgencia`, `status`,

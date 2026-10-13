@@ -16,18 +16,7 @@
 <div class="tabela-scroll">
     <table class="tabela">
         <thead>
-            <tr>
-                <th>Nº da Requisição</th>
-                <th>Responsável</th>
-                <th>Item</th>
-                <th>Modalidade (RCA)</th>
-                <th>Data de Abertura</th>
-                <th>Data de Envio</th>
-                <th>Status</th>
-                <th>Data de Encerramento</th>
-                <th>Lead Time</th>
-                <th>Ações</th>
-            </tr>
+            {% include "pedidos/_cabecalho.html" %}
         </thead>
         <tbody>
             {% for p in pedidos %}
