@@ -194,6 +194,8 @@ a {
     max-width: none;
     margin: 0 auto;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .aviso-box {
@@ -233,12 +235,14 @@ a {
     max-width: 560px;
 }
 
-.auth-rodape {
+.rodape-marca {
     display: flex;
     justify-content: center;
+    margin-top: auto;
+    padding-top: 2rem;
 }
 
-.auth-rodape img {
+.rodape-marca img {
     height: 44px;
     width: auto;
     opacity: 0.85;
