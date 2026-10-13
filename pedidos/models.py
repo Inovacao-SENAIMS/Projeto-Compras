@@ -2,6 +2,7 @@ import uuid
 from pathlib import Path
 
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.dispatch import receiver
 from django.utils import timezone
@@ -87,6 +88,9 @@ class Pedido(models.Model):
     )
     produto = models.CharField("Produto", max_length=255)
     descricao_objeto = models.TextField("Descrição do Objeto", blank=True)
+    quantidade = models.PositiveIntegerField(
+        "Quantidade", default=1, validators=[MinValueValidator(1)]
+    )
     solicitante_nome = models.CharField("Nome do solicitante", max_length=150)
     criado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
