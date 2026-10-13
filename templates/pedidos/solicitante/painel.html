@@ -114,8 +114,8 @@
                 {{ form.possui_cotacao.errors }}
             </div>
 
-            <p id="campo-anexo" class="oculto">
-                <label for="{{ anexos_form.arquivos.id_for_label }}">Anexo da cotação</label>
+            <p id="campo-anexo">
+                <label for="{{ anexos_form.arquivos.id_for_label }}">Documentação (anexo) <span class="obrigatorio">*</span></label>
                 {{ anexos_form.arquivos }}
                 <small class="ajuda">{{ anexos_form.arquivos.help_text }}</small>
                 {{ anexos_form.arquivos.errors }}

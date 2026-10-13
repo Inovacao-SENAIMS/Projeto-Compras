@@ -43,9 +43,9 @@ Página única (`/requisicoes/`, view `painel`) onde o solicitante:
 - clica em **"+ Nova Requisição"**, que abre um **modal (popup)** de registro;
 - o modal contém: **Nome do Produto**, **Descrição do Objeto** (detalhes do item
   ou serviço), **Quantidade**, **Modalidade RCA (obrigatória)**, **Urgência**,
-  **Possui cotação? (Sim/Não)** e, quando a resposta é **Sim**, o campo de
-  **anexo** passa a ser exibido; botão **Registrar**. O nome do solicitante é
-  preenchido automaticamente com o usuário logado;
+  **Possui cotação? (Sim/Não)** e **Documentação (anexo) — obrigatória e sempre
+  visível**; botão **Registrar**. O nome do solicitante é preenchido
+  automaticamente com o usuário logado;
 - **consulta** a lista das próprias requisições (status, responsável, datas);
 - **exclui** as requisições que lançou, **desde que ainda não tenham sido
   assumidas** (status "Novo" e sem responsável). Após a assunção pela equipe, a
@@ -143,7 +143,8 @@ outro recebe a mensagem "Este pedido já foi assumido por outro membro".
 - Armazenados em `MEDIA_ROOT` com nome **uuid** (sem path traversal, sem
   colisão). `MEDIA_URL` **não** é roteada em `urls.py`.
 - **Validação** (`pedidos/validators.py`): extensão em lista branca, tipo MIME
-  permitido e tamanho máximo de **10 MB**.
+  permitido e tamanho máximo de **10 MB**. No registro de nova requisição o
+  anexo (**Documentação**) é **obrigatório** e o campo fica sempre visível.
 - **Download protegido:** view `anexo_download` (`/anexos/<id>/`) confere a
   permissão sobre o pedido antes de devolver o arquivo. Sem permissão → `403`.
 

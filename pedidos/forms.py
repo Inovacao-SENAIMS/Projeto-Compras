@@ -79,14 +79,14 @@ class PedidoForm(forms.ModelForm):
 
 
 class AnexosForm(forms.Form):
-    """Upload de anexos (múltiplos) para um pedido."""
+    """Upload de anexos (múltiplos, obrigatório) para um pedido."""
 
     arquivos = MultipleFileField(
-        label="Anexos",
-        required=False,
+        label="Documentação",
+        required=True,
         validators=[validar_arquivo],
         widget=MultipleFileInput(attrs={"class": "campo"}),
-        help_text="Máx. 10 MB por arquivo. Tipos: pdf, doc(x), xls(x), png, jpg, txt, csv, zip.",
+        help_text="Obrigatório. Máx. 10 MB por arquivo. Tipos: pdf, doc(x), xls(x), png, jpg, txt, csv, zip.",
     )
 
 
