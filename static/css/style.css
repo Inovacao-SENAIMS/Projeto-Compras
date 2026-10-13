@@ -116,9 +116,9 @@ body {
     flex: 1;
     min-width: 0;
     width: 100%;
-    max-width: 1080px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 2rem 3rem;
+    padding: 20px;
 }
 
 .aviso-box {
@@ -138,6 +138,38 @@ body {
 
 .acoes-tabela a {
     color: var(--cor-primaria-clara);
+}
+
+.btn-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-right: 4px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--cor-primaria-clara);
+    cursor: pointer;
+    font-size: 0.95rem;
+    text-decoration: none;
+    padding: 0;
+    vertical-align: middle;
+}
+
+.btn-icone:hover {
+    background: #eef2f6;
+    color: var(--cor-primaria);
+}
+
+.btn-icone-perigo {
+    color: var(--cor-erro);
+}
+
+.btn-icone-perigo:hover {
+    background: #fdecea;
+    color: var(--cor-erro);
 }
 
 .link-perigo {
@@ -194,6 +226,10 @@ h3 {
 
 .modal-cabecalho h3 {
     margin: 0;
+}
+
+.modal-corpo {
+    padding: 1rem 1.25rem;
 }
 
 .modal-fechar {
@@ -333,6 +369,7 @@ button.link {
     justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
+    margin-bottom: 1rem;
 }
 
 .acoes {
@@ -400,7 +437,8 @@ button.link {
     padding: 0.6rem 0.75rem;
     border-bottom: 1px solid var(--cor-borda);
     font-size: 0.92rem;
-    vertical-align: top;
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
 .tabela th {
@@ -414,10 +452,6 @@ button.link {
 
 .tabela-scroll {
     overflow-x: auto;
-}
-
-.tabela-scroll .tabela {
-    min-width: 960px;
 }
 
 /* Ficha do pedido */
@@ -457,12 +491,11 @@ button.link {
 .urgencia-alta { background: #fde68a; color: #92400e; }
 .urgencia-critica { background: #fecaca; color: #991b1b; }
 
-.status-novo { background: #e2e8f0; color: #334155; }
-.status-em_cotacao { background: #c7e0ff; color: #1e3a8a; }
-.status-aguardando_aprovacao { background: #fde68a; color: #92400e; }
-.status-aprovado { background: #bbf7d0; color: #166534; }
-.status-concluido { background: #1f9d55; color: #fff; }
-.status-cancelado { background: #6b7280; color: #fff; }
+.status-aberta { background: #e2e8f0; color: #334155; }
+.status-enviada { background: #dbeafe; color: #1e40af; }
+.status-em_analise { background: #fde68a; color: #92400e; }
+.status-concluida { background: #1f9d55; color: #fff; }
+.status-cancelada { background: #6b7280; color: #fff; }
 
 .sem-responsavel {
     color: var(--cor-aviso);

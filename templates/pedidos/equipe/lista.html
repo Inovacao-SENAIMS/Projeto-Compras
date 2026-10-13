@@ -1,57 +1,85 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Painel de Compras - Projeto Compras{% endblock %}
 
 {% block content %}
 <h2>{% if is_manager %}Painel de Compras (Gestão){% else %}Painel de Compras (Equipe){% endif %}</h2>
-<p class="meta">Todos os pedidos. {% if is_manager %}Você pode designar o responsável e tramitar.{% else %}Assuma um pedido para conduzir a tramitação.{% endif %}</p>
+<p class="meta">Todas as requisições. {% if is_manager %}Você pode designar o responsável e tramitar.{% else %}Assuma uma requisição enviada para conduzir a análise.{% endif %}</p>
 
 <div class="tabela-scroll">
-<table class="tabela">
-    <thead>
-        <tr>
-            <th>Nº da Requisição</th>
-            <th>Responsável</th>
-            <th>Aquisição</th>
-            <th>Modalidade (RCA)</th>
-            <th>Data de Abertura</th>
-            <th>Status do Processo</th>
-            <th>Data de Envio</th>
-            <th>Data do Encerramento</th>
-            <th>Lead Time (Dias)</th>
-            <th>Anexo</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for p in pedidos %}
-        <tr>
-            <td>{{ p.numero|default:p.pk }}</td>
-            <td>
-                {% if p.responsavel %}
-                    {{ p.responsavel.get_username }}{% if p.responsavel == user %} <strong>(você)</strong>{% endif %}
-                {% else %}
-                    <span class="sem-responsavel">Sem responsável</span>
-                {% endif %}
-            </td>
-            <td>{{ p.produto }}</td>
-            <td>{{ p.get_modalidade_display|default:"—" }}</td>
-            <td>{{ p.criado_em|date:"d/m/Y" }}</td>
-            <td><span class="tag status-{{ p.status }}">{{ p.get_status_display }}</span></td>
-            <td>{{ p.data_envio|date:"d/m/Y"|default:"—" }}</td>
-            <td>{{ p.concluido_em|date:"d/m/Y"|default:"—" }}</td>
-            <td>{% if p.data_envio %}{{ p.lead_time_dias }}{% else %}—{% endif %}</td>
-            <td>
-                {% with primeiro=p.anexos.first total=p.anexos.count %}
-                {% if primeiro %}<a href="{% url 'pedidos:anexo_download' primeiro.pk %}">Abrir</a>{% if total > 1 %} <span class="meta">(+{{ total|add:"-1" }})</span>{% endif %}{% else %}—{% endif %}
-                {% endwith %}
-            </td>
-            <td class="acoes-tabela"><a href="{% url 'pedidos:equipe_detalhe' p.pk %}">Ver</a></td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="11" class="vazio">Nenhuma requisição registrada.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Nº da Requisição</th>
+                <th>Responsável</th>
+                <th>Item</th>
+                <th>Modalidade (RCA)</th>
+                <th>Data de Abertura</th>
+                <th>Data de Envio</th>
+                <th>Status</th>
+                <th>Data de Encerramento</th>
+                <th>Lead Time</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos %}
+            <tr>
+                <td>{{ p.numero|default:p.pk }}</td>
+                <td>
+                    {% if p.responsavel %}
+                        {{ p.responsavel.get_username }}{% if p.responsavel == user %} <strong>(você)</strong>{% endif %}
+                    {% else %}
+                        <span class="sem-responsavel">—</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.produto }}</td>
+                <td>{{ p.get_modalidade_display|default:"—" }}</td>
+                <td>{{ p.criado_em|date:"d/m/Y" }}</td>
+                <td>{{ p.data_envio|date:"d/m/Y"|default:"—" }}</td>
+                <td><span class="tag status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+                <td>{{ p.concluido_em|date:"d/m/Y"|default:"—" }}</td>
+                <td>{% if p.data_envio %}{{ p.lead_time_dias }}{% else %}—{% endif %}</td>
+                <td class="acoes-tabela">
+                    {% if p.status == 'enviada' and not p.responsavel %}
+                        <form method="post" action="{% url 'pedidos:equipe_assumir' p.pk %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-icone" title="Assumir"><i class="bi bi-person-check"></i></button>
+                        </form>
+                    {% endif %}
+                    {% if p.status == 'em_analise' %}
+                        {% if p.responsavel == user or is_manager %}
+                            <a class="btn-icone" title="Tramitar" href="{% url 'pedidos:equipe_tramitar' p.pk %}"><i class="bi bi-pencil-square"></i></a>
+                        {% endif %}
+                    {% endif %}
+                    <button type="button" class="btn-icone" title="Anexos" data-anexos="anexos-{{ p.pk }}"><i class="bi bi-paperclip"></i></button>
+                    <a class="btn-icone" title="Ver Detalhes" href="{% url 'pedidos:equipe_detalhe' p.pk %}"><i class="bi bi-eye"></i></a>
+
+                    <div id="anexos-{{ p.pk }}" hidden>
+                        <ul class="anexos">
+                            {% for a in p.anexos.all %}
+                            <li>
+                                <a href="{% url 'pedidos:anexo_download' a.pk %}">{{ a.nome_original }}</a>
+                                <span class="meta">{{ a.enviado_em|date:"d/m/Y H:i" }}</span>
+                            </li>
+                            {% empty %}
+                            <li class="meta">Nenhum anexo.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="10" class="vazio">Nenhuma requisição registrada.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+
+{% include "pedidos/_modal_anexos.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/tabela.js' %}"></script>
 {% endblock %}

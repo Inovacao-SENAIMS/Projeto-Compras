@@ -66,6 +66,19 @@ def painel(request):
 
 
 @solicitante_required
+@require_POST
+def pedido_enviar(request, pk):
+    pedido = get_object_or_404(Pedido, pk=pk, criado_por=request.user)
+    try:
+        services.enviar_pedido(pedido, request.user)
+    except services.RegraDeNegocioError as erro:
+        messages.error(request, str(erro))
+    else:
+        messages.success(request, "Requisição enviada para a equipe de compras.")
+    return redirect("pedidos:painel")
+
+
+@solicitante_required
 def pedido_detalhe(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk, criado_por=request.user)
     return render(request, "pedidos/solicitante/detalhe.html", {"pedido": pedido})
@@ -160,7 +173,7 @@ def equipe_assumir(request, pk):
     except services.RegraDeNegocioError as erro:
         messages.error(request, str(erro))
     else:
-        messages.success(request, "Pedido assumido. Status alterado para Em cotação.")
+        messages.success(request, "Requisição assumida. Status alterado para Em Análise.")
     return redirect("pedidos:equipe_detalhe", pk=pk)
 
 
@@ -186,7 +199,6 @@ def equipe_tramitar(request, pk):
                     observacao=form.cleaned_data.get("observacao", ""),
                     retorno_final=form.cleaned_data.get("retorno_final", ""),
                     modalidade=form.cleaned_data.get("modalidade", ""),
-                    data_envio=form.cleaned_data.get("data_envio"),
                 )
             except services.RegraDeNegocioError as erro:
                 messages.error(request, str(erro))

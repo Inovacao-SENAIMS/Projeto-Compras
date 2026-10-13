@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Pedido #{{ pedido.pk }} - Projeto Compras{% endblock %}
+{% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Projeto Compras{% endblock %}
 
 {% block content %}
 <p><a href="{% url 'pedidos:painel' %}">← Voltar para o painel de requisições</a></p>

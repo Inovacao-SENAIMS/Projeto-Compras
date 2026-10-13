@@ -8,6 +8,7 @@ urlpatterns = [
     # Área do solicitante — Painel de Requisições
     path("requisicoes/", views.painel, name="painel"),
     path("requisicoes/<int:pk>/", views.pedido_detalhe, name="pedido_detalhe"),
+    path("requisicoes/<int:pk>/enviar/", views.pedido_enviar, name="pedido_enviar"),
     path("requisicoes/<int:pk>/excluir/", views.pedido_excluir, name="pedido_excluir"),
     # Área da equipe de compras
     path("compras/", views.equipe_lista, name="equipe_lista"),

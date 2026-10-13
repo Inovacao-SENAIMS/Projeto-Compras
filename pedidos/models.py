@@ -41,30 +41,26 @@ class Modalidade(models.TextChoices):
 
 
 class Status(models.TextChoices):
-    NOVO = "novo", "Novo"
-    EM_COTACAO = "em_cotacao", "Em cotação"
-    AGUARDANDO_APROVACAO = "aguardando_aprovacao", "Aguardando aprovação"
-    APROVADO = "aprovado", "Aprovado"
-    CONCLUIDO = "concluido", "Concluído"
-    CANCELADO = "cancelado", "Cancelado"
+    ABERTA = "aberta", "Aberta"
+    ENVIADA = "enviada", "Enviada"
+    EM_ANALISE = "em_analise", "Em Análise"
+    CONCLUIDA = "concluida", "Concluída"
+    CANCELADA = "cancelada", "Cancelada"
 
 
-# Transições permitidas a partir de cada status.
-# `NOVO -> EM_COTACAO` não aparece aqui: só acontece via ação "Assumir".
+# Transições de status disponíveis na tela "Tramitar" (equipe).
+# `aberta -> enviada` é a ação "Enviar" (solicitante) e
+# `enviada -> em_analise` é a ação "Assumir"/"Designar" (equipe): ambas têm
+# tratamento próprio e por isso não aparecem no formulário de tramitação.
 TRANSICOES = {
-    Status.NOVO: [],
-    Status.EM_COTACAO: [
-        Status.AGUARDANDO_APROVACAO,
-        Status.APROVADO,
-        Status.CANCELADO,
-    ],
-    Status.AGUARDANDO_APROVACAO: [Status.APROVADO, Status.CANCELADO],
-    Status.APROVADO: [Status.CONCLUIDO, Status.CANCELADO],
-    Status.CONCLUIDO: [],
-    Status.CANCELADO: [],
+    Status.ABERTA: [],
+    Status.ENVIADA: [],
+    Status.EM_ANALISE: [Status.CONCLUIDA, Status.CANCELADA],
+    Status.CONCLUIDA: [],
+    Status.CANCELADA: [],
 }
 
-STATUS_TERMINAIS = {Status.CONCLUIDO, Status.CANCELADO}
+STATUS_TERMINAIS = {Status.CONCLUIDA, Status.CANCELADA}
 
 
 def caminho_anexo(instance, filename):
@@ -110,7 +106,7 @@ class Pedido(models.Model):
     )
     data_envio = models.DateField("Data de envio", null=True, blank=True)
     status = models.CharField(
-        "Status", max_length=30, choices=Status.choices, default=Status.NOVO
+        "Status", max_length=30, choices=Status.choices, default=Status.ABERTA
     )
     responsavel = models.ForeignKey(
         settings.AUTH_USER_MODEL,

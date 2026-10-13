@@ -57,28 +57,30 @@ mensagens.
 
 ### Tabela principal (colunas)
 
-As tabelas do solicitante ("Minhas requisições") e da equipe ("Painel de Compras
-(Equipe)") usam a seguinte estrutura:
+As tabelas do solicitante ("Painel de Requisições") e da equipe ("Painel de
+Compras") usam a seguinte estrutura:
 
-Nº da Requisição · Responsável · Aquisição · Modalidade (RCA) · Data de Abertura ·
-Status do Processo · Data de Envio · Data do Encerramento · Lead Time (Dias) ·
-Anexo · Ações
+Nº da Requisição · Responsável · Item · Modalidade (RCA) · Data de Abertura ·
+Data de Envio · Status · Data de Encerramento · Lead Time · Ações
 
 - **Nº da Requisição:** texto único gerado automaticamente (`REQ-000001`).
-- **Aquisição:** o campo `produto` da requisição.
-- **Modalidade (RCA):** selecionada pelo solicitante no **registro** e
-  confirmada/ajustada pela equipe na **tramitação** (obrigatória nos dois),
-  conforme o Regulamento RCA (SENAI): Seleção com Disputa (Aberta/Fechada), Seleção sem
-  Disputa (Dispensa/Inexigibilidade), Credenciamento, Pré-qualificação, Diálogo
-  Prévio e Registro de Preço.
+- **Item:** o campo `produto` da requisição.
+- **Modalidade (RCA):** escolhida pelo solicitante no **registro** (Regulamento RCA
+  SENAI): Seleção com Disputa (Aberta/Fechada), Seleção sem Disputa
+  (Dispensa/Inexigibilidade), Credenciamento, Pré-qualificação, Diálogo Prévio e
+  Registro de Preço.
 - **Data de Abertura:** data de criação (`criado_em`).
-- **Data de Envio / Data do Encerramento:** preenchidas na tramitação / ao concluir.
-- **Anexo:** link para o PDF via download protegido.
-- **Lead Time (Dias) — regra:** sem Data de Envio → vazio; com Envio e
-  Encerramento → Encerramento − Envio; com Envio e sem Encerramento → Hoje − Envio.
+- **Data de Envio:** gravada quando o solicitante clica em **Enviar**.
+- **Status:** Aberta · Enviada · Em Análise · Concluída · Cancelada.
+- **Data de Encerramento:** preenchida ao concluir/cancelar.
+- **Lead Time:** sem Data de Envio → vazio; com Envio e Encerramento →
+  Encerramento − Envio; com Envio e sem Encerramento → Hoje − Envio.
+- **Ações:** botões com **Bootstrap Icons** (via CDN) — **Enviar**, **Anexos**
+  (popup), **Excluir** e **Ver Detalhes** (no solicitante); na equipe, **Assumir**,
+  **Tramitar**, **Anexos** e **Ver Detalhes**.
 
-> Observação: as colunas "Urgência" e "Solicitante" não fazem parte deste layout
-> (seguem registradas e visíveis na tela de detalhe da requisição).
+Layout: tabela sem quebra de linha (`nowrap`), com rolagem horizontal quando
+necessário, e **20px** de espaçamento entre a tabela, a sidebar e as bordas.
 
 ## 2. Decisões de modelagem
 
@@ -109,12 +111,12 @@ Os perfis são definidos por grupos do Django (`accounts/grupos.py`):
 | Ação | UserISI_IST | Time_Compras | Manager_Compras |
 |---|:--:|:--:|:--:|
 | Criar requisição + anexar | ✅ (só as suas) | ❌ | ❌ |
+| Enviar/excluir requisição "Aberta" | ✅ (só as suas) | ❌ | ❌ |
 | Ver requisições | só as próprias | todas | todas |
 | Baixar anexo | só do próprio pedido | todos | todos |
-| Assumir requisição nova | ❌ | ✅ | ✅ |
+| Assumir requisição enviada | ❌ | ✅ | ✅ |
 | Designar/redesignar responsável | ❌ | ❌ | ✅ |
-| Tramitar (status/retorno) | ❌ | só as que assumiu | qualquer uma (não final) |
-| Excluir requisição | as próprias ainda não assumidas | ❌ | ❌ |
+| Tramitar (Em Análise → Concluída/Cancelada) | ❌ | só as que assumiu | qualquer uma (não final) |
 
 Aplicado via decorators `solicitante_required` / `equipe_required`
 (`accounts/decorators.py`) e verificações em `pedidos/permissoes.py`.
@@ -122,16 +124,17 @@ Aplicado via decorators `solicitante_required` / `equipe_required`
 ## 4. Fluxo de status
 
 ```
-novo ──(assumir)──▶ em_cotacao ──▶ aguardando_aprovacao ──▶ aprovado ──▶ concluido
-                          └──────────────┴──────────────────────┴──▶ cancelado
+aberta ──(Enviar)──▶ enviada ──(Assumir/Designar)──▶ em_analise ──▶ concluida
+                                                                 └──▶ cancelada
 ```
 
-- `novo → em_cotacao` ocorre **automaticamente** ao **assumir** (Time de Compras)
-  ou ao **designar** o responsável (Gestão).
-- As demais transições são feitas pelo **responsável** (Time de Compras) ou pela
-  **Gestão**, via tela "Tramitar".
+- **aberta**: criada pelo solicitante (grava a **Data de Abertura**). Só o dono
+  pode **Enviar** ou **Excluir**.
+- **Enviar** (solicitante) → **enviada** e grava a **Data de Envio**.
+- **enviada → em_analise**: a equipe **Assume** (Time) ou a **Gestão Designa**.
+- **em_analise → concluida/cancelada**: responsável (Time) ou Gestão, via "Tramitar".
 - `retorno_final` é **obrigatório** para concluir.
-- `concluido` e `cancelado` são terminais.
+- `concluida` e `cancelada` são terminais e gravam a **Data de Encerramento**.
 
 **Concorrência na assunção:** `services.assumir_pedido` faz um `UPDATE`
 condicional (`WHERE responsavel IS NULL AND status = 'novo'`) dentro de uma

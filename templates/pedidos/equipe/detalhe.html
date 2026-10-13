@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Pedido #{{ pedido.pk }} - Equipe de compras{% endblock %}
+{% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Equipe de Compras{% endblock %}
 
 {% block content %}
 <p><a href="{% url 'pedidos:equipe_lista' %}">← Voltar para o Painel de Compras (Equipe)</a></p>
@@ -30,7 +30,7 @@
 </dl>
 
 <div class="acoes">
-    {% if pedido.status == 'novo' and not pedido.responsavel %}
+    {% if pedido.status == 'enviada' and not pedido.responsavel %}
         <form method="post" action="{% url 'pedidos:equipe_assumir' pedido.pk %}" class="inline">
             {% csrf_token %}
             <button type="submit" class="botao">Assumir pedido</button>

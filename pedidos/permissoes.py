@@ -17,12 +17,17 @@ def pode_baixar_anexo(user, anexo):
     return pode_ver_pedido(user, anexo.pedido)
 
 
+def pode_enviar(user, pedido):
+    """O solicitante envia a própria requisição enquanto ela está 'Aberta'."""
+    return pedido.criado_por_id == user.id and pedido.status == Status.ABERTA
+
+
 def pode_assumir(user, pedido):
-    """Time de Compras ou Gestão assume pedidos novos e sem responsável."""
+    """Time de Compras ou Gestão assume requisições enviadas e sem responsável."""
     return (
         (is_time_compras(user) or is_manager(user))
         and pedido.responsavel_id is None
-        and pedido.status == Status.NOVO
+        and pedido.status == Status.ENVIADA
     )
 
 
@@ -41,9 +46,5 @@ def pode_alterar_tramitacao(user, pedido):
 
 
 def pode_excluir(user, pedido):
-    """O solicitante exclui apenas as próprias requisições ainda não assumidas."""
-    return (
-        pedido.criado_por_id == user.id
-        and pedido.responsavel_id is None
-        and pedido.status == Status.NOVO
-    )
+    """O solicitante exclui apenas as próprias requisições ainda 'Aberta'."""
+    return pedido.criado_por_id == user.id and pedido.status == Status.ABERTA

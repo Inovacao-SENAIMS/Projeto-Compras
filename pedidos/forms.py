@@ -110,11 +110,6 @@ class TramitacaoForm(forms.Form):
         choices=[("", "Selecione a modalidade RCA")] + list(Modalidade.choices),
         widget=forms.Select(attrs={"class": "campo"}),
     )
-    data_envio = forms.DateField(
-        label="Data de envio",
-        required=False,
-        widget=forms.DateInput(attrs={"type": "date", "class": "campo"}),
-    )
     arquivos = MultipleFileField(
         label="Anexos",
         required=False,
@@ -135,9 +130,9 @@ class TramitacaoForm(forms.Form):
     def clean(self):
         dados = super().clean()
         novo_status = dados.get("status")
-        if novo_status == Status.CONCLUIDO and not (dados.get("retorno_final") or "").strip():
+        if novo_status == Status.CONCLUIDA and not (dados.get("retorno_final") or "").strip():
             self.add_error(
                 "retorno_final",
-                "Ao concluir o pedido, informe o retorno final ao solicitante.",
+                "Ao concluir a requisição, informe o retorno final ao solicitante.",
             )
         return dados
