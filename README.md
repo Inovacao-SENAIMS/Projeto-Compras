@@ -119,8 +119,8 @@ Data de Envio · Status · Data de Encerramento · Lead Time · Ações
   SENAI): Seleção com Disputa (Aberta/Fechada), Seleção sem Disputa
   (Dispensa/Inexigibilidade), Credenciamento, Pré-qualificação, Diálogo Prévio e
   Registro de Preço.
-- **Data de Abertura:** data de criação (`criado_em`).
-- **Data de Envio:** gravada quando o solicitante clica em **Enviar**.
+- **Data de Abertura:** data/hora de criação (`criado_em`) — `dd/mm/aaaa - HH:MM`.
+- **Data de Envio:** data/hora em que o solicitante clica em **Enviar**.
 - **Status:** Aberta · Enviada · Em Análise · Concluída · Cancelada.
 - **Data de Encerramento:** preenchida ao concluir/cancelar.
 - **Lead Time:** sem Data de Envio → vazio; com Envio e Encerramento →

@@ -54,7 +54,7 @@ def enviar_pedido(pedido, usuario):
         )
 
     pedido.status = Status.ENVIADA
-    pedido.data_envio = timezone.localdate()
+    pedido.data_envio = timezone.now()
     pedido.save()
 
     HistoricoStatus.objects.create(

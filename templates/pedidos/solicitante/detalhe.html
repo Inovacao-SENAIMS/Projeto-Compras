@@ -16,8 +16,8 @@
     <dt>Status</dt><dd><span class="tag status-{{ pedido.status }}">{{ pedido.get_status_display }}</span></dd>
     <dt>Responsável</dt><dd>{{ pedido.responsavel.get_username|default:"Aguardando assunção pela equipe" }}</dd>
     <dt>Modalidade (RCA)</dt><dd>{{ pedido.get_modalidade_display|default:"—" }}</dd>
-    <dt>Data de Abertura</dt><dd>{{ pedido.criado_em|date:"d/m/Y" }}</dd>
-    <dt>Data de Envio</dt><dd>{{ pedido.data_envio|date:"d/m/Y"|default:"—" }}</dd>
+    <dt>Data de Abertura</dt><dd>{{ pedido.criado_em|date:"d/m/Y - H:i" }}</dd>
+    <dt>Data de Envio</dt><dd>{{ pedido.data_envio|date:"d/m/Y - H:i"|default:"—" }}</dd>
     <dt>Data do Encerramento</dt><dd>{{ pedido.concluido_em|date:"d/m/Y"|default:"—" }}</dd>
     <dt>Lead Time</dt><dd>{% if pedido.data_envio %}{{ pedido.lead_time_dias }} dia(s){% else %}—{% endif %}</dd>
     <dt>Atualizado em</dt><dd>{{ pedido.atualizado_em|date:"d/m/Y H:i" }}</dd>

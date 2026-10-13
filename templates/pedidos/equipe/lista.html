@@ -36,8 +36,8 @@
                 </td>
                 <td><span class="celula-truncada" title="{{ p.produto }}">{{ p.produto }}</span></td>
                 <td>{{ p.get_modalidade_display|default:"—" }}</td>
-                <td>{{ p.criado_em|date:"d/m/Y" }}</td>
-                <td>{{ p.data_envio|date:"d/m/Y"|default:"—" }}</td>
+                <td>{{ p.criado_em|date:"d/m/Y - H:i" }}</td>
+                <td>{{ p.data_envio|date:"d/m/Y - H:i"|default:"—" }}</td>
                 <td><span class="tag status-{{ p.status }}">{{ p.get_status_display }}</span></td>
                 <td>{{ p.concluido_em|date:"d/m/Y"|default:"—" }}</td>
                 <td>{% if p.data_envio %}{{ p.lead_time_dias }}{% else %}—{% endif %}</td>

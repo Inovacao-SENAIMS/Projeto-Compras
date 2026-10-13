@@ -14,8 +14,8 @@
             {{ pedido.responsavel.get_username }}{% if pedido.responsavel == user %} <strong>(você)</strong>{% endif %}
         {% else %}—{% endif %}
     </dd>
-    <dt>Data de Abertura</dt><dd>{{ pedido.criado_em|date:"d/m/Y" }}</dd>
-    <dt>Data de Envio</dt><dd>{{ pedido.data_envio|date:"d/m/Y"|default:"—" }}</dd>
+    <dt>Data de Abertura</dt><dd>{{ pedido.criado_em|date:"d/m/Y - H:i" }}</dd>
+    <dt>Data de Envio</dt><dd>{{ pedido.data_envio|date:"d/m/Y - H:i"|default:"—" }}</dd>
     <dt>Data do Encerramento</dt><dd>{{ pedido.concluido_em|date:"d/m/Y"|default:"—" }}</dd>
     <dt>Lead Time</dt><dd>{% if pedido.data_envio %}{{ pedido.lead_time_dias }} dia(s){% else %}—{% endif %}</dd>
 </dl>

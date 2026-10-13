@@ -104,7 +104,7 @@ class Pedido(models.Model):
         choices=Modalidade.choices,
         blank=True,
     )
-    data_envio = models.DateField("Data de envio", null=True, blank=True)
+    data_envio = models.DateTimeField("Data de envio", null=True, blank=True)
     status = models.CharField(
         "Status", max_length=30, choices=Status.choices, default=Status.ABERTA
     )
@@ -156,8 +156,12 @@ class Pedido(models.Model):
         """
         if not self.data_envio:
             return None
-        fim = self.concluido_em.date() if self.concluido_em else timezone.localdate()
-        return (fim - self.data_envio).days
+        fim = (
+            timezone.localtime(self.concluido_em).date()
+            if self.concluido_em
+            else timezone.localdate()
+        )
+        return (fim - timezone.localtime(self.data_envio).date()).days
 
     @property
     def assumido(self):
