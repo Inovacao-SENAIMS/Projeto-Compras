@@ -35,13 +35,6 @@
                     <a class="nav-item {% if '/admin/' in request.path %}ativo{% endif %}"
                        href="/admin/"><i class="bi bi-speedometer2"></i> <span>Painel ADM</span></a>
                 {% endif %}
-
-                <form method="post" action="{% url 'logout' %}" class="nav-logout">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-item nav-sair">
-                        <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
-                    </button>
-                </form>
             {% else %}
                 <a class="nav-item {% if request.resolver_match.url_name == 'login' %}ativo{% endif %}"
                    href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> <span>Entrar</span></a>
@@ -50,8 +43,16 @@
 
         {% if user.is_authenticated %}
         <div class="sidebar-rodape">
-            <i class="bi bi-person-circle"></i>
-            <span class="usuario">{{ user.get_username }}</span>
+            <form method="post" action="{% url 'logout' %}" class="nav-logout">
+                {% csrf_token %}
+                <button type="submit" class="nav-item nav-sair">
+                    <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+                </button>
+            </form>
+            <div class="sidebar-usuario">
+                <i class="bi bi-person-circle"></i>
+                <span class="usuario">{{ user.get_username }}</span>
+            </div>
         </div>
         {% endif %}
     </aside>

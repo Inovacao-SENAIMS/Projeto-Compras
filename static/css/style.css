@@ -111,21 +111,29 @@ body {
 
 .sidebar-rodape {
     margin-top: auto;
-    padding: 1rem 1.25rem 0;
+    padding-top: 0.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-logout {
+    margin: 0;
+    width: 100%;
+}
+
+.sidebar-usuario {
     display: flex;
     align-items: center;
     gap: 0.55rem;
-}
-
-.sidebar-rodape i {
-    font-size: 1.3rem;
-    color: #7fb2e6;
-}
-
-.sidebar-rodape .usuario {
+    padding: 0.75rem 1.25rem 0;
     color: #fff;
     font-weight: 600;
+}
+
+.sidebar-usuario i {
+    font-size: 1.3rem;
+    color: #7fb2e6;
 }
 
 .sidebar-rodape .perfil {
