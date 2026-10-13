@@ -7,6 +7,8 @@
 <h2><i class="bi bi-inboxes"></i> {% if is_manager %}Requisições — Gestão{% else %}Requisições — Equipe{% endif %}</h2>
 <p class="meta">Todas as requisições. {% if is_manager %}Você pode designar o responsável e tramitar.{% else %}Assuma uma requisição enviada para conduzir a análise.{% endif %}</p>
 
+{% include "pedidos/_filtros.html" %}
+
 <div class="tabela-scroll">
     <table class="tabela">
         <thead>

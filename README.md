@@ -156,6 +156,10 @@ Data de Envio · Status · Data de Encerramento · Lead Time · Ações
 Layout: tabela sem quebra de linha (`nowrap`), com rolagem horizontal quando
 necessário, e **20px** de espaçamento entre a tabela, a sidebar e as bordas.
 
+**Faixa de filtros** (nas telas de requisições, solicitante e equipe): filtrar por
+**Responsável**, **Modalidade (RCA)**, **Abertura**, **Envio** e **Encerramento**
+(de/até) e **Lead time** (dias), com botão **Exportar CSV** (respeitando os filtros).
+
 ## 2. Decisões de modelagem
 
 - **`Pedido`** guarda `produto`, `solicitante_nome`, `urgencia`, `status`,

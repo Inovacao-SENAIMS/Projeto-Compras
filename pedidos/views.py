@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from accounts.decorators import equipe_required, gestor_required, solicitante_required
 from accounts.perfis import nome_exibicao, usuarios_time_compras
 
-from . import permissoes, services
+from . import filtros, permissoes, services
 from .dashboard import STATUS_CORES, STATUS_ORDEM
 from .forms import AnexosForm, PedidoForm, TramitacaoForm
 from .models import Anexo, Pedido, Status, TipoAnexo
@@ -72,16 +72,19 @@ def painel(request):
         .select_related("responsavel")
         .prefetch_related("anexos")
     )
-    return render(
-        request,
-        "pedidos/solicitante/painel.html",
-        {
-            "form": form,
-            "anexos_form": anexos_form,
-            "pedidos": pedidos,
-            "abrir_modal": abrir_modal,
-        },
-    )
+    pedidos = filtros.aplicar_filtros(request, pedidos)
+
+    if request.GET.get("formato") == "csv":
+        return filtros.exportar_csv(pedidos)
+
+    contexto = {
+        "form": form,
+        "anexos_form": anexos_form,
+        "pedidos": pedidos,
+        "abrir_modal": abrir_modal,
+    }
+    contexto.update(filtros.contexto_filtros(request))
+    return render(request, "pedidos/solicitante/painel.html", contexto)
 
 
 @solicitante_required
@@ -130,9 +133,15 @@ def equipe_lista(request):
         .prefetch_related("anexos")
         .all()
     )
+    pedidos = filtros.aplicar_filtros(request, pedidos)
+
+    if request.GET.get("formato") == "csv":
+        return filtros.exportar_csv(pedidos)
+
     contexto = {"pedidos": pedidos}
     if permissoes.pode_designar(request.user):
         contexto["responsaveis"] = usuarios_time_compras()
+    contexto.update(filtros.contexto_filtros(request))
     return render(request, "pedidos/equipe/lista.html", contexto)
 
 
