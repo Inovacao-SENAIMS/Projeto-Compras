@@ -91,6 +91,11 @@
                 {{ form.descricao_objeto.errors }}
             </p>
             <p>
+                <label for="{{ form.modalidade.id_for_label }}">Modalidade RCA (Regulamento SENAI) <span class="obrigatorio">*</span></label>
+                {{ form.modalidade }}
+                {{ form.modalidade.errors }}
+            </p>
+            <p>
                 <label for="{{ form.urgencia.id_for_label }}">Urgência</label>
                 {{ form.urgencia }}
                 {{ form.urgencia.errors }}

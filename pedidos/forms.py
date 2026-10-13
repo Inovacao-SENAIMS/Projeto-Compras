@@ -28,8 +28,14 @@ class MultipleFileField(forms.FileField):
 
 
 class PedidoForm(forms.ModelForm):
-    """Registro de requisição pelo solicitante (produto, urgência e cotação)."""
+    """Registro de requisição pelo solicitante."""
 
+    modalidade = forms.ChoiceField(
+        label="Modalidade (RCA)",
+        required=True,
+        choices=[("", "Selecione a modalidade RCA")] + list(Modalidade.choices),
+        widget=forms.Select(attrs={"class": "campo"}),
+    )
     possui_cotacao = forms.TypedChoiceField(
         label="Possui cotação?",
         choices=[("sim", "Sim"), ("nao", "Não")],
@@ -40,7 +46,7 @@ class PedidoForm(forms.ModelForm):
 
     class Meta:
         model = Pedido
-        fields = ["produto", "descricao_objeto", "urgencia", "possui_cotacao"]
+        fields = ["produto", "descricao_objeto", "modalidade", "urgencia", "possui_cotacao"]
         widgets = {
             "produto": forms.TextInput(
                 attrs={"class": "campo", "placeholder": "Ex.: Cadeira de escritório"}
