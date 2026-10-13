@@ -79,7 +79,7 @@ class PedidoForm(forms.ModelForm):
 
 
 class AnexosForm(forms.Form):
-    """Upload de anexos (múltiplos, obrigatório) para um pedido."""
+    """Anexos do registro: Documentação (obrigatória) e Cotação (se houver)."""
 
     arquivos = MultipleFileField(
         label="Documentação",
@@ -88,6 +88,26 @@ class AnexosForm(forms.Form):
         widget=MultipleFileInput(attrs={"class": "campo"}),
         help_text="Obrigatório. Máx. 10 MB por arquivo. Tipos: pdf, doc(x), xls(x), png, jpg, txt, csv, zip.",
     )
+    arquivos_cotacao = MultipleFileField(
+        label="Cotação",
+        required=False,
+        validators=[validar_arquivo],
+        widget=MultipleFileInput(attrs={"class": "campo"}),
+        help_text="Anexe o arquivo da cotação (obrigatório quando 'Possui cotação? = Sim').",
+    )
+
+    def __init__(self, *args, possui_cotacao=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.possui_cotacao = possui_cotacao
+
+    def clean(self):
+        dados = super().clean()
+        if self.possui_cotacao and not dados.get("arquivos_cotacao"):
+            self.add_error(
+                "arquivos_cotacao",
+                "Você indicou que possui cotação — anexe o arquivo da cotação.",
+            )
+        return dados
 
 
 class TramitacaoForm(forms.Form):

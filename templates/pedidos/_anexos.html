@@ -4,6 +4,7 @@
     {% for anexo in pedido.anexos.all %}
     <li>
         <a href="{% url 'pedidos:anexo_download' anexo.pk %}">{{ anexo.nome_original }}</a>
+        <span class="tag">{{ anexo.get_tipo_display }}</span>
         <span class="meta">enviado por {{ anexo.enviado_por.get_username }} em {{ anexo.enviado_em|date:"d/m/Y H:i" }}</span>
     </li>
     {% empty %}

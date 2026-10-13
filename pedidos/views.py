@@ -10,14 +10,15 @@ from accounts.perfis import usuarios_time_compras
 
 from . import permissoes, services
 from .forms import AnexosForm, PedidoForm, TramitacaoForm
-from .models import Anexo, Pedido
+from .models import Anexo, Pedido, TipoAnexo
 
 
-def salvar_anexos(pedido, arquivos, usuario):
+def salvar_anexos(pedido, arquivos, usuario, tipo=TipoAnexo.DOCUMENTACAO):
     """Persiste os arquivos enviados como Anexo do pedido."""
     for arquivo in arquivos:
         Anexo.objects.create(
             pedido=pedido,
+            tipo=tipo,
             arquivo=arquivo,
             nome_original=arquivo.name,
             enviado_por=usuario,
@@ -34,12 +35,25 @@ def painel(request):
     abrir_modal = False
     if request.method == "POST":
         form = PedidoForm(request.POST)
-        anexos_form = AnexosForm(request.POST, request.FILES)
+        possui_cotacao = request.POST.get("possui_cotacao") == "sim"
+        anexos_form = AnexosForm(
+            request.POST, request.FILES, possui_cotacao=possui_cotacao
+        )
         if form.is_valid() and anexos_form.is_valid():
             pedido = services.criar_pedido(form, request.user)
             salvar_anexos(
-                pedido, anexos_form.cleaned_data.get("arquivos", []), request.user
+                pedido,
+                anexos_form.cleaned_data.get("arquivos", []),
+                request.user,
+                TipoAnexo.DOCUMENTACAO,
             )
+            if possui_cotacao:
+                salvar_anexos(
+                    pedido,
+                    anexos_form.cleaned_data.get("arquivos_cotacao") or [],
+                    request.user,
+                    TipoAnexo.COTACAO,
+                )
             messages.success(request, "Requisição registrada com sucesso.")
             return redirect("pedidos:painel")
         # Houve erro de validação: reabre o modal com as mensagens.

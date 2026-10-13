@@ -74,6 +74,7 @@
                             {% for a in p.anexos.all %}
                             <li>
                                 <a href="{% url 'pedidos:anexo_download' a.pk %}">{{ a.nome_original }}</a>
+                                <span class="tag">{{ a.get_tipo_display }}</span>
                                 <span class="meta">{{ a.enviado_em|date:"d/m/Y H:i" }}</span>
                             </li>
                             {% empty %}

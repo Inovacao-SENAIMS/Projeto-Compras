@@ -178,9 +178,17 @@ class Pedido(models.Model):
         return self.get_status_display()
 
 
+class TipoAnexo(models.TextChoices):
+    DOCUMENTACAO = "documentacao", "Documentação"
+    COTACAO = "cotacao", "Cotação"
+
+
 class Anexo(models.Model):
     pedido = models.ForeignKey(
         Pedido, on_delete=models.CASCADE, related_name="anexos", verbose_name="Pedido"
+    )
+    tipo = models.CharField(
+        "Tipo", max_length=15, choices=TipoAnexo.choices, default=TipoAnexo.DOCUMENTACAO
     )
     arquivo = models.FileField("Arquivo", upload_to=caminho_anexo)
     nome_original = models.CharField("Nome original", max_length=255)
