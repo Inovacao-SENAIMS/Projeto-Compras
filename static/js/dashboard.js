@@ -15,8 +15,8 @@
                 datasets: [{
                     label: "Requisições",
                     data: dadosMes.valores,
-                    borderColor: "#0d3b66",
-                    backgroundColor: "rgba(13, 59, 102, 0.12)",
+                    borderColor: "#003876",
+                    backgroundColor: "rgba(0, 56, 118, 0.12)",
                     fill: true,
                     tension: 0.3,
                     borderWidth: 2,
@@ -66,7 +66,7 @@
                 datasets: [{
                     label: "Requisições",
                     data: dadosInstituto.valores,
-                    backgroundColor: ["#0d3b66", "#185fa5", "#7fb2e6", "#94a3b8"],
+                    backgroundColor: ["#E84910", "#003876", "#00529B", "#94a3b8"],
                     borderRadius: 4,
                 }],
             },

@@ -22,10 +22,10 @@ STATUS_ORDEM = [
 
 STATUS_CORES = {
     Status.ABERTA.value: "#94a3b8",
-    Status.ENVIADA.value: "#3b82f6",
-    Status.EM_ANALISE.value: "#f59e0b",
-    Status.CONCLUIDA.value: "#1f9d55",
-    Status.CANCELADA.value: "#6b7280",
+    Status.ENVIADA.value: "#00529B",
+    Status.EM_ANALISE.value: "#F2A03D",
+    Status.CONCLUIDA.value: "#1E8E5A",
+    Status.CANCELADA.value: "#64748B",
 }
 
 

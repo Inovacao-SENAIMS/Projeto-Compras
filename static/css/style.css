@@ -1,12 +1,29 @@
 :root {
-    --cor-primaria: #0d3b66;
-    --cor-primaria-clara: #185fa5;
-    --cor-texto: #1f2933;
-    --cor-fundo: #f4f6f8;
-    --cor-borda: #d7dee6;
-    --cor-ok: #1f9d55;
-    --cor-erro: #c53030;
-    --cor-aviso: #b7791f;
+    /* Identidade SENAI (Sistema Indústria): azul institucional + detalhe laranja */
+    --cor-primaria: #003876;
+    --cor-primaria-clara: #00529B;
+    --cor-primaria-400: #3B7FC4;
+    --cor-accent: #E84910;
+    --cor-accent-dark: #B8380C;
+    --cor-accent-soft: #FCE9E0;
+
+    --cor-texto: #1E2A38;
+    --cor-muted: #64748B;
+    --cor-fundo: #F4F6F9;
+    --cor-superficie: #FFFFFF;
+    --cor-borda: #E2E8F0;
+
+    --cor-ok: #1E8E5A;
+    --cor-erro: #C0392B;
+    --cor-aviso: #C9930A;
+
+    --raio: 12px;
+    --raio-sm: 8px;
+    --sombra: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --sombra-lg: 0 8px 28px rgba(0, 0, 0, 0.10);
+
+    --fonte: "Neo Sans Pro", "Mulish", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --fonte-titulo: "Neo Sans Pro", "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
@@ -15,9 +32,24 @@
 
 body {
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--fonte);
+    font-size: 15px;
+    line-height: 1.5;
     color: var(--cor-texto);
     background-color: var(--cor-fundo);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--cor-texto);
+}
+
+a {
+    color: var(--cor-primaria-clara);
 }
 
 /* Layout com sidebar */
@@ -41,18 +73,32 @@ body {
 
 .sidebar-marca {
     display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 700;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
     text-decoration: none;
     padding: 0 1.25rem 1.25rem;
 }
 
-.sidebar-marca i {
-    font-size: 1.4rem;
-    color: #7fb2e6;
+.sidebar-logo {
+    display: inline-flex;
+    background: #fff;
+    border-radius: var(--raio-sm);
+    padding: 0.35rem 0.55rem;
+}
+
+.sidebar-logo img {
+    height: 24px;
+    width: auto;
+    display: block;
+}
+
+.sidebar-nome {
+    color: #fff;
+    font-family: var(--fonte-titulo);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.3px;
 }
 
 .sidebar-nav {
@@ -91,7 +137,7 @@ body {
 
 .nav-item.ativo {
     background-color: rgba(255, 255, 255, 0.15);
-    border-left-color: #7fb2e6;
+    border-left-color: var(--cor-accent);
     color: #fff;
     font-weight: 600;
 }
@@ -133,7 +179,7 @@ body {
 
 .sidebar-usuario i {
     font-size: 1.3rem;
-    color: #7fb2e6;
+    color: var(--cor-accent);
 }
 
 .sidebar-rodape .perfil {
@@ -169,6 +215,14 @@ body {
 .login-card .login-icone {
     font-size: 2.6rem;
     color: var(--cor-primaria-clara);
+}
+
+.auth-logo {
+    height: 64px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
 }
 
 .login-card .formulario {
@@ -494,9 +548,10 @@ button.link {
 .cartao-pedido {
     background: #fff;
     border: 1px solid var(--cor-borda);
-    border-radius: 8px;
+    border-radius: var(--raio);
     padding: 1.25rem;
     margin: 0 auto;
+    box-shadow: var(--sombra);
 }
 
 .cartao-pedido .dados {
@@ -541,7 +596,7 @@ button.link {
 .formulario {
     background: #fff;
     border: 1px solid var(--cor-borda);
-    border-radius: 8px;
+    border-radius: var(--raio);
     padding: 1.25rem;
     max-width: 640px;
 }
@@ -583,7 +638,7 @@ button.link {
     border-collapse: collapse;
     background: #fff;
     border: 1px solid var(--cor-borda);
-    border-radius: 8px;
+    border-radius: var(--raio);
     overflow: hidden;
 }
 
@@ -628,7 +683,7 @@ button.link {
     gap: 0.35rem 1rem;
     background: #fff;
     border: 1px solid var(--cor-borda);
-    border-radius: 8px;
+    border-radius: var(--raio);
     padding: 1rem 1.25rem;
     max-width: 640px;
 }
@@ -658,11 +713,11 @@ button.link {
 .urgencia-alta { background: #fde68a; color: #92400e; }
 .urgencia-critica { background: #fecaca; color: #991b1b; }
 
-.status-aberta { background: #e2e8f0; color: #334155; }
-.status-enviada { background: #dbeafe; color: #1e40af; }
-.status-em_analise { background: #fde68a; color: #92400e; }
-.status-concluida { background: #1f9d55; color: #fff; }
-.status-cancelada { background: #6b7280; color: #fff; }
+.status-aberta { background: #eef1f5; color: #475569; }
+.status-enviada { background: #e3edf7; color: #003876; }
+.status-em_analise { background: #fdf1d6; color: #8a6a06; }
+.status-concluida { background: #1E8E5A; color: #fff; }
+.status-cancelada { background: #64748B; color: #fff; }
 
 .sem-responsavel {
     color: var(--cor-aviso);
@@ -757,9 +812,9 @@ button.link {
 .card-grafico {
     background: #fff;
     border: 1px solid var(--cor-borda);
-    border-radius: 10px;
+    border-radius: var(--raio);
     padding: 1.1rem 1.25rem;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    box-shadow: var(--sombra);
 }
 
 .card-stat-topo {

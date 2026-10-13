@@ -6,13 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Projeto Compras{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 <div class="layout">
     <aside class="sidebar">
         <a class="sidebar-marca" href="{% url 'core:home' %}">
-            <i class="bi bi-bag-check-fill"></i> <span>Projeto Compras</span>
+            <span class="sidebar-logo"><img src="{% static 'img/SENAI.png' %}" alt="SENAI | Sistema FIEMS"></span>
+            <span class="sidebar-nome">Projeto Compras</span>
         </a>
 
         <nav class="sidebar-nav">

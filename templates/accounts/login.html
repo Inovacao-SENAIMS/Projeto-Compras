@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Entrar - Projeto Compras{% endblock %}
 
 {% block content %}
 <div class="login-card">
-    <div class="login-icone"><i class="bi bi-shield-lock"></i></div>
+    <img class="auth-logo" src="{% static 'img/SENAI.png' %}" alt="SENAI | Sistema FIEMS">
     <h2>Entrar</h2>
 
     <form method="post" class="formulario">

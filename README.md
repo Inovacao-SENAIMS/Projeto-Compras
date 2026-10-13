@@ -36,6 +36,14 @@ Todas as telas usam um layout com sidebar sensível ao perfil:
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
 - **Configurações:** página placeholder (visível a todo usuário autenticado)
 
+### Identidade visual (SENAI)
+
+O tema segue a paleta oficial do SENAI (`.design/brand`): **azul institucional**
+`#003876` (primária), `#00529B` (secundária) e **laranja** `#E84910` (destaque).
+Tipografia **Neo Sans Pro** com fallback para **Montserrat** (títulos) e **Mulish**
+(texto). Raio de 12px, sombras suaves, e o logo **SENAI | Sistema FIEMS** na
+sidebar e nas telas de login/cadastro. As cores dos gráficos usam a paleta da marca.
+
 ### Home / Dashboard
 
 A Home (`/`) exibe um **dashboard** inspirado no design de referência
