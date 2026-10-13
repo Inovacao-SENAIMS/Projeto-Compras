@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Painel de Compras (Equipe) - Projeto Compras{% endblock %}
+{% block title %}Painel de Compras - Projeto Compras{% endblock %}
 
 {% block content %}
-<h2>Painel de Compras (Equipe)</h2>
-<p class="meta">Todos os pedidos. Assuma um pedido para conduzir a tramitação.</p>
+<h2>{% if is_manager %}Painel de Compras (Gestão){% else %}Painel de Compras (Equipe){% endif %}</h2>
+<p class="meta">Todos os pedidos. {% if is_manager %}Você pode designar o responsável e tramitar.{% else %}Assuma um pedido para conduzir a tramitação.{% endif %}</p>
 
 <div class="tabela-scroll">
 <table class="tabela">

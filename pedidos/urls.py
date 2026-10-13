@@ -13,6 +13,7 @@ urlpatterns = [
     path("compras/", views.equipe_lista, name="equipe_lista"),
     path("compras/<int:pk>/", views.equipe_detalhe, name="equipe_detalhe"),
     path("compras/<int:pk>/assumir/", views.equipe_assumir, name="equipe_assumir"),
+    path("compras/<int:pk>/designar/", views.equipe_designar, name="equipe_designar"),
     path("compras/<int:pk>/tramitar/", views.equipe_tramitar, name="equipe_tramitar"),
     # Download protegido de anexos
     path("anexos/<int:pk>/", views.anexo_download, name="anexo_download"),

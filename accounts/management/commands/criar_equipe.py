@@ -1,16 +1,18 @@
-"""Comando de gestão para criar/atualizar usuários de um perfil.
+"""Comando de gestão para criar/atualizar usuários de um grupo (perfil).
 
-Uso típico (cria os 4 usuários iniciais da equipe de compras):
+Por padrão cria os usuários iniciais do **Time de Compras** (EQUIPE_INICIAL em
+settings). Use ``--grupo`` para criar usuários de outro perfil.
 
+Exemplos:
+
+    # Time de Compras (padrão)
     python manage.py criar_equipe
 
-Adicionar usuários extras sem alterar código:
+    # Gestor de compras
+    python manage.py criar_equipe --grupo Manager_Compras --usuario gestor:Gestor@2026:gestor@ex.com
 
-    python manage.py criar_equipe --usuario joao:Senha@123:joao@ex.com
-
-Criar solicitantes (qualquer grupo, inclusive vazio p/ papel padrao):
-
-    python manage.py criar_equipe --grupo Solicitante --usuario ana:Senha@123
+    # Usuário comum (solicitante)
+    python manage.py criar_equipe --grupo UserISI_IST --usuario ana:Ana@2026:ana@ex.com
 """
 
 from django.conf import settings
@@ -18,14 +20,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 
-from accounts.grupos import GROUP_EQUIPE
+from accounts.grupos import GROUP_TIME
 from accounts.perfis import criar_grupos
 
 
 class Command(BaseCommand):
     help = (
-        "Cria/atualiza usuários e os vincula a um grupo (padrão: Equipe de "
-        "Compras). Sem argumentos, usa a lista EQUIPE_INICIAL de settings."
+        "Cria/atualiza usuários e os vincula a um grupo (padrão: Time_Compras). "
+        "Sem argumentos, usa a lista EQUIPE_INICIAL de settings."
     )
 
     def add_arguments(self, parser):
@@ -38,8 +40,8 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--grupo",
-            default=GROUP_EQUIPE,
-            help="Grupo ao qual vincular os usuários (padrão: Equipe de Compras).",
+            default=GROUP_TIME,
+            help="Grupo ao qual vincular os usuários (padrão: Time_Compras).",
         )
         parser.add_argument(
             "--reset-senha",

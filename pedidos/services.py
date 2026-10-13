@@ -9,6 +9,8 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.utils import timezone
 
+from accounts.perfis import is_manager
+
 from .models import HistoricoStatus, Pedido, Status, STATUS_TERMINAIS
 
 
@@ -50,6 +52,49 @@ def assumir_pedido(pedido_id, usuario):
 
 
 @transaction.atomic
+def designar_pedido(pedido, gestor, novo_responsavel):
+    """Designa/redesigna o responsável por uma requisição (ação da Gestão).
+
+    - Requisição nova (sem responsável): vincula o responsável e move o status
+      para "Em cotação".
+    - Requisição já atribuída: redesigna (troca o responsável) mantendo o status.
+    """
+    pedido = Pedido.objects.select_for_update().get(pk=pedido.pk)
+
+    if pedido.finalizado:
+        raise RegraDeNegocioError("Requisição já finalizada não pode ser designada.")
+
+    anterior = pedido.responsavel
+    pedido.responsavel = novo_responsavel
+
+    if pedido.status == Status.NOVO:
+        pedido.status = Status.EM_COTACAO
+        pedido.assumido_em = timezone.now()
+        de = Status.NOVO
+        observacao = (
+            f"Designado para {novo_responsavel.get_username()} "
+            f"por {gestor.get_username()}."
+        )
+    else:
+        de = pedido.status
+        de_nome = anterior.get_username() if anterior else "—"
+        observacao = (
+            f"Redesignado de {de_nome} para {novo_responsavel.get_username()} "
+            f"por {gestor.get_username()}."
+        )
+
+    pedido.save()
+    HistoricoStatus.objects.create(
+        pedido=pedido,
+        de=de,
+        para=pedido.status,
+        usuario=gestor,
+        observacao=observacao,
+    )
+    return pedido
+
+
+@transaction.atomic
 def alterar_status(
     pedido,
     usuario,
@@ -65,8 +110,10 @@ def alterar_status(
     """
     pedido = Pedido.objects.select_for_update().get(pk=pedido.pk)
 
-    if pedido.responsavel_id != usuario.id:
-        raise PermissionDenied("Apenas o responsável pode alterar a tramitação.")
+    if not (is_manager(usuario) or pedido.responsavel_id == usuario.id):
+        raise PermissionDenied(
+            "Apenas o responsável (ou a gestão) pode alterar a tramitação."
+        )
 
     if novo_status == pedido.status:
         raise RegraDeNegocioError("O pedido já está neste status.")

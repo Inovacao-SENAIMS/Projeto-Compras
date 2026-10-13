@@ -30,8 +30,9 @@ as views enxutas.
 
 Todas as telas usam um layout com sidebar sensível ao perfil:
 
-- **Solicitante:** Home · Painel de Requisições · Configurações · Logout
-- **Equipe de compras:** Home · Painel de Compras (Equipe) · Configurações · Logout
+- **UserISI_IST (solicitante):** Home · Painel de Requisições · Configurações · Logout
+- **Time_Compras:** Home · Painel de Compras (Equipe) · Configurações · Logout
+- **Manager_Compras:** Home · Painel de Compras (Gestão) · Configurações · Logout
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
 - **Configurações:** página placeholder (visível a todo usuário autenticado)
 
@@ -96,19 +97,24 @@ Anexo · Ações
 
 ## 3. Perfis e permissões
 
-O perfil é derivado do grupo do Django **`Equipe de Compras`**:
+Os perfis são definidos por grupos do Django (`accounts/grupos.py`):
 
-- está no grupo (ou é superusuário) → **equipe de compras**;
-- qualquer outro usuário autenticado → **solicitante**.
+| Grupo | Papel | Atividades |
+|---|---|---|
+| `UserISI_IST` | Usuário comum (solicitante) | Registrar requisições, ver as próprias e acompanhar o andamento |
+| `Time_Compras` | Time de compras | Ver as requisições atribuídas a si e **decidir** (tramitar) |
+| `Manager_Compras` | Gestão | **Designar/redesignar** o responsável, acompanhar prazos/andamento e **também tramitar** |
+| SuperUsuário/ADM | `is_superuser` | Acesso total (tratado como todos os perfis) |
 
-| Ação | Solicitante | Equipe (não responsável) | Responsável |
+| Ação | UserISI_IST | Time_Compras | Manager_Compras |
 |---|:--:|:--:|:--:|
-| Criar pedido + anexar | ✅ (só os seus) | ❌ | ❌ |
-| Listar/ver pedidos | só os próprios | todos | todos |
-| Baixar anexo | só de pedido próprio | todos | todos |
-| Assumir pedido novo | ❌ | ✅ | — |
-| Alterar status / tramitar | ❌ | ❌ (leitura) | ✅ (só o seu) |
-| Registrar/ver retorno final | ver só dos próprios | ver todos | registrar |
+| Criar requisição + anexar | ✅ (só as suas) | ❌ | ❌ |
+| Ver requisições | só as próprias | todas | todas |
+| Baixar anexo | só do próprio pedido | todos | todos |
+| Assumir requisição nova | ❌ | ✅ | ✅ |
+| Designar/redesignar responsável | ❌ | ❌ | ✅ |
+| Tramitar (status/retorno) | ❌ | só as que assumiu | qualquer uma (não final) |
+| Excluir requisição | as próprias ainda não assumidas | ❌ | ❌ |
 
 Aplicado via decorators `solicitante_required` / `equipe_required`
 (`accounts/decorators.py`) e verificações em `pedidos/permissoes.py`.
@@ -120,9 +126,10 @@ novo ──(assumir)──▶ em_cotacao ──▶ aguardando_aprovacao ──�
                           └──────────────┴──────────────────────┴──▶ cancelado
 ```
 
-- `novo → em_cotacao` ocorre **automaticamente** ao assumir (não é editável).
-- As demais transições são feitas **apenas pelo responsável**, via tela
-  "Tramitar".
+- `novo → em_cotacao` ocorre **automaticamente** ao **assumir** (Time de Compras)
+  ou ao **designar** o responsável (Gestão).
+- As demais transições são feitas pelo **responsável** (Time de Compras) ou pela
+  **Gestão**, via tela "Tramitar".
 - `retorno_final` é **obrigatório** para concluir.
 - `concluido` e `cancelado` são terminais.
 
@@ -160,8 +167,9 @@ python manage.py migrate
 # 4. Superusuário (para o /admin) — pede usuário e senha
 python manage.py createsuperuser
 
-# 5. Usuários da equipe de compras (os 4 iniciais)
+# 5. Usuários iniciais: Time de Compras + Gestor
 python manage.py criar_equipe
+python manage.py criar_equipe --grupo Manager_Compras --usuario gestor:Gestor@2026:gestor@exemplo.com
 
 # 6. Executar o servidor
 python manage.py runserver
@@ -170,36 +178,35 @@ python manage.py runserver
 Acesse http://127.0.0.1:8000/ — a home redireciona conforme o perfil.
 O admin fica em http://127.0.0.1:8000/admin/.
 
-## 7. Usuários da equipe e solicitantes
+## 7. Grupos e usuários
 
-Os **4 usuários iniciais da equipe** são criados por um único comando, a partir
-da lista `EQUIPE_INICIAL` em `compras/settings.py` (senha padrão `Compras@2026`):
+Os grupos de perfil são criados pela migração `accounts.0001_migrar_grupos`, que
+também **migra os grupos antigos**: "Equipe de Compras" → `Time_Compras` e
+"Solicitante" → `UserISI_IST`.
+
+O comando `criar_equipe` cria/atualiza usuários e os vincula a um grupo
+(idempotente). O padrão é o **Time de Compras**, a partir de `EQUIPE_INICIAL`
+em `compras/settings.py` (senha `Compras@2026`):
 
 ```powershell
+# Time de Compras (padrão)
 python manage.py criar_equipe
-# compras1, compras2, compras3, compras4 -> grupo "Equipe de Compras"
+# compras1, compras2, compras3, compras4 -> grupo "Time_Compras"
+
+# Gestor de compras
+python manage.py criar_equipe --grupo Manager_Compras --usuario gestor:Gestor@2026:gestor@exemplo.com
+
+# Usuário comum (solicitante)
+python manage.py criar_equipe --grupo UserISI_IST --usuario ana:Ana@2026:ana@exemplo.com
 ```
 
-O comando é **idempotente** (cria se não existir, atualiza o grupo se já existir).
+Novos usuários **não exigem alteração de código**. Também é possível gerenciar
+pelo `/admin`: crie o usuário e adicione-o ao grupo correspondente
+(`UserISI_IST`, `Time_Compras` ou `Manager_Compras`).
 
-**Adicionar novos membros da equipe — sem alterar código:**
-
-```powershell
-# via comando
-python manage.py criar_equipe --usuario maria:Senha@123:maria@exemplo.com
-
-# ou pelo /admin: crie o usuário e adicione-o ao grupo "Equipe de Compras"
-```
-
-**Criar solicitantes** (papel padrão — basta o usuário existir com senha):
-
-```powershell
-python manage.py criar_equipe --grupo Solicitante --usuario ana:Ana@2026:ana@exemplo.com
-```
-
-Sugestão para testar rapidamente: crie um solicitante como acima, faça login,
-crie um pedido com anexo; depois entre como `compras1` (senha `Compras@2026`),
-assuma o pedido e tramite até a conclusão.
+Sugestão para testar rapidamente: entre como `ana` (solicitante) e registre uma
+requisição; como `gestor`, **designe** a requisição a um usuário do time; e como
+`compras1` (Time de Compras), assuma e tramite até a conclusão.
 
 > Em produção, troque a `SECRET_KEY`, desative `DEBUG` e defina
 > `ALLOWED_HOSTS`. Os anexos continuam sem exposição pública graças ao download

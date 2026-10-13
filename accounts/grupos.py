@@ -1,6 +1,7 @@
 """Nomes canônicos dos grupos que definem o perfil do usuário."""
 
-GROUP_EQUIPE = "Equipe de Compras"
-GROUP_SOLICITANTE = "Solicitante"
+GROUP_USERISI = "UserISI_IST"        # usuário comum (solicitante)
+GROUP_TIME = "Time_Compras"          # time de compras (decide/tramita)
+GROUP_MANAGER = "Manager_Compras"    # gestão (designa e também tramita)
 
-GRUPOS = (GROUP_EQUIPE, GROUP_SOLICITANTE)
+GRUPOS = (GROUP_USERISI, GROUP_TIME, GROUP_MANAGER)

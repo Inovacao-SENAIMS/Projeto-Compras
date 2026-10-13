@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from accounts.decorators import equipe_required, solicitante_required
+from accounts.perfis import usuarios_time_compras
 
 from . import permissoes, services
 from .forms import AnexosForm, PedidoForm, TramitacaoForm
@@ -109,11 +110,45 @@ def equipe_detalhe(request, pk):
         pedido.transicoes_permitidas
     )
     form = TramitacaoForm(pedido=pedido) if pode_tramitar else None
+
+    pode_designar = permissoes.pode_designar(request.user) and not pedido.finalizado
+    responsaveis = usuarios_time_compras() if pode_designar else None
+
     return render(
         request,
         "pedidos/equipe/detalhe.html",
-        {"pedido": pedido, "form": form, "pode_tramitar": pode_tramitar},
+        {
+            "pedido": pedido,
+            "form": form,
+            "pode_tramitar": pode_tramitar,
+            "pode_designar": pode_designar,
+            "responsaveis": responsaveis,
+        },
     )
+
+
+@equipe_required
+@require_POST
+def equipe_designar(request, pk):
+    """Designa/redesigna o responsável por uma requisição (apenas Gestão)."""
+    if not permissoes.pode_designar(request.user):
+        raise PermissionDenied("Apenas a gestão pode designar responsáveis.")
+
+    pedido = get_object_or_404(Pedido, pk=pk)
+    responsavel = usuarios_time_compras().filter(pk=request.POST.get("responsavel")).first()
+    if responsavel is None:
+        messages.error(request, "Selecione um usuário válido do Time de Compras.")
+        return redirect("pedidos:equipe_detalhe", pk=pk)
+
+    try:
+        services.designar_pedido(pedido, request.user, responsavel)
+    except services.RegraDeNegocioError as erro:
+        messages.error(request, str(erro))
+    else:
+        messages.success(
+            request, f"Requisição designada para {responsavel.get_username()}."
+        )
+    return redirect("pedidos:equipe_detalhe", pk=pk)
 
 
 @require_POST

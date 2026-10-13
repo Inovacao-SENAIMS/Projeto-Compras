@@ -1,13 +1,13 @@
 """Regras de permissão sobre pedidos."""
 
-from accounts.perfis import is_equipe
+from accounts.perfis import is_manager, is_time_compras
 
 from .models import Status
 
 
 def pode_ver_pedido(user, pedido):
-    """Equipe vê todos; solicitante vê apenas os próprios."""
-    if is_equipe(user):
+    """Equipe (time/gestão) vê todos; usuário comum vê apenas os próprios."""
+    if is_time_compras(user) or is_manager(user):
         return True
     return pedido.criado_por_id == user.id
 
@@ -18,25 +18,30 @@ def pode_baixar_anexo(user, anexo):
 
 
 def pode_assumir(user, pedido):
-    """Membro da equipe pode assumir apenas pedidos novos e sem responsável."""
+    """Time de Compras ou Gestão assume pedidos novos e sem responsável."""
     return (
-        is_equipe(user)
+        (is_time_compras(user) or is_manager(user))
         and pedido.responsavel_id is None
         and pedido.status == Status.NOVO
     )
 
 
+def pode_designar(user):
+    """Apenas a Gestão (Manager_Compras / superusuário) designa responsáveis."""
+    return is_manager(user)
+
+
 def pode_alterar_tramitacao(user, pedido):
-    """Somente o responsável atribuído altera a tramitação."""
-    return is_equipe(user) and pedido.responsavel_id == user.id
+    """A Gestão tramita qualquer pedido; o Time apenas os que assumiu."""
+    if not (is_time_compras(user) or is_manager(user)):
+        return False
+    if is_manager(user):
+        return not pedido.finalizado
+    return pedido.responsavel_id == user.id
 
 
 def pode_excluir(user, pedido):
-    """O solicitante exclui apenas as próprias requisições ainda não assumidas.
-
-    Preserva o histórico de quem assumiu/tramitou: após a assunção (status
-    diferente de 'Novo' ou responsável atribuído), a exclusão é bloqueada.
-    """
+    """O solicitante exclui apenas as próprias requisições ainda não assumidas."""
     return (
         pedido.criado_por_id == user.id
         and pedido.responsavel_id is None

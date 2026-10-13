@@ -35,12 +35,33 @@
             {% csrf_token %}
             <button type="submit" class="botao">Assumir pedido</button>
         </form>
-    {% elif pedido.responsavel == user and pedido.transicoes_permitidas %}
+    {% endif %}
+    {% if pode_tramitar %}
         <a class="botao" href="{% url 'pedidos:equipe_tramitar' pedido.pk %}">Tramitar pedido</a>
-    {% elif pedido.responsavel and pedido.responsavel != user %}
-        <p class="aviso">Este pedido já está sob responsabilidade de {{ pedido.responsavel.get_username }}.</p>
+    {% endif %}
+    {% if pedido.responsavel and pedido.responsavel != user and not is_manager %}
+        <p class="aviso">Esta requisição está sob responsabilidade de {{ pedido.responsavel.get_username }}.</p>
     {% endif %}
 </div>
+
+{% if pode_designar %}
+<div class="bloco-designar">
+    <h3>Designar responsável</h3>
+    <form method="post" action="{% url 'pedidos:equipe_designar' pedido.pk %}" class="formulario">
+        {% csrf_token %}
+        <p>
+            <label for="id_responsavel">Usuário do Time de Compras</label>
+            <select name="responsavel" id="id_responsavel" class="campo" required>
+                <option value="">Selecione o responsável</option>
+                {% for u in responsaveis %}
+                    <option value="{{ u.pk }}" {% if pedido.responsavel_id == u.pk %}selected{% endif %}>{{ u.get_username }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <button type="submit" class="botao">Designar</button>
+    </form>
+</div>
+{% endif %}
 
 {% if pedido.retorno_final %}
 <div class="retorno">
