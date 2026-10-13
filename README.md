@@ -104,7 +104,8 @@ decorator `gestor_required`) para acompanhar a performance do Time de Compras:
 
 Página única (`/requisicoes/`, view `painel`) onde o solicitante:
 
-- clica em **"+ Nova Requisição"**, que abre um **modal (popup)** de registro;
+- clica em **"+ Nova Requisição"** (também disponível na tela da equipe), que abre
+  um **modal (popup)** de registro;
 - o modal contém: **Nome do Produto**, **Descrição do Objeto** (detalhes do item
   ou serviço), **Quantidade**, **Modalidade RCA (obrigatória)**, **Urgência**,
   **Possui cotação? (Sim/Não)** e **Documentação (anexo) — obrigatória e sempre
@@ -191,8 +192,8 @@ Os perfis são definidos por grupos do Django (`accounts/grupos.py`):
 
 | Ação | UserISI_IST | Time_Compras | Manager_Compras |
 |---|:--:|:--:|:--:|
-| Criar requisição + anexar | ✅ (só as suas) | ❌ | ❌ |
-| Enviar/excluir requisição "Aberta" | ✅ (só as suas) | ❌ | ❌ |
+| Criar requisição + anexar | ✅ (as suas) | ✅ (as suas) | ✅ (as suas) |
+| Enviar/excluir requisição "Aberta" | ✅ (as suas) | ✅ (as suas) | ✅ (as suas) |
 | Ver requisições | só as próprias | todas | todas |
 | Baixar anexo | só do próprio pedido | todos | todos |
 | Assumir requisição enviada | ❌ | ✅ | ✅ |

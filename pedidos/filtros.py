@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from accounts.perfis import nome_exibicao, usuarios_time_compras
 
-from .models import Modalidade
+from .models import Modalidade, Status
 
 CAMPOS_DATA = [
     "abertura_ini",
@@ -37,10 +37,13 @@ def aplicar_filtros(request, queryset):
 
     responsavel = get.get("responsavel") or ""
     modalidade = get.get("modalidade") or ""
+    status = get.get("status") or ""
     if responsavel.isdigit():
         queryset = queryset.filter(responsavel_id=responsavel)
     if modalidade:
         queryset = queryset.filter(modalidade=modalidade)
+    if status:
+        queryset = queryset.filter(status=status)
 
     datas = {campo: _data(get.get(campo)) for campo in CAMPOS_DATA}
     if datas["abertura_ini"]:
@@ -77,6 +80,7 @@ def contexto_filtros(request):
     valores = {
         "responsavel": get.get("responsavel") or "",
         "modalidade": get.get("modalidade") or "",
+        "status": get.get("status") or "",
         "lead_min": get.get("lead_min") or "",
         "lead_max": get.get("lead_max") or "",
     }
@@ -86,6 +90,7 @@ def contexto_filtros(request):
     return {
         "filtro_responsaveis": usuarios_time_compras(incluir_inativos=True),
         "filtro_modalidades": Modalidade.choices,
+        "filtro_status": Status.choices,
         "filtro_valores": valores,
         "filtro_ativo": any(valores.values()),
     }

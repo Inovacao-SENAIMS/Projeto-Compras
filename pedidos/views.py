@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from accounts.decorators import equipe_required, gestor_required, solicitante_required
-from accounts.perfis import nome_exibicao, usuarios_time_compras
+from accounts.perfis import is_equipe, nome_exibicao, usuarios_time_compras
 
 from . import filtros, permissoes, services
 from .dashboard import STATUS_CORES, STATUS_ORDEM
@@ -34,31 +34,42 @@ def salvar_anexos(pedido, arquivos, usuario, tipo=TipoAnexo.DOCUMENTACAO):
 # Área do solicitante
 # ---------------------------------------------------------------------------
 
+def _destino_requisicoes(user):
+    """Página de requisições conforme o perfil (equipe x solicitante)."""
+    return "pedidos:equipe_lista" if is_equipe(user) else "pedidos:painel"
+
+
+def _processar_criacao(request):
+    """Trata o POST de criação de requisição. Retorna (criado, form, anexos_form)."""
+    form = PedidoForm(request.POST)
+    possui_cotacao = request.POST.get("possui_cotacao") == "sim"
+    anexos_form = AnexosForm(request.POST, request.FILES, possui_cotacao=possui_cotacao)
+    if form.is_valid() and anexos_form.is_valid():
+        pedido = services.criar_pedido(form, request.user)
+        salvar_anexos(
+            pedido,
+            anexos_form.cleaned_data.get("arquivos", []),
+            request.user,
+            TipoAnexo.DOCUMENTACAO,
+        )
+        if possui_cotacao:
+            salvar_anexos(
+                pedido,
+                anexos_form.cleaned_data.get("arquivos_cotacao") or [],
+                request.user,
+                TipoAnexo.COTACAO,
+            )
+        return True, form, anexos_form
+    return False, form, anexos_form
+
+
 @solicitante_required
 def painel(request):
     """Painel de Requisições: registra, lista e exclui requisições próprias."""
     abrir_modal = False
     if request.method == "POST":
-        form = PedidoForm(request.POST)
-        possui_cotacao = request.POST.get("possui_cotacao") == "sim"
-        anexos_form = AnexosForm(
-            request.POST, request.FILES, possui_cotacao=possui_cotacao
-        )
-        if form.is_valid() and anexos_form.is_valid():
-            pedido = services.criar_pedido(form, request.user)
-            salvar_anexos(
-                pedido,
-                anexos_form.cleaned_data.get("arquivos", []),
-                request.user,
-                TipoAnexo.DOCUMENTACAO,
-            )
-            if possui_cotacao:
-                salvar_anexos(
-                    pedido,
-                    anexos_form.cleaned_data.get("arquivos_cotacao") or [],
-                    request.user,
-                    TipoAnexo.COTACAO,
-                )
+        criado, form, anexos_form = _processar_criacao(request)
+        if criado:
             messages.success(request, "Requisição registrada com sucesso.")
             return redirect("pedidos:painel")
         # Houve erro de validação: reabre o modal com as mensagens.
@@ -73,6 +84,7 @@ def painel(request):
         .prefetch_related("anexos")
     )
     pedidos = filtros.aplicar_filtros(request, pedidos)
+    pedidos = filtros.aplicar_ordenacao(request, pedidos)
 
     if request.GET.get("formato") == "csv":
         return filtros.exportar_csv(pedidos)
@@ -87,7 +99,7 @@ def painel(request):
     return render(request, "pedidos/solicitante/painel.html", contexto)
 
 
-@solicitante_required
+@login_required
 @require_POST
 def pedido_enviar(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk, criado_por=request.user)
@@ -97,7 +109,7 @@ def pedido_enviar(request, pk):
         messages.error(request, str(erro))
     else:
         messages.success(request, "Requisição enviada para a equipe de compras.")
-    return redirect("pedidos:painel")
+    return redirect(_destino_requisicoes(request.user))
 
 
 @solicitante_required
@@ -106,7 +118,7 @@ def pedido_detalhe(request, pk):
     return render(request, "pedidos/solicitante/detalhe.html", {"pedido": pedido})
 
 
-@solicitante_required
+@login_required
 @require_POST
 def pedido_excluir(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk, criado_por=request.user)
@@ -115,11 +127,11 @@ def pedido_excluir(request, pk):
             request,
             "Não é possível excluir: a requisição já foi assumida pela equipe de compras.",
         )
-        return redirect("pedidos:painel")
+        return redirect(_destino_requisicoes(request.user))
 
     pedido.delete()
     messages.success(request, "Requisição excluída com sucesso.")
-    return redirect("pedidos:painel")
+    return redirect(_destino_requisicoes(request.user))
 
 
 # ---------------------------------------------------------------------------
@@ -128,17 +140,34 @@ def pedido_excluir(request, pk):
 
 @equipe_required
 def equipe_lista(request):
+    abrir_modal = False
+    if request.method == "POST":
+        criado, form, anexos_form = _processar_criacao(request)
+        if criado:
+            messages.success(request, "Requisição registrada com sucesso.")
+            return redirect("pedidos:equipe_lista")
+        abrir_modal = True
+    else:
+        form = PedidoForm()
+        anexos_form = AnexosForm()
+
     pedidos = (
         Pedido.objects.select_related("responsavel", "criado_por")
         .prefetch_related("anexos")
         .all()
     )
     pedidos = filtros.aplicar_filtros(request, pedidos)
+    pedidos = filtros.aplicar_ordenacao(request, pedidos)
 
     if request.GET.get("formato") == "csv":
         return filtros.exportar_csv(pedidos)
 
-    contexto = {"pedidos": pedidos}
+    contexto = {
+        "pedidos": pedidos,
+        "form": form,
+        "anexos_form": anexos_form,
+        "abrir_modal": abrir_modal,
+    }
     if permissoes.pode_designar(request.user):
         contexto["responsaveis"] = usuarios_time_compras()
     contexto.update(filtros.contexto_filtros(request))

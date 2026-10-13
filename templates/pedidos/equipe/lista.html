@@ -4,7 +4,10 @@
 {% block title %}Requisições | SENAI MS{% endblock %}
 
 {% block content %}
-<h2><i class="bi bi-inboxes"></i> {% if is_manager %}Requisições — Gestão{% else %}Requisições — Equipe{% endif %}</h2>
+<div class="cabecalho-pagina">
+    <h2><i class="bi bi-inboxes"></i> {% if is_manager %}Requisições — Gestão{% else %}Requisições — Equipe{% endif %}</h2>
+    <button type="button" class="botao" id="btn-nova-requisicao"><i class="bi bi-plus-lg"></i> Nova Requisição</button>
+</div>
 <p class="meta">Todas as requisições. {% if is_manager %}Você pode designar o responsável e tramitar.{% else %}Assuma uma requisição enviada para conduzir a análise.{% endif %}</p>
 
 {% include "pedidos/_filtros.html" %}
@@ -33,6 +36,17 @@
                 <td>{{ p.concluido_em|date:"d/m/Y"|default:"—" }}</td>
                 <td>{% if p.data_envio %}{{ p.lead_time_dias }}{% else %}—{% endif %}</td>
                 <td class="acoes-tabela">
+                    {% if p.status == 'aberta' and p.criado_por == user %}
+                        <form method="post" action="{% url 'pedidos:pedido_enviar' p.pk %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-icone" title="Enviar"><i class="bi bi-send"></i></button>
+                        </form>
+                        <form method="post" action="{% url 'pedidos:pedido_excluir' p.pk %}" class="inline"
+                              onsubmit="return confirm('Excluir a requisição {{ p.numero|default:p.pk }}?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-icone btn-icone-perigo" title="Excluir"><i class="bi bi-trash"></i></button>
+                        </form>
+                    {% endif %}
                     {% if p.status == 'enviada' and not p.responsavel %}
                         <form method="post" action="{% url 'pedidos:equipe_assumir' p.pk %}" class="inline">
                             {% csrf_token %}
@@ -84,8 +98,10 @@
 
 {% include "pedidos/_modal_anexos.html" %}
 {% if is_manager %}{% include "pedidos/_modal_designar.html" %}{% endif %}
+{% include "pedidos/_modal_requisicao.html" %}
 {% endblock %}
 
 {% block scripts %}
+<script src="{% static 'js/painel.js' %}"></script>
 <script src="{% static 'js/tabela.js' %}"></script>
 {% endblock %}

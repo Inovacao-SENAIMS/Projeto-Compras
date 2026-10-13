@@ -22,6 +22,16 @@
         </div>
 
         <div class="filtro-campo">
+            <label for="f-status"><i class="bi bi-flag"></i> Status</label>
+            <select id="f-status" name="status" class="campo">
+                <option value="">Todos</option>
+                {% for valor, rotulo in filtro_status %}
+                <option value="{{ valor }}" {% if valor == filtro_valores.status %}selected{% endif %}>{{ rotulo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filtro-campo">
             <label><i class="bi bi-calendar-event"></i> Abertura (de/até)</label>
             <div class="filtro-duplo">
                 <input type="date" name="abertura_ini" value="{{ filtro_valores.abertura_ini }}" class="campo" title="De">
