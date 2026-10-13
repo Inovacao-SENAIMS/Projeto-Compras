@@ -30,13 +30,13 @@ as views enxutas.
 
 Todas as telas usam um layout com sidebar sensível ao perfil:
 
-- **UserISI_IST (solicitante):** Home · Painel de Requisições · Configurações · Logout
-- **Time_Compras:** Home · Painel de Compras (Equipe) · Configurações · Logout
-- **Manager_Compras:** Home · Painel de Compras (Gestão) · Configurações · Logout
+- **UserISI_IST (solicitante):** Home · Requisições · Configurações · Logout
+- **Time_Compras:** Home · Requisições · Configurações · Logout
+- **Manager_Compras:** Home · Requisições · Configurações · Logout
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
 - **Configurações:** página placeholder (visível a todo usuário autenticado)
 
-### Painel de Requisições (solicitante)
+### Requisições (solicitante)
 
 Página única (`/requisicoes/`, view `painel`) onde o solicitante:
 
@@ -81,8 +81,8 @@ Data de Envio · Status · Data de Encerramento · Lead Time · Ações
   **Designar** / **Alterar Responsável** (popup, apenas Gestão — basta clicar no
   usuário), **Tramitar**, **Anexos** e **Ver Detalhes**.
 - **Designar/Alterar Responsável:** ao clicar no usuário, o sistema pede
-  **confirmação**; após confirmar, exibe a **mensagem de sucesso** e retorna ao
-  **Painel de Compras**.
+  **confirmação**; após confirmar, exibe a **mensagem de sucesso** e retorna à
+  **lista de requisições**.
 - **Tramitar:** abre uma página com **um único container** exibindo **todas as
   informações** da requisição (detalhes, anexos e histórico) e um botão **Editar**.
   Ao clicar em Editar, ficam disponíveis **Status**, **Observação** e o campo de

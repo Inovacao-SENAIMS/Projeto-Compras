@@ -4,7 +4,7 @@
 {% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Equipe de Compras{% endblock %}
 
 {% block content %}
-<p><a href="{% url 'pedidos:equipe_lista' %}">← Voltar para o Painel de Compras (Equipe)</a></p>
+<p><a href="{% url 'pedidos:equipe_lista' %}">← Voltar para as requisições</a></p>
 <h2>Requisição {{ pedido.numero|default:pedido.pk }}</h2>
 
 {% include "pedidos/_detalhes.html" %}
