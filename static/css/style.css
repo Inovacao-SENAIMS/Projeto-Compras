@@ -456,6 +456,15 @@ button.link {
     width: 100%;
 }
 
+.celula-truncada {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
 /* Ficha do pedido */
 .dados {
     display: grid;

@@ -32,10 +32,10 @@
             <tr>
                 <td>{{ p.numero|default:p.pk }}</td>
                 <td>
-                    {% if p.responsavel %}{{ p.responsavel.get_username }}
+                    {% if p.responsavel %}{{ p.responsavel_nome }}
                     {% else %}<span class="sem-responsavel">—</span>{% endif %}
                 </td>
-                <td>{{ p.produto }}</td>
+                <td><span class="celula-truncada" title="{{ p.produto }}">{{ p.produto }}</span></td>
                 <td>{{ p.get_modalidade_display|default:"—" }}</td>
                 <td>{{ p.criado_em|date:"d/m/Y" }}</td>
                 <td>{{ p.data_envio|date:"d/m/Y"|default:"—" }}</td>

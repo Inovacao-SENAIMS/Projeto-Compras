@@ -138,6 +138,14 @@ class Pedido(models.Model):
             type(self).objects.filter(pk=self.pk).update(numero=self.numero)
 
     @property
+    def responsavel_nome(self):
+        """Primeiro nome do responsável (exibição compacta na tabela)."""
+        if not self.responsavel_id:
+            return ""
+        nome = self.responsavel.get_full_name() or self.responsavel.get_username()
+        return nome.split()[0] if nome else ""
+
+    @property
     def lead_time_dias(self):
         """Dias entre o envio e o encerramento (ou a data atual, se aberto).
 
