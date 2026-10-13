@@ -28,21 +28,18 @@ def salvar_anexos(pedido, arquivos, usuario):
 # ---------------------------------------------------------------------------
 
 @solicitante_required
-def meus_pedidos(request):
-    pedidos = Pedido.objects.filter(criado_por=request.user)
-    return render(request, "pedidos/solicitante/lista.html", {"pedidos": pedidos})
-
-
-@solicitante_required
-def pedido_criar(request):
+def painel(request):
+    """Painel de Requisições: registra, lista e exclui requisições próprias."""
     if request.method == "POST":
         form = PedidoForm(request.POST)
         anexos_form = AnexosForm(request.POST, request.FILES)
         if form.is_valid() and anexos_form.is_valid():
             pedido = services.criar_pedido(form, request.user)
-            salvar_anexos(pedido, anexos_form.cleaned_data.get("arquivos", []), request.user)
-            messages.success(request, "Pedido criado com sucesso.")
-            return redirect("pedidos:meus_pedidos")
+            salvar_anexos(
+                pedido, anexos_form.cleaned_data.get("arquivos", []), request.user
+            )
+            messages.success(request, "Requisição registrada com sucesso.")
+            return redirect("pedidos:painel")
     else:
         form = PedidoForm(
             initial={
@@ -51,10 +48,12 @@ def pedido_criar(request):
             }
         )
         anexos_form = AnexosForm()
+
+    pedidos = Pedido.objects.filter(criado_por=request.user)
     return render(
         request,
-        "pedidos/solicitante/criar.html",
-        {"form": form, "anexos_form": anexos_form},
+        "pedidos/solicitante/painel.html",
+        {"form": form, "anexos_form": anexos_form, "pedidos": pedidos},
     )
 
 
@@ -62,6 +61,22 @@ def pedido_criar(request):
 def pedido_detalhe(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk, criado_por=request.user)
     return render(request, "pedidos/solicitante/detalhe.html", {"pedido": pedido})
+
+
+@solicitante_required
+@require_POST
+def pedido_excluir(request, pk):
+    pedido = get_object_or_404(Pedido, pk=pk, criado_por=request.user)
+    if not permissoes.pode_excluir(request.user, pedido):
+        messages.error(
+            request,
+            "Não é possível excluir: a requisição já foi assumida pela equipe de compras.",
+        )
+        return redirect("pedidos:painel")
+
+    pedido.delete()
+    messages.success(request, "Requisição excluída com sucesso.")
+    return redirect("pedidos:painel")
 
 
 # ---------------------------------------------------------------------------

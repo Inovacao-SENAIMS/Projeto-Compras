@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.db import models
+from django.dispatch import receiver
 
 
 class Urgencia(models.TextChoices):
@@ -151,3 +152,10 @@ class HistoricoStatus(models.Model):
 
     def __str__(self):
         return f"{self.pedido_id}: {self.de or '-'} -> {self.para}"
+
+
+@receiver(models.signals.post_delete, sender=Anexo)
+def apagar_arquivo_do_anexo(sender, instance, **kwargs):
+    """Remove o arquivo do disco quando o Anexo é excluído."""
+    if instance.arquivo:
+        instance.arquivo.delete(save=False)

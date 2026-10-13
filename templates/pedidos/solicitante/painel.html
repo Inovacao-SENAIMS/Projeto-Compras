@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Painel de Requisições - Projeto Compras{% endblock %}
+
+{% block content %}
+<h2>Painel de Requisições</h2>
+
+<h3>Registrar nova requisição</h3>
+<form method="post" enctype="multipart/form-data" class="formulario">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <p>
+        <label for="{{ form.produto.id_for_label }}">Produto</label>
+        {{ form.produto }}
+        {{ form.produto.errors }}
+    </p>
+    <p>
+        <label for="{{ form.solicitante_nome.id_for_label }}">Nome do solicitante</label>
+        {{ form.solicitante_nome }}
+        {{ form.solicitante_nome.errors }}
+    </p>
+    <p>
+        <label for="{{ form.urgencia.id_for_label }}">Urgência</label>
+        {{ form.urgencia }}
+        {{ form.urgencia.errors }}
+    </p>
+    <p>
+        <label for="{{ anexos_form.arquivos.id_for_label }}">Anexos (opcional)</label>
+        {{ anexos_form.arquivos }}
+        <small class="ajuda">{{ anexos_form.arquivos.help_text }}</small>
+        {{ anexos_form.arquivos.errors }}
+    </p>
+
+    <button type="submit" class="botao">Registrar requisição</button>
+</form>
+
+<h3>Minhas requisições</h3>
+<table class="tabela">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Produto</th>
+            <th>Urgência</th>
+            <th>Status</th>
+            <th>Responsável</th>
+            <th>Criado em</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in pedidos %}
+        <tr>
+            <td>{{ p.pk }}</td>
+            <td>{{ p.produto }}</td>
+            <td><span class="tag urgencia-{{ p.urgencia }}">{{ p.get_urgencia_display }}</span></td>
+            <td><span class="tag status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+            <td>
+                {% if p.responsavel %}
+                    {{ p.responsavel.get_username }}
+                {% else %}
+                    <span class="sem-responsavel">Sem responsável</span>
+                {% endif %}
+            </td>
+            <td>{{ p.criado_em|date:"d/m/Y H:i" }}</td>
+            <td class="acoes-tabela">
+                <a href="{% url 'pedidos:pedido_detalhe' p.pk %}">Ver</a>
+                {% if p.status == 'novo' and not p.responsavel %}
+                    <form method="post" action="{% url 'pedidos:pedido_excluir' p.pk %}" class="inline"
+                          onsubmit="return confirm('Excluir a requisição #{{ p.pk }} ({{ p.produto }})?');">
+                        {% csrf_token %}
+                        <button type="submit" class="link-perigo">Excluir</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="vazio">Você ainda não registrou requisições.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

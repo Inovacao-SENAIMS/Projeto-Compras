@@ -9,4 +9,4 @@ def home(request):
     """Ponto de entrada único: encaminha para a área conforme o perfil."""
     if is_equipe(request.user):
         return redirect("pedidos:equipe_lista")
-    return redirect("pedidos:meus_pedidos")
+    return redirect("pedidos:painel")

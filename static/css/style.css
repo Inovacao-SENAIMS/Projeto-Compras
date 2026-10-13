@@ -131,6 +131,29 @@ body {
     margin-top: 1rem;
 }
 
+/* Ações na tabela do painel */
+.acoes-tabela {
+    white-space: nowrap;
+}
+
+.acoes-tabela a {
+    color: var(--cor-primaria-clara);
+}
+
+.link-perigo {
+    background: none;
+    border: none;
+    color: var(--cor-erro);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+    text-decoration: underline;
+}
+
+h3 {
+    margin-bottom: 0.5rem;
+}
+
 /* Responsivo: sidebar vira barra superior em telas estreitas */
 @media (max-width: 720px) {
     .layout {

@@ -30,10 +30,21 @@ as views enxutas.
 
 Todas as telas usam um layout com sidebar sensível ao perfil:
 
-- **Solicitante:** Home · Nova Requisição · Minhas Requisições · Configurações · Logout
+- **Solicitante:** Home · Painel de Requisições · Configurações · Logout
 - **Equipe de compras:** Home · Painel de compras · Configurações · Logout
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
 - **Configurações:** página placeholder (visível a todo usuário autenticado)
+
+### Painel de Requisições (solicitante)
+
+Página única (`/requisicoes/`, view `painel`) onde o solicitante:
+
+- **registra** uma nova requisição (produto, nome, urgência) com anexos;
+- **consulta** a lista das próprias requisições (status, responsável, datas);
+- **exclui** as requisições que lançou, **desde que ainda não tenham sido
+  assumidas** (status "Novo" e sem responsável). Após a assunção pela equipe, a
+  exclusão é bloqueada para preservar o histórico. Ao excluir, os arquivos dos
+  anexos também são removidos do disco.
 
 ## 2. Decisões de modelagem
 
