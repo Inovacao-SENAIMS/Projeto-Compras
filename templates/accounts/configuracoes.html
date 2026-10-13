@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações - Projeto Compras{% endblock %}
+
+{% block content %}
+<h2>Configurações</h2>
+
+<dl class="dados">
+    <dt>Usuário</dt><dd>{{ user.get_username }}</dd>
+    <dt>Nome</dt><dd>{{ user.get_full_name|default:"—" }}</dd>
+    <dt>E-mail</dt><dd>{{ user.email|default:"—" }}</dd>
+    <dt>Perfil</dt><dd>{{ perfil_nome }}</dd>
+</dl>
+
+<div class="aviso-box">
+    <p>Esta área de configurações ainda está em construção.</p>
+</div>
+{% endblock %}

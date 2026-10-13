@@ -26,6 +26,15 @@ Dentro de `pedidos/`, a lógica de negócio fica em `services.py`, as regras de
 permissão em `permissoes.py` e a validação de upload em `validators.py`, mantendo
 as views enxutas.
 
+### Navegação (sidebar)
+
+Todas as telas usam um layout com sidebar sensível ao perfil:
+
+- **Solicitante:** Home · Nova Requisição · Minhas Requisições · Configurações · Logout
+- **Equipe de compras:** Home · Painel de compras · Configurações · Logout
+- **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
+- **Configurações:** página placeholder (visível a todo usuário autenticado)
+
 ## 2. Decisões de modelagem
 
 - **`Pedido`** guarda `produto`, `solicitante_nome`, `urgencia`, `status`,

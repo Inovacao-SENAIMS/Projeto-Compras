@@ -18,5 +18,6 @@ urlpatterns = [
     ),
     path("sair/", auth_views.LogoutView.as_view(), name="logout"),
     path("", include("pedidos.urls")),
+    path("", include("accounts.urls")),
     path("", include("core.urls")),
 ]

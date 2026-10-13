@@ -8,28 +8,52 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header class="topo">
-        <a class="marca" href="{% url 'core:home' %}">Projeto Compras</a>
-        <nav class="menu">
+<div class="layout">
+    <aside class="sidebar">
+        <a class="sidebar-marca" href="{% url 'core:home' %}">Projeto Compras</a>
+
+        <nav class="sidebar-nav">
             {% if user.is_authenticated %}
+                <a class="nav-item {% if request.resolver_match.view_name == 'core:home' %}ativo{% endif %}"
+                   href="{% url 'core:home' %}">Home</a>
+
                 {% if is_equipe %}
-                    <a href="{% url 'pedidos:equipe_lista' %}">Painel de compras</a>
+                    <a class="nav-item {% if request.resolver_match.url_name == 'equipe_lista' %}ativo{% endif %}"
+                       href="{% url 'pedidos:equipe_lista' %}">Painel de compras</a>
                 {% else %}
-                    <a href="{% url 'pedidos:meus_pedidos' %}">Meus pedidos</a>
-                    <a href="{% url 'pedidos:pedido_criar' %}">Novo pedido</a>
+                    <a class="nav-item {% if request.resolver_match.url_name == 'pedido_criar' %}ativo{% endif %}"
+                       href="{% url 'pedidos:pedido_criar' %}">Nova Requisição</a>
+                    <a class="nav-item {% if request.resolver_match.url_name == 'meus_pedidos' %}ativo{% endif %}"
+                       href="{% url 'pedidos:meus_pedidos' %}">Minhas Requisições</a>
                 {% endif %}
-                <span class="usuario">{{ user.get_username }} · {{ perfil_nome }}</span>
-                <form method="post" action="{% url 'logout' %}" class="inline">
+
+                <a class="nav-item {% if request.resolver_match.url_name == 'configuracoes' %}ativo{% endif %}"
+                   href="{% url 'accounts:configuracoes' %}">Configurações</a>
+
+                {% if user.is_staff %}
+                    <a class="nav-item {% if '/admin/' in request.path %}ativo{% endif %}"
+                       href="/admin/">Painel ADM</a>
+                {% endif %}
+
+                <form method="post" action="{% url 'logout' %}" class="nav-logout">
                     {% csrf_token %}
-                    <button type="submit" class="link">Sair</button>
+                    <button type="submit" class="nav-item nav-sair">Logout</button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}">Entrar</a>
+                <a class="nav-item {% if request.resolver_match.url_name == 'login' %}ativo{% endif %}"
+                   href="{% url 'login' %}">Entrar</a>
             {% endif %}
         </nav>
-    </header>
 
-    <main>
+        {% if user.is_authenticated %}
+        <div class="sidebar-rodape">
+            <span class="usuario">{{ user.get_username }}</span>
+            <span class="perfil">{{ perfil_nome }}</span>
+        </div>
+        {% endif %}
+    </aside>
+
+    <main class="conteudo">
         {% if messages %}
             <ul class="mensagens">
                 {% for m in messages %}<li class="msg msg-{{ m.tags }}">{{ m }}</li>{% endfor %}
@@ -38,5 +62,6 @@
 
         {% block content %}{% endblock %}
     </main>
+</div>
 </body>
 </html>
