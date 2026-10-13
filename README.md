@@ -83,6 +83,9 @@ Data de Envio · Status · Data de Encerramento · Lead Time · Ações
 - **Designar/Alterar Responsável:** ao clicar no usuário, o sistema pede
   **confirmação**; após confirmar, exibe a **mensagem de sucesso** e retorna ao
   **Painel de Compras**.
+- **Tramitar:** abre uma página com **todos os detalhes** da requisição e o
+  formulário de tramitação **centralizado**; o botão **Voltar** retorna à
+  **lista de requisições**.
 
 Layout: tabela sem quebra de linha (`nowrap`), com rolagem horizontal quando
 necessário, e **20px** de espaçamento entre a tabela, a sidebar e as bordas.

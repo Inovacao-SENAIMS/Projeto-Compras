@@ -7,28 +7,7 @@
 <p><a href="{% url 'pedidos:equipe_lista' %}">← Voltar para o Painel de Compras (Equipe)</a></p>
 <h2>Requisição {{ pedido.numero|default:pedido.pk }}</h2>
 
-<dl class="dados">
-    <dt>Produto</dt><dd>{{ pedido.produto }}</dd>
-    <dt>Descrição do Objeto</dt><dd>{{ pedido.descricao_objeto|default:"—"|linebreaksbr }}</dd>
-    <dt>Quantidade</dt><dd>{{ pedido.quantidade }}</dd>
-    <dt>Solicitante</dt><dd>{{ pedido.solicitante_nome }}</dd>
-    <dt>Urgência</dt><dd><span class="tag urgencia-{{ pedido.urgencia }}">{{ pedido.get_urgencia_display }}</span></dd>
-    <dt>Possui cotação</dt><dd>{% if pedido.possui_cotacao %}Sim{% else %}Não{% endif %}</dd>
-    <dt>Status</dt><dd><span class="tag status-{{ pedido.status }}">{{ pedido.get_status_display }}</span></dd>
-    <dt>Responsável</dt><dd>
-        {% if pedido.responsavel %}
-            {{ pedido.responsavel.get_username }}{% if pedido.responsavel == user %} <strong>(você)</strong>{% endif %}
-        {% else %}
-            <span class="sem-responsavel">Sem responsável</span>
-        {% endif %}
-    </dd>
-    <dt>Modalidade (RCA)</dt><dd>{{ pedido.get_modalidade_display|default:"—" }}</dd>
-    <dt>Data de Abertura</dt><dd>{{ pedido.criado_em|date:"d/m/Y" }}</dd>
-    <dt>Data de Envio</dt><dd>{{ pedido.data_envio|date:"d/m/Y"|default:"—" }}</dd>
-    <dt>Data do Encerramento</dt><dd>{{ pedido.concluido_em|date:"d/m/Y"|default:"—" }}</dd>
-    <dt>Lead Time</dt><dd>{% if pedido.data_envio %}{{ pedido.lead_time_dias }} dia(s){% else %}—{% endif %}</dd>
-    <dt>Atualizado em</dt><dd>{{ pedido.atualizado_em|date:"d/m/Y H:i" }}</dd>
-</dl>
+{% include "pedidos/_detalhes.html" %}
 
 <div class="acoes">
     {% if pedido.status == 'enviada' and not pedido.responsavel %}

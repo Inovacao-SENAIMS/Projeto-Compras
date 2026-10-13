@@ -385,6 +385,17 @@ button.link {
     max-width: 640px;
 }
 
+.pagina-central {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.pagina-central .dados,
+.pagina-central .formulario {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .lista-designar {
     display: flex;
     flex-direction: column;
