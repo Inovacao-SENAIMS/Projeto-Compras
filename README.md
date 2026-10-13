@@ -34,6 +34,7 @@ Todas as telas usam um layout com sidebar sensível ao perfil:
 - **Time_Compras:** Home · Requisições · Configurações · Logout
 - **Manager_Compras:** Home · Requisições · Configurações · Logout
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
+- **Performance:** exibida apenas para a Gestão/SuperUsuário
 - **Configurações:** dados do usuário e (Gestão/Superusuário) gestão de usuários.
 
 ### Identidade visual (SENAI)
@@ -84,6 +85,18 @@ Instituto" do dashboard.
 
 Regras: ninguém gerencia a si mesmo; a Gestão gerencia apenas membros do Time de
 Compras; a exclusão é bloqueada quando o usuário possui requisições vinculadas.
+
+### Performance do Time (Gestão/SuperUsuário)
+
+Página exclusiva da **Gestão/SuperUsuário** (`/compras/performance/`,
+decorator `gestor_required`) para acompanhar a performance do Time de Compras:
+
+- **Filtro por período** (De/Até) sobre a data de abertura das requisições;
+- **Indicadores** do período: no período, sem responsável, em análise, concluídas,
+  canceladas;
+- **Tabela por membro** do Time: total atribuídas, em análise, concluídas,
+  canceladas e **lead time médio**;
+- **Gráfico** de requisições atribuídas por membro (Chart.js).
 
 ### Requisições (solicitante)
 

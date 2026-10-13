@@ -12,6 +12,7 @@ urlpatterns = [
     path("requisicoes/<int:pk>/excluir/", views.pedido_excluir, name="pedido_excluir"),
     # Área da equipe de compras
     path("compras/", views.equipe_lista, name="equipe_lista"),
+    path("compras/performance/", views.performance, name="performance"),
     path("compras/<int:pk>/", views.equipe_detalhe, name="equipe_detalhe"),
     path("compras/<int:pk>/assumir/", views.equipe_assumir, name="equipe_assumir"),
     path("compras/<int:pk>/designar/", views.equipe_designar, name="equipe_designar"),

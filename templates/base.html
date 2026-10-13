@@ -35,6 +35,11 @@
                        href="{% url 'pedidos:painel' %}"><i class="bi bi-inboxes"></i> <span>Requisições</span></a>
                 {% endif %}
 
+                {% if is_manager %}
+                    <a class="nav-item {% if request.resolver_match.url_name == 'performance' %}ativo{% endif %}"
+                       href="{% url 'pedidos:performance' %}"><i class="bi bi-graph-up-arrow"></i> <span>Performance</span></a>
+                {% endif %}
+
                 <a class="nav-item {% if request.resolver_match.url_name == 'configuracoes' %}ativo{% endif %}"
                    href="{% url 'accounts:configuracoes' %}"><i class="bi bi-gear"></i> <span>Configurações</span></a>
 

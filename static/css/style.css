@@ -1033,3 +1033,39 @@ button.link {
         grid-template-columns: 1fr;
     }
 }
+
+/* Filtro de período (página de performance) */
+.filtro-periodo {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--sombra);
+    margin-bottom: 1.25rem;
+    max-width: 720px;
+}
+
+.filtro-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filtro-periodo label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cor-muted);
+}
+
+.filtro-periodo .campo {
+    width: auto;
+    min-width: 160px;
+}
+
+.filtro-periodo .link-secundario {
+    margin-bottom: 0.55rem;
+}

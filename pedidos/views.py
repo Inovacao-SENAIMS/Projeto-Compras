@@ -1,16 +1,19 @@
+from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from accounts.decorators import equipe_required, solicitante_required
-from accounts.perfis import usuarios_time_compras
+from accounts.decorators import equipe_required, gestor_required, solicitante_required
+from accounts.perfis import nome_exibicao, usuarios_time_compras
 
 from . import permissoes, services
 from .forms import AnexosForm, PedidoForm, TramitacaoForm
-from .models import Anexo, Pedido, TipoAnexo
+from .models import Anexo, Pedido, Status, TipoAnexo
 
 
 def salvar_anexos(pedido, arquivos, usuario, tipo=TipoAnexo.DOCUMENTACAO):
@@ -230,6 +233,90 @@ def equipe_tramitar(request, pk):
         request,
         "pedidos/equipe/tramitar.html",
         {"pedido": pedido, "form": form, "edicao_aberta": bool(form.errors)},
+    )
+
+
+# ---------------------------------------------------------------------------
+# Performance do Time (Gestão / Superusuário)
+# ---------------------------------------------------------------------------
+
+def _data(valor):
+    try:
+        return datetime.strptime(valor, "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return None
+
+
+@gestor_required
+def performance(request):
+    """Painel de performance do Time de Compras (apenas Gestão/Superusuário)."""
+    inicio = _data(request.GET.get("inicio"))
+    fim = _data(request.GET.get("fim"))
+
+    pedidos = Pedido.objects.all()
+    if inicio:
+        pedidos = pedidos.filter(criado_em__date__gte=inicio)
+    if fim:
+        pedidos = pedidos.filter(criado_em__date__lte=fim)
+
+    contagens = {
+        item["responsavel"]: item
+        for item in pedidos.filter(responsavel__isnull=False)
+        .values("responsavel")
+        .annotate(
+            total=Count("id"),
+            em_analise=Count("id", filter=Q(status=Status.EM_ANALISE)),
+            concluida=Count("id", filter=Q(status=Status.CONCLUIDA)),
+            cancelada=Count("id", filter=Q(status=Status.CANCELADA)),
+        )
+    }
+
+    linhas = []
+    for membro in usuarios_time_compras(incluir_inativos=True):
+        item = contagens.get(membro.pk, {})
+        tempos = [
+            d
+            for d in (
+                p.lead_time_dias
+                for p in pedidos.filter(responsavel=membro, status=Status.CONCLUIDA)
+            )
+            if d is not None
+        ]
+        linhas.append(
+            {
+                "membro": membro,
+                "nome": nome_exibicao(membro),
+                "total": item.get("total", 0),
+                "em_analise": item.get("em_analise", 0),
+                "concluida": item.get("concluida", 0),
+                "cancelada": item.get("cancelada", 0),
+                "lead_medio": round(sum(tempos) / len(tempos), 1) if tempos else None,
+            }
+        )
+
+    totais = pedidos.aggregate(
+        total=Count("id"),
+        sem_responsavel=Count("id", filter=Q(responsavel__isnull=True)),
+        em_analise=Count("id", filter=Q(status=Status.EM_ANALISE)),
+        concluida=Count("id", filter=Q(status=Status.CONCLUIDA)),
+        cancelada=Count("id", filter=Q(status=Status.CANCELADA)),
+    )
+
+    grafico = {
+        "labels": [linha["nome"] for linha in linhas],
+        "valores": [linha["total"] for linha in linhas],
+    }
+
+    return render(
+        request,
+        "pedidos/equipe/performance.html",
+        {
+            "linhas": linhas,
+            "totais": totais,
+            "grafico": grafico,
+            "inicio": inicio.isoformat() if inicio else "",
+            "fim": fim.isoformat() if fim else "",
+        },
     )
 
 
