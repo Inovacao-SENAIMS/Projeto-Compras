@@ -11,7 +11,7 @@
         {% csrf_token %}
         {{ form.non_field_errors }}
         <p>
-            <label for="{{ form.username.id_for_label }}">Usuário</label>
+            <label for="{{ form.username.id_for_label }}">Usuário ou e-mail</label>
             {{ form.username }}
         </p>
         <p>

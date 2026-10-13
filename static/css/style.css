@@ -278,6 +278,13 @@ a {
     font-size: 1rem;
 }
 
+.login-card .formulario .botao {
+    display: flex;
+    margin: 0.75rem auto 0;
+    min-width: 200px;
+    justify-content: center;
+}
+
 .login-rodape {
     margin-top: 1.25rem;
     font-size: 0.95rem;
