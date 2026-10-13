@@ -84,7 +84,7 @@ class TramitacaoForm(forms.Form):
     modalidade = forms.ChoiceField(
         label="Modalidade (RCA)",
         required=False,
-        choices=[("", "—")] + list(Modalidade.choices),
+        choices=[("", "Selecione a modalidade RCA")] + list(Modalidade.choices),
         widget=forms.Select(attrs={"class": "campo"}),
     )
     data_envio = forms.DateField(

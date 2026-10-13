@@ -15,12 +15,28 @@ class Urgencia(models.TextChoices):
 
 
 class Modalidade(models.TextChoices):
-    # PROVISÓRIO: substituir pelas opções do Regulamento RCA SENAI.
-    DISPENSA = "dispensa", "Dispensa"
-    COTACAO = "cotacao", "Cotação"
-    TOMADA_PRECOS = "tomada_precos", "Tomada de Preços"
-    CONCORRENCIA = "concorrencia", "Concorrência"
-    INEXIGIBILIDADE = "inexigibilidade", "Inexigibilidade"
+    """Modalidades conforme o Regulamento RCA (SENAI)."""
+
+    SELECAO_COM_DISPUTA_ABERTA = (
+        "selecao_com_disputa_aberta",
+        "Seleção com Disputa (Aberta)",
+    )
+    SELECAO_COM_DISPUTA_FECHADA = (
+        "selecao_com_disputa_fechada",
+        "Seleção com Disputa (Fechada)",
+    )
+    SELECAO_SEM_DISPUTA_DISPENSA = (
+        "selecao_sem_disputa_dispensa",
+        "Seleção sem Disputa (Dispensa)",
+    )
+    SELECAO_SEM_DISPUTA_INEXIGIBILIDADE = (
+        "selecao_sem_disputa_inexigibilidade",
+        "Seleção sem Disputa (Inexigibilidade)",
+    )
+    CREDENCIAMENTO = "credenciamento", "Credenciamento"
+    PRE_QUALIFICACAO = "pre_qualificacao", "Pré-qualificação"
+    DIALOGO_PREVIO = "dialogo_previo", "Diálogo Prévio"
+    REGISTRO_PRECO = "registro_preco", "Registro de Preço"
 
 
 class Status(models.TextChoices):
@@ -83,7 +99,7 @@ class Pedido(models.Model):
     possui_cotacao = models.BooleanField("Possui cotação", default=False)
     modalidade = models.CharField(
         "Modalidade (RCA)",
-        max_length=30,
+        max_length=50,
         choices=Modalidade.choices,
         blank=True,
     )
