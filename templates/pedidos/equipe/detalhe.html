@@ -46,19 +46,11 @@
 
 {% if pode_designar %}
 <div class="bloco-designar">
-    <h3>Designar responsável</h3>
+    <h3>Designar / Alterar responsável</h3>
     <form method="post" action="{% url 'pedidos:equipe_designar' pedido.pk %}" class="formulario">
         {% csrf_token %}
-        <p>
-            <label for="id_responsavel">Usuário do Time de Compras</label>
-            <select name="responsavel" id="id_responsavel" class="campo" required>
-                <option value="">Selecione o responsável</option>
-                {% for u in responsaveis %}
-                    <option value="{{ u.pk }}" {% if pedido.responsavel_id == u.pk %}selected{% endif %}>{{ u.get_username }}</option>
-                {% endfor %}
-            </select>
-        </p>
-        <button type="submit" class="botao">Designar</button>
+        <p class="meta">Clique no usuário para designá-lo como responsável.</p>
+        {% include "pedidos/_lista_responsaveis.html" %}
     </form>
 </div>
 {% endif %}

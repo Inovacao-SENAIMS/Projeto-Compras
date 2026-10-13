@@ -1,4 +1,4 @@
-// Modais das tabelas: anexos (popup) e designar responsável (Gestão).
+// Modais das tabelas: anexos (popup) e designar/alterar responsável (Gestão).
 (function () {
     function ligarFechamento(modal) {
         modal.querySelectorAll("[data-fechar]").forEach(function (el) {
@@ -32,15 +32,13 @@
         ligarFechamento(modalAnexos);
     }
 
-    // --- Modal de designar responsável ---
+    // --- Modal de designar/alterar responsável ---
     var modalDesignar = document.getElementById("modal-designar");
     if (modalDesignar) {
         var form = document.getElementById("form-designar");
-        var select = document.getElementById("id_responsavel_modal");
         document.querySelectorAll("[data-designar-url]").forEach(function (botao) {
             botao.addEventListener("click", function () {
                 form.setAttribute("action", botao.getAttribute("data-designar-url"));
-                select.value = botao.getAttribute("data-responsavel-atual") || "";
                 modalDesignar.classList.add("aberto");
             });
         });

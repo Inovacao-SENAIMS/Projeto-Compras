@@ -385,6 +385,37 @@ button.link {
     max-width: 640px;
 }
 
+.lista-designar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.opcao-usuario {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--cor-texto);
+    cursor: pointer;
+    font: inherit;
+}
+
+.opcao-usuario:hover {
+    background: #eef2f6;
+    border-color: var(--cor-primaria-clara);
+}
+
+.opcao-usuario.atual {
+    border-color: var(--cor-primaria-clara);
+    background: #eef2f6;
+}
+
 /* Formulários */
 .formulario {
     background: #fff;

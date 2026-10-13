@@ -1,23 +1,15 @@
-{% comment %}Modal para a Gestão designar/redesignar o responsável pela requisição.{% endcomment %}
+{% comment %}Modal para a Gestão designar/alterar o responsável (selecionar o usuário).{% endcomment %}
 <div class="modal-overlay" id="modal-designar">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-designar">
         <div class="modal-cabecalho">
-            <h3 id="titulo-designar">Designar responsável</h3>
+            <h3 id="titulo-designar">Selecionar responsável</h3>
             <button type="button" class="modal-fechar" data-fechar aria-label="Fechar">&times;</button>
         </div>
         <form method="post" id="form-designar" class="formulario formulario-modal">
             {% csrf_token %}
-            <p>
-                <label for="id_responsavel_modal">Usuário do Time de Compras</label>
-                <select name="responsavel" id="id_responsavel_modal" class="campo" required>
-                    <option value="">Selecione o responsável</option>
-                    {% for u in responsaveis %}
-                        <option value="{{ u.pk }}">{{ u.get_username }}</option>
-                    {% endfor %}
-                </select>
-            </p>
+            <p class="meta">Clique no usuário para designá-lo como responsável.</p>
+            {% include "pedidos/_lista_responsaveis.html" %}
             <div class="modal-acoes">
-                <button type="submit" class="botao">Designar</button>
                 <button type="button" class="link-secundario" data-fechar>Cancelar</button>
             </div>
         </form>

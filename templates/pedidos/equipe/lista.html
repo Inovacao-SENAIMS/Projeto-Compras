@@ -49,11 +49,15 @@
                         </form>
                     {% endif %}
                     {% if is_manager %}
-                        {% if p.status == 'enviada' or p.status == 'em_analise' %}
+                        {% if p.status == 'enviada' and not p.responsavel %}
                             <button type="button" class="btn-icone" title="Designar"
-                                    data-designar-url="{% url 'pedidos:equipe_designar' p.pk %}"
-                                    data-responsavel-atual="{{ p.responsavel_id|default:'' }}">
+                                    data-designar-url="{% url 'pedidos:equipe_designar' p.pk %}">
                                 <i class="bi bi-person-plus"></i>
+                            </button>
+                        {% elif p.responsavel and p.status != 'concluida' and p.status != 'cancelada' %}
+                            <button type="button" class="btn-icone" title="Alterar Responsável"
+                                    data-designar-url="{% url 'pedidos:equipe_designar' p.pk %}">
+                                <i class="bi bi-person-gear"></i>
                             </button>
                         {% endif %}
                     {% endif %}
