@@ -53,6 +53,28 @@ Página única (`/requisicoes/`, view `painel`) onde o solicitante:
 Se houver erro de validação no envio, o modal reabre automaticamente com as
 mensagens.
 
+### Tabela principal (colunas)
+
+As tabelas do solicitante ("Minhas requisições") e da equipe ("Painel de Compras
+(Equipe)") usam a seguinte estrutura:
+
+Nº da Requisição · Responsável · Aquisição · Modalidade (RCA) · Data de Abertura ·
+Status do Processo · Data de Envio · Data do Encerramento · Lead Time (Dias) ·
+Anexo · Ações
+
+- **Nº da Requisição:** texto único gerado automaticamente (`REQ-000001`).
+- **Aquisição:** o campo `produto` da requisição.
+- **Modalidade (RCA):** preenchida pela equipe na **tramitação** (lista
+  *provisória* — a ser substituída pelo Regulamento RCA SENAI).
+- **Data de Abertura:** data de criação (`criado_em`).
+- **Data de Envio / Data do Encerramento:** preenchidas na tramitação / ao concluir.
+- **Anexo:** link para o PDF via download protegido.
+- **Lead Time (Dias) — regra:** sem Data de Envio → vazio; com Envio e
+  Encerramento → Encerramento − Envio; com Envio e sem Encerramento → Hoje − Envio.
+
+> Observação: as colunas "Urgência" e "Solicitante" não fazem parte deste layout
+> (seguem registradas e visíveis na tela de detalhe da requisição).
+
 ## 2. Decisões de modelagem
 
 - **`Pedido`** guarda `produto`, `solicitante_nome`, `urgencia`, `status`,

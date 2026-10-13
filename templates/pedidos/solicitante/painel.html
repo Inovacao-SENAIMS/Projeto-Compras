@@ -10,25 +10,27 @@
 </div>
 
 <h3>Minhas requisições</h3>
+<div class="tabela-scroll">
 <table class="tabela">
     <thead>
         <tr>
-            <th>#</th>
-            <th>Produto</th>
-            <th>Urgência</th>
-            <th>Status</th>
+            <th>Nº da Requisição</th>
             <th>Responsável</th>
-            <th>Criado em</th>
+            <th>Aquisição</th>
+            <th>Modalidade (RCA)</th>
+            <th>Data de Abertura</th>
+            <th>Status do Processo</th>
+            <th>Data de Envio</th>
+            <th>Data do Encerramento</th>
+            <th>Lead Time (Dias)</th>
+            <th>Anexo</th>
             <th>Ações</th>
         </tr>
     </thead>
     <tbody>
         {% for p in pedidos %}
         <tr>
-            <td>{{ p.pk }}</td>
-            <td>{{ p.produto }}</td>
-            <td><span class="tag urgencia-{{ p.urgencia }}">{{ p.get_urgencia_display }}</span></td>
-            <td><span class="tag status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+            <td>{{ p.numero|default:p.pk }}</td>
             <td>
                 {% if p.responsavel %}
                     {{ p.responsavel.get_username }}
@@ -36,12 +38,23 @@
                     <span class="sem-responsavel">Sem responsável</span>
                 {% endif %}
             </td>
-            <td>{{ p.criado_em|date:"d/m/Y H:i" }}</td>
+            <td>{{ p.produto }}</td>
+            <td>{{ p.get_modalidade_display|default:"—" }}</td>
+            <td>{{ p.criado_em|date:"d/m/Y" }}</td>
+            <td><span class="tag status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+            <td>{{ p.data_envio|date:"d/m/Y"|default:"—" }}</td>
+            <td>{{ p.concluido_em|date:"d/m/Y"|default:"—" }}</td>
+            <td>{% if p.data_envio %}{{ p.lead_time_dias }}{% else %}—{% endif %}</td>
+            <td>
+                {% with primeiro=p.anexos.first total=p.anexos.count %}
+                {% if primeiro %}<a href="{% url 'pedidos:anexo_download' primeiro.pk %}">Abrir</a>{% if total > 1 %} <span class="meta">(+{{ total|add:"-1" }})</span>{% endif %}{% else %}—{% endif %}
+                {% endwith %}
+            </td>
             <td class="acoes-tabela">
                 <a href="{% url 'pedidos:pedido_detalhe' p.pk %}">Ver</a>
                 {% if p.status == 'novo' and not p.responsavel %}
                     <form method="post" action="{% url 'pedidos:pedido_excluir' p.pk %}" class="inline"
-                          onsubmit="return confirm('Excluir a requisição #{{ p.pk }} ({{ p.produto }})?');">
+                          onsubmit="return confirm('Excluir a requisição {{ p.numero|default:p.pk }} ({{ p.produto }})?');">
                         {% csrf_token %}
                         <button type="submit" class="link-perigo">Excluir</button>
                     </form>
@@ -49,10 +62,11 @@
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="vazio">Você ainda não registrou requisições.</td></tr>
+        <tr><td colspan="11" class="vazio">Você ainda não registrou requisições.</td></tr>
         {% endfor %}
     </tbody>
 </table>
+</div>
 
 <!-- Modal de nova requisição (suspenso) -->
 <div class="modal-overlay" id="modal-requisicao" {% if abrir_modal %}data-abrir="1"{% endif %}>

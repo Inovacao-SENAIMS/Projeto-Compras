@@ -50,7 +50,15 @@ def assumir_pedido(pedido_id, usuario):
 
 
 @transaction.atomic
-def alterar_status(pedido, usuario, novo_status, observacao="", retorno_final=None):
+def alterar_status(
+    pedido,
+    usuario,
+    novo_status,
+    observacao="",
+    retorno_final=None,
+    modalidade=None,
+    data_envio=None,
+):
     """Altera o status de um pedido assumido. Só o responsável pode.
 
     Valida a transição e registra o histórico (quem, quando, de -> para).
@@ -79,6 +87,10 @@ def alterar_status(pedido, usuario, novo_status, observacao="", retorno_final=No
     pedido.status = novo_status
     if retorno_final is not None:
         pedido.retorno_final = retorno_final
+    if modalidade:
+        pedido.modalidade = modalidade
+    if data_envio:
+        pedido.data_envio = data_envio
     if novo_status in STATUS_TERMINAIS:
         pedido.concluido_em = timezone.now()
     pedido.save()

@@ -13,17 +13,18 @@ class AnexoInline(admin.TabularInline):
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
+        "numero",
         "produto",
         "solicitante_nome",
         "urgencia",
+        "modalidade",
         "status",
         "responsavel",
         "criado_em",
     )
-    list_filter = ("status", "urgencia")
-    search_fields = ("produto", "solicitante_nome")
-    readonly_fields = ("criado_em", "atualizado_em", "assumido_em", "concluido_em")
+    list_filter = ("status", "urgencia", "modalidade")
+    search_fields = ("numero", "produto", "solicitante_nome")
+    readonly_fields = ("numero", "criado_em", "atualizado_em", "assumido_em", "concluido_em")
     inlines = [AnexoInline]
 
 

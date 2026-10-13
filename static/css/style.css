@@ -403,6 +403,14 @@ button.link {
     color: #64748b;
 }
 
+.tabela-scroll {
+    overflow-x: auto;
+}
+
+.tabela-scroll .tabela {
+    min-width: 960px;
+}
+
 /* Ficha do pedido */
 .dados {
     display: grid;

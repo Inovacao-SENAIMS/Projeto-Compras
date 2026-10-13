@@ -4,6 +4,7 @@ from pathlib import Path
 from django.conf import settings
 from django.db import models
 from django.dispatch import receiver
+from django.utils import timezone
 
 
 class Urgencia(models.TextChoices):
@@ -11,6 +12,15 @@ class Urgencia(models.TextChoices):
     MEDIA = "media", "Média"
     ALTA = "alta", "Alta"
     CRITICA = "critica", "Crítica"
+
+
+class Modalidade(models.TextChoices):
+    # PROVISÓRIO: substituir pelas opções do Regulamento RCA SENAI.
+    DISPENSA = "dispensa", "Dispensa"
+    COTACAO = "cotacao", "Cotação"
+    TOMADA_PRECOS = "tomada_precos", "Tomada de Preços"
+    CONCORRENCIA = "concorrencia", "Concorrência"
+    INEXIGIBILIDADE = "inexigibilidade", "Inexigibilidade"
 
 
 class Status(models.TextChoices):
@@ -51,6 +61,14 @@ def caminho_anexo(instance, filename):
 
 
 class Pedido(models.Model):
+    numero = models.CharField(
+        "Nº da Requisição",
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+        editable=False,
+    )
     produto = models.CharField("Produto", max_length=255)
     solicitante_nome = models.CharField("Nome do solicitante", max_length=150)
     criado_por = models.ForeignKey(
@@ -63,6 +81,13 @@ class Pedido(models.Model):
         "Urgência", max_length=10, choices=Urgencia.choices, default=Urgencia.BAIXA
     )
     possui_cotacao = models.BooleanField("Possui cotação", default=False)
+    modalidade = models.CharField(
+        "Modalidade (RCA)",
+        max_length=30,
+        choices=Modalidade.choices,
+        blank=True,
+    )
+    data_envio = models.DateField("Data de envio", null=True, blank=True)
     status = models.CharField(
         "Status", max_length=30, choices=Status.choices, default=Status.NOVO
     )
@@ -87,7 +112,27 @@ class Pedido(models.Model):
         verbose_name_plural = "pedidos"
 
     def __str__(self):
-        return f"Pedido #{self.pk} - {self.produto}"
+        return f"{self.numero or ('Pedido #%s' % self.pk)} - {self.produto}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.numero:
+            self.numero = f"REQ-{self.pk:06d}"
+            type(self).objects.filter(pk=self.pk).update(numero=self.numero)
+
+    @property
+    def lead_time_dias(self):
+        """Dias entre o envio e o encerramento (ou a data atual, se aberto).
+
+        Regra (spec 3.3):
+        - sem data de envio -> vazio (None);
+        - com envio e encerramento -> encerramento - envio;
+        - com envio, sem encerramento -> hoje - envio.
+        """
+        if not self.data_envio:
+            return None
+        fim = self.concluido_em.date() if self.concluido_em else timezone.localdate()
+        return (fim - self.data_envio).days
 
     @property
     def assumido(self):

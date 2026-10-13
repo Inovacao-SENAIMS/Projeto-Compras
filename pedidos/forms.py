@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Pedido, Status
+from .models import Modalidade, Pedido, Status
 from .validators import validar_arquivo
 
 
@@ -80,6 +80,17 @@ class TramitacaoForm(forms.Form):
         label="Retorno final ao solicitante",
         required=False,
         widget=forms.Textarea(attrs={"class": "campo", "rows": 3}),
+    )
+    modalidade = forms.ChoiceField(
+        label="Modalidade (RCA)",
+        required=False,
+        choices=[("", "—")] + list(Modalidade.choices),
+        widget=forms.Select(attrs={"class": "campo"}),
+    )
+    data_envio = forms.DateField(
+        label="Data de envio",
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date", "class": "campo"}),
     )
     arquivos = MultipleFileField(
         label="Anexos",

@@ -47,7 +47,11 @@ def painel(request):
         form = PedidoForm()
         anexos_form = AnexosForm()
 
-    pedidos = Pedido.objects.filter(criado_por=request.user)
+    pedidos = (
+        Pedido.objects.filter(criado_por=request.user)
+        .select_related("responsavel")
+        .prefetch_related("anexos")
+    )
     return render(
         request,
         "pedidos/solicitante/painel.html",
@@ -88,7 +92,11 @@ def pedido_excluir(request, pk):
 
 @equipe_required
 def equipe_lista(request):
-    pedidos = Pedido.objects.select_related("responsavel", "criado_por").all()
+    pedidos = (
+        Pedido.objects.select_related("responsavel", "criado_por")
+        .prefetch_related("anexos")
+        .all()
+    )
     return render(request, "pedidos/equipe/lista.html", {"pedidos": pedidos})
 
 
@@ -142,6 +150,8 @@ def equipe_tramitar(request, pk):
                     form.cleaned_data["status"],
                     observacao=form.cleaned_data.get("observacao", ""),
                     retorno_final=form.cleaned_data.get("retorno_final", ""),
+                    modalidade=form.cleaned_data.get("modalidade", ""),
+                    data_envio=form.cleaned_data.get("data_envio"),
                 )
             except services.RegraDeNegocioError as erro:
                 messages.error(request, str(erro))
