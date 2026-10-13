@@ -139,13 +139,13 @@ LOGOUT_REDIRECT_URL = "login"
 
 
 # Usuarios iniciais da equipe de compras (usados pelo comando `criar_equipe`).
-# Estrutura: (username, email, senha). Nome do grupo vem de accounts.grupos.
+# Estrutura: (username, email, senha). O login e feito pelo e-mail (username).
 
 EQUIPE_INICIAL = [
-    ("compras1", "compras1@example.com", "Compras@2026"),
-    ("compras2", "compras2@example.com", "Compras@2026"),
-    ("compras3", "compras3@example.com", "Compras@2026"),
-    ("compras4", "compras4@example.com", "Compras@2026"),
+    ("compras1@ms.senai.br", "compras1@ms.senai.br", "Compras@2026"),
+    ("compras2@ms.senai.br", "compras2@ms.senai.br", "Compras@2026"),
+    ("compras3@ms.senai.br", "compras3@ms.senai.br", "Compras@2026"),
+    ("compras4@ms.senai.br", "compras4@ms.senai.br", "Compras@2026"),
 ]
 
 

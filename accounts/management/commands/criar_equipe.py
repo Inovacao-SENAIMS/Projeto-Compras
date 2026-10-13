@@ -9,10 +9,10 @@ Exemplos:
     python manage.py criar_equipe
 
     # Gestor de compras
-    python manage.py criar_equipe --grupo Manager_Compras --usuario gestor:Gestor@2026:gestor@ex.com
+    python manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
 
     # Usuário comum (solicitante)
-    python manage.py criar_equipe --grupo UserISI_IST --usuario ana:Ana@2026:ana@ex.com
+    python manage.py criar_equipe --grupo UserISI_IST --usuario ana@ms.senai.br:Ana@2026
 """
 
 from django.conf import settings

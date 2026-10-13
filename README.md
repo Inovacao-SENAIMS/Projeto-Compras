@@ -234,7 +234,7 @@ python manage.py createsuperuser
 
 # 5. Usuários iniciais: Time de Compras + Gestor
 python manage.py criar_equipe
-python manage.py criar_equipe --grupo Manager_Compras --usuario gestor:Gestor@2026:gestor@exemplo.com
+python manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
 
 # 6. Executar o servidor
 python manage.py runserver
@@ -256,22 +256,26 @@ em `compras/settings.py` (senha `Compras@2026`):
 ```powershell
 # Time de Compras (padrão)
 python manage.py criar_equipe
-# compras1, compras2, compras3, compras4 -> grupo "Time_Compras"
+# compras1@ms.senai.br ... compras4@ms.senai.br -> grupo "Time_Compras"
 
 # Gestor de compras
-python manage.py criar_equipe --grupo Manager_Compras --usuario gestor:Gestor@2026:gestor@exemplo.com
+python manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
 
 # Usuário comum (solicitante)
-python manage.py criar_equipe --grupo UserISI_IST --usuario ana:Ana@2026:ana@exemplo.com
+python manage.py criar_equipe --grupo UserISI_IST --usuario ana@ms.senai.br:Ana@2026
 ```
+
+> **Login pelo e-mail:** o e-mail institucional é usado como *usuário*; o login é
+> feito por ele (ex.: `ana@ms.senai.br`).
 
 Novos usuários **não exigem alteração de código**. Também é possível gerenciar
 pelo `/admin`: crie o usuário e adicione-o ao grupo correspondente
 (`UserISI_IST`, `Time_Compras` ou `Manager_Compras`).
 
-Sugestão para testar rapidamente: entre como `ana` (solicitante) e registre uma
-requisição; como `gestor`, **designe** a requisição a um usuário do time; e como
-`compras1` (Time de Compras), assuma e tramite até a conclusão.
+Sugestão para testar rapidamente: entre como `ana@ms.senai.br` (solicitante) e
+registre uma requisição; como `gestor@ms.senai.br`, **designe** a requisição a um
+usuário do time; e como `compras1@ms.senai.br` (Time de Compras), assuma e tramite
+até a conclusão.
 
 > Em produção, troque a `SECRET_KEY`, desative `DEBUG` e defina
 > `ALLOWED_HOSTS`. Os anexos continuam sem exposição pública graças ao download
