@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard - Projeto Compras{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="dash-cabecalho">
     <div>
         <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
-        <p class="meta">{{ escopo }} — visão geral por status, mês e instituto.</p>
+        <p class="meta">{{ escopo }} — Visão Geral.</p>
     </div>
     <a class="botao" href="{% if is_equipe %}{% url 'pedidos:equipe_lista' %}{% else %}{% url 'pedidos:painel' %}{% endif %}">
         <i class="bi bi-inboxes"></i> Ver requisições
@@ -83,18 +83,6 @@
                 <span><span class="acao-titulo">Configurações</span><span class="acao-desc">Preferências da sua conta</span></span>
             </a>
         </div>
-    </div>
-</div>
-
-<div class="card-grafico dash-status">
-    <div class="card-grafico-cabecalho"><h3>Números por Status</h3></div>
-    <div class="dash-status-lista">
-        {% for status, qtd in por_status %}
-        <div class="dash-status-item">
-            <span class="tag status-{{ status.value }}">{{ status.label }}</span>
-            <strong>{{ qtd }}</strong>
-        </div>
-        {% endfor %}
     </div>
 </div>
 

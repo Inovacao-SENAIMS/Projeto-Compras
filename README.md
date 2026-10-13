@@ -13,18 +13,28 @@ autenticadas: **solicitante** e **equipe de compras**.
 ## 1. Estrutura do projeto
 
 ```
-compras/                  # configuração do projeto (settings, urls, wsgi/asgi)
-core/                     # home "/" que redireciona por perfil
-accounts/                 # perfis (grupos), decorators e comando criar_equipe
-pedidos/                  # domínio: Pedido, Anexo, HistoricoStatus (views/forms/services)
-templates/                # base, login e templates das duas áreas
-static/css/style.css      # estilo
+backend/                  # CÓDIGO (Django / Python)
+├── manage.py
+├── compras/              # configuração do projeto (settings, urls, wsgi/asgi)
+├── core/                 # home "/" (dashboard)
+├── accounts/             # perfis (grupos), cadastro, Perfil, decorators, comandos
+└── pedidos/              # domínio: Pedido, Anexo, HistoricoStatus (views/forms/services/filtros)
+
+frontend/                 # INTERFACE
+├── templates/            # base, login, dashboard e templates das duas áreas
+└── static/               # css/style.css e js/ (painel, tabela, dashboard, performance)
+
 media/anexos/             # anexos enviados (NÃO servidos publicamente)
+db.sqlite3                # banco de dados (SQLite)
 ```
 
+O projeto é dividido em **duas macro partes**: **`backend/`** (código Python/Django)
+e **`frontend/`** (templates e arquivos estáticos). O `settings.py` aponta
+`TEMPLATES` e `STATICFILES_DIRS` para `frontend/`.
+
 Dentro de `pedidos/`, a lógica de negócio fica em `services.py`, as regras de
-permissão em `permissoes.py` e a validação de upload em `validators.py`, mantendo
-as views enxutas.
+permissão em `permissoes.py`, a validação de upload em `validators.py` e os filtros
+em `filtros.py`, mantendo as views enxutas.
 
 ### Navegação (sidebar)
 
@@ -250,20 +260,20 @@ python -m venv .venv
 pip install -r requirements.txt     # Django==6.1.2
 
 # 3. Banco de dados
-python manage.py migrate
+python backend\manage.py migrate
 
 # 4. Superusuário (para o /admin) — pede usuário e senha
-python manage.py createsuperuser
+python backend\manage.py createsuperuser
 
 # 5. Usuários iniciais: Time de Compras + Gestor
-python manage.py criar_equipe
-python manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
+python backend\manage.py criar_equipe
+python backend\manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
 
 # 6. (Opcional) Dados de exemplo para testar/visualizar
-python manage.py seed --reset
+python backend\manage.py seed --reset
 
 # 7. Executar o servidor
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 Acesse http://127.0.0.1:8000/ — a home redireciona conforme o perfil.
@@ -281,14 +291,14 @@ em `compras/settings.py` (senha `Compras@2026`):
 
 ```powershell
 # Time de Compras (padrão)
-python manage.py criar_equipe
+python backend\manage.py criar_equipe
 # compras1@ms.senai.br ... compras4@ms.senai.br -> grupo "Time_Compras"
 
 # Gestor de compras
-python manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
+python backend\manage.py criar_equipe --grupo Manager_Compras --usuario gestor@ms.senai.br:Gestor@2026
 
 # Usuário comum (solicitante)
-python manage.py criar_equipe --grupo UserISI_IST --usuario ana@ms.senai.br:Ana@2026
+python backend\manage.py criar_equipe --grupo UserISI_IST --usuario ana@ms.senai.br:Ana@2026
 ```
 
 > **Login pelo e-mail:** o e-mail institucional é usado como *usuário*; o login é
@@ -318,9 +328,9 @@ perfil/instituto) e **requisições** variadas (status, meses, responsáveis, an
 histórico), para visualizar o dashboard, a performance e as tabelas com dados.
 
 ```powershell
-python manage.py seed             # gera 80 requisições
-python manage.py seed --pedidos 200
-python manage.py seed --reset     # apaga as requisições antes de gerar
+python backend\manage.py seed             # gera 80 requisições
+python backend\manage.py seed --pedidos 200
+python backend\manage.py seed --reset     # apaga as requisições antes de gerar
 ```
 
 Ao final, o comando imprime o **resumo por status**, as **rotas** para conferir e as
