@@ -3,20 +3,23 @@
 {% block title %}Entrar - Projeto Compras{% endblock %}
 
 {% block content %}
-<h2>Entrar</h2>
+<div class="login-card">
+    <div class="login-icone"><i class="bi bi-shield-lock"></i></div>
+    <h2>Entrar</h2>
 
-<form method="post" class="formulario">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <p>
-        <label for="{{ form.username.id_for_label }}">Usuário</label>
-        {{ form.username }}
-    </p>
-    <p>
-        <label for="{{ form.password.id_for_label }}">Senha</label>
-        {{ form.password }}
-    </p>
-    <input type="hidden" name="next" value="{{ next }}">
-    <button type="submit" class="botao">Entrar</button>
-</form>
+    <form method="post" class="formulario">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <p>
+            <label for="{{ form.username.id_for_label }}">Usuário</label>
+            {{ form.username }}
+        </p>
+        <p>
+            <label for="{{ form.password.id_for_label }}">Senha</label>
+            {{ form.password }}
+        </p>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="botao"><i class="bi bi-box-arrow-in-right"></i> Entrar</button>
+    </form>
+</div>
 {% endblock %}

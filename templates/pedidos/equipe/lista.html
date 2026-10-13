@@ -4,7 +4,7 @@
 {% block title %}Requisições | SENAI MS{% endblock %}
 
 {% block content %}
-<h2>{% if is_manager %}Requisições — Gestão{% else %}Requisições — Equipe{% endif %}</h2>
+<h2><i class="bi bi-inboxes"></i> {% if is_manager %}Requisições — Gestão{% else %}Requisições — Equipe{% endif %}</h2>
 <p class="meta">Todas as requisições. {% if is_manager %}Você pode designar o responsável e tramitar.{% else %}Assuma uma requisição enviada para conduzir a análise.{% endif %}</p>
 
 <div class="tabela-scroll">

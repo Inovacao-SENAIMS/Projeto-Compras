@@ -3,8 +3,8 @@
 {% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Projeto Compras{% endblock %}
 
 {% block content %}
-<p><a href="{% url 'pedidos:painel' %}">← Voltar para o painel de requisições</a></p>
-<h2>Requisição {{ pedido.numero|default:pedido.pk }}</h2>
+<p><a class="link-voltar" href="{% url 'pedidos:painel' %}"><i class="bi bi-arrow-left"></i> Voltar para as requisições</a></p>
+<h2><i class="bi bi-file-earmark-text"></i> Requisição {{ pedido.numero|default:pedido.pk }}</h2>
 
 <dl class="dados">
     <dt>Produto</dt><dd>{{ pedido.produto }}</dd>

@@ -11,41 +11,46 @@
 <body>
 <div class="layout">
     <aside class="sidebar">
-        <a class="sidebar-marca" href="{% url 'core:home' %}">Projeto Compras</a>
+        <a class="sidebar-marca" href="{% url 'core:home' %}">
+            <i class="bi bi-bag-check-fill"></i> <span>Projeto Compras</span>
+        </a>
 
         <nav class="sidebar-nav">
             {% if user.is_authenticated %}
                 <a class="nav-item {% if request.resolver_match.view_name == 'core:home' %}ativo{% endif %}"
-                   href="{% url 'core:home' %}">Home</a>
+                   href="{% url 'core:home' %}"><i class="bi bi-house-door"></i> <span>Home</span></a>
 
                 {% if is_equipe %}
                     <a class="nav-item {% if request.resolver_match.url_name == 'equipe_lista' %}ativo{% endif %}"
-                       href="{% url 'pedidos:equipe_lista' %}">Requisições</a>
+                       href="{% url 'pedidos:equipe_lista' %}"><i class="bi bi-inboxes"></i> <span>Requisições</span></a>
                 {% else %}
                     <a class="nav-item {% if request.resolver_match.url_name == 'painel' %}ativo{% endif %}"
-                       href="{% url 'pedidos:painel' %}">Requisições</a>
+                       href="{% url 'pedidos:painel' %}"><i class="bi bi-inboxes"></i> <span>Requisições</span></a>
                 {% endif %}
 
                 <a class="nav-item {% if request.resolver_match.url_name == 'configuracoes' %}ativo{% endif %}"
-                   href="{% url 'accounts:configuracoes' %}">Configurações</a>
+                   href="{% url 'accounts:configuracoes' %}"><i class="bi bi-gear"></i> <span>Configurações</span></a>
 
                 {% if user.is_staff %}
                     <a class="nav-item {% if '/admin/' in request.path %}ativo{% endif %}"
-                       href="/admin/">Painel ADM</a>
+                       href="/admin/"><i class="bi bi-speedometer2"></i> <span>Painel ADM</span></a>
                 {% endif %}
 
                 <form method="post" action="{% url 'logout' %}" class="nav-logout">
                     {% csrf_token %}
-                    <button type="submit" class="nav-item nav-sair">Logout</button>
+                    <button type="submit" class="nav-item nav-sair">
+                        <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+                    </button>
                 </form>
             {% else %}
                 <a class="nav-item {% if request.resolver_match.url_name == 'login' %}ativo{% endif %}"
-                   href="{% url 'login' %}">Entrar</a>
+                   href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> <span>Entrar</span></a>
             {% endif %}
         </nav>
 
         {% if user.is_authenticated %}
         <div class="sidebar-rodape">
+            <i class="bi bi-person-circle"></i>
             <span class="usuario">{{ user.get_username }}</span>
         </div>
         {% endif %}
@@ -54,7 +59,15 @@
     <main class="conteudo">
         {% if messages %}
             <ul class="mensagens">
-                {% for m in messages %}<li class="msg msg-{{ m.tags }}">{{ m }}</li>{% endfor %}
+                {% for m in messages %}
+                <li class="msg msg-{{ m.tags }}">
+                    {% if 'success' in m.tags %}<i class="bi bi-check-circle-fill"></i>
+                    {% elif 'error' in m.tags %}<i class="bi bi-x-circle-fill"></i>
+                    {% elif 'warning' in m.tags %}<i class="bi bi-exclamation-triangle-fill"></i>
+                    {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+                    <span>{{ m }}</span>
+                </li>
+                {% endfor %}
             </ul>
         {% endif %}
 

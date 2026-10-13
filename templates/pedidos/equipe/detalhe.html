@@ -4,8 +4,8 @@
 {% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Equipe de Compras{% endblock %}
 
 {% block content %}
-<p><a href="{% url 'pedidos:equipe_lista' %}">← Voltar para as requisições</a></p>
-<h2>Requisição {{ pedido.numero|default:pedido.pk }}</h2>
+<p><a class="link-voltar" href="{% url 'pedidos:equipe_lista' %}"><i class="bi bi-arrow-left"></i> Voltar para as requisições</a></p>
+<h2><i class="bi bi-file-earmark-text"></i> Requisição {{ pedido.numero|default:pedido.pk }}</h2>
 
 {% include "pedidos/_detalhes.html" %}
 
@@ -13,11 +13,11 @@
     {% if pedido.status == 'enviada' and not pedido.responsavel %}
         <form method="post" action="{% url 'pedidos:equipe_assumir' pedido.pk %}" class="inline">
             {% csrf_token %}
-            <button type="submit" class="botao">Assumir pedido</button>
+            <button type="submit" class="botao"><i class="bi bi-person-check"></i> Assumir</button>
         </form>
     {% endif %}
     {% if pode_tramitar %}
-        <a class="botao" href="{% url 'pedidos:equipe_tramitar' pedido.pk %}">Tramitar pedido</a>
+        <a class="botao" href="{% url 'pedidos:equipe_tramitar' pedido.pk %}"><i class="bi bi-pencil-square"></i> Tramitar</a>
     {% endif %}
     {% if pedido.responsavel and pedido.responsavel != user and not is_manager %}
         <p class="aviso">Esta requisição está sob responsabilidade de {{ pedido.responsavel.get_username }}.</p>

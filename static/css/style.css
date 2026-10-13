@@ -40,12 +40,19 @@ body {
 }
 
 .sidebar-marca {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
     color: #fff;
     font-size: 1.2rem;
     font-weight: 700;
     text-decoration: none;
     padding: 0 1.25rem 1.25rem;
+}
+
+.sidebar-marca i {
+    font-size: 1.4rem;
+    color: #7fb2e6;
 }
 
 .sidebar-nav {
@@ -55,7 +62,8 @@ body {
 }
 
 .nav-item {
-    display: block;
+    display: flex;
+    align-items: center;
     width: 100%;
     text-align: left;
     color: #d7e3f0;
@@ -67,6 +75,13 @@ body {
     font: inherit;
     font-size: 0.95rem;
     cursor: pointer;
+}
+
+.nav-item i {
+    width: 1.3rem;
+    margin-right: 0.6rem;
+    text-align: center;
+    font-size: 1.05rem;
 }
 
 .nav-item:hover {
@@ -99,7 +114,13 @@ body {
     padding: 1rem 1.25rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.sidebar-rodape i {
+    font-size: 1.3rem;
+    color: #7fb2e6;
 }
 
 .sidebar-rodape .usuario {
@@ -129,6 +150,22 @@ body {
     color: #64748b;
     max-width: 640px;
     margin-top: 1rem;
+}
+
+.login-card {
+    max-width: 420px;
+    margin: 3rem auto;
+    text-align: center;
+}
+
+.login-card .login-icone {
+    font-size: 2.6rem;
+    color: var(--cor-primaria-clara);
+}
+
+.login-card .formulario {
+    max-width: none;
+    text-align: left;
 }
 
 /* Ações na tabela do painel */
@@ -332,7 +369,9 @@ h2 {
 /* Botões e links */
 .botao,
 button.botao {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     background-color: var(--cor-primaria-clara);
     color: #fff;
     border: none;
@@ -343,8 +382,27 @@ button.botao {
     text-decoration: none;
 }
 
+.botao i {
+    font-size: 1.05rem;
+}
+
 .botao:hover {
     background-color: var(--cor-primaria);
+}
+
+.link-voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--cor-primaria-clara);
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+}
+
+.link-voltar:hover {
+    color: var(--cor-primaria);
+    text-decoration: underline;
 }
 
 .link,
@@ -582,10 +640,18 @@ button.link {
 }
 
 .msg {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.6rem 0.85rem;
     border-radius: 6px;
     margin-bottom: 0.5rem;
     border: 1px solid transparent;
+}
+
+.msg i {
+    font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 .msg-success { background: #e6f6ec; color: #166534; border-color: #b7e4c7; }
