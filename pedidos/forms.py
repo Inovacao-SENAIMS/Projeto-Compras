@@ -40,10 +40,17 @@ class PedidoForm(forms.ModelForm):
 
     class Meta:
         model = Pedido
-        fields = ["produto", "urgencia", "possui_cotacao"]
+        fields = ["produto", "descricao_objeto", "urgencia", "possui_cotacao"]
         widgets = {
             "produto": forms.TextInput(
                 attrs={"class": "campo", "placeholder": "Ex.: Cadeira de escritório"}
+            ),
+            "descricao_objeto": forms.Textarea(
+                attrs={
+                    "class": "campo",
+                    "rows": 3,
+                    "placeholder": "Detalhes do item ou serviço (modelo, quantidade, especificação...)",
+                }
             ),
             "urgencia": forms.Select(attrs={"class": "campo"}),
         }

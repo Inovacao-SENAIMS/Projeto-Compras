@@ -86,6 +86,7 @@ class Pedido(models.Model):
         editable=False,
     )
     produto = models.CharField("Produto", max_length=255)
+    descricao_objeto = models.TextField("Descrição do Objeto", blank=True)
     solicitante_nome = models.CharField("Nome do solicitante", max_length=150)
     criado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,

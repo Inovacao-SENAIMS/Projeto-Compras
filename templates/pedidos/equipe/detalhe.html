@@ -8,6 +8,7 @@
 
 <dl class="dados">
     <dt>Produto</dt><dd>{{ pedido.produto }}</dd>
+    <dt>Descrição do Objeto</dt><dd>{{ pedido.descricao_objeto|default:"—"|linebreaksbr }}</dd>
     <dt>Solicitante</dt><dd>{{ pedido.solicitante_nome }}</dd>
     <dt>Urgência</dt><dd><span class="tag urgencia-{{ pedido.urgencia }}">{{ pedido.get_urgencia_display }}</span></dd>
     <dt>Possui cotação</dt><dd>{% if pedido.possui_cotacao %}Sim{% else %}Não{% endif %}</dd>

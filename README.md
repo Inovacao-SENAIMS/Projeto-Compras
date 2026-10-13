@@ -40,8 +40,9 @@ Todas as telas usam um layout com sidebar sensível ao perfil:
 Página única (`/requisicoes/`, view `painel`) onde o solicitante:
 
 - clica em **"+ Nova Requisição"**, que abre um **modal (popup)** de registro;
-- o modal contém: **Nome do Produto**, **Urgência**, **Possui cotação? (Sim/Não)**
-  e, quando a resposta é **Sim**, o campo de **anexo** passa a ser exibido;
+- o modal contém: **Nome do Produto**, **Descrição do Objeto** (detalhes do item
+  ou serviço), **Urgência**, **Possui cotação? (Sim/Não)** e, quando a resposta é
+  **Sim**, o campo de **anexo** passa a ser exibido;
   botão **Registrar**. O nome do solicitante é preenchido automaticamente com o
   usuário logado;
 - **consulta** a lista das próprias requisições (status, responsável, datas);

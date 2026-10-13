@@ -86,6 +86,11 @@
                 {{ form.produto.errors }}
             </p>
             <p>
+                <label for="{{ form.descricao_objeto.id_for_label }}">Descrição do Objeto</label>
+                {{ form.descricao_objeto }}
+                {{ form.descricao_objeto.errors }}
+            </p>
+            <p>
                 <label for="{{ form.urgencia.id_for_label }}">Urgência</label>
                 {{ form.urgencia }}
                 {{ form.urgencia.errors }}
