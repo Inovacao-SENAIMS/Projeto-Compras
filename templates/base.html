@@ -19,7 +19,7 @@
 
                 {% if is_equipe %}
                     <a class="nav-item {% if request.resolver_match.url_name == 'equipe_lista' %}ativo{% endif %}"
-                       href="{% url 'pedidos:equipe_lista' %}">Painel de compras</a>
+                       href="{% url 'pedidos:equipe_lista' %}">Painel de Compras (Equipe)</a>
                 {% else %}
                     <a class="nav-item {% if request.resolver_match.url_name == 'painel' %}ativo{% endif %}"
                        href="{% url 'pedidos:painel' %}">Painel de Requisições</a>

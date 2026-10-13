@@ -31,7 +31,7 @@ as views enxutas.
 Todas as telas usam um layout com sidebar sensível ao perfil:
 
 - **Solicitante:** Home · Painel de Requisições · Configurações · Logout
-- **Equipe de compras:** Home · Painel de compras · Configurações · Logout
+- **Equipe de compras:** Home · Painel de Compras (Equipe) · Configurações · Logout
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
 - **Configurações:** página placeholder (visível a todo usuário autenticado)
 
