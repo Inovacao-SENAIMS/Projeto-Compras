@@ -6,7 +6,7 @@
 
 {% block content %}
 <h2><i class="bi bi-graph-up-arrow"></i> Performance do Time</h2>
-<p class="meta">Acompanhe a distribuição e o andamento das requisições por membro do Time de Compras.</p>
+<p class="meta">Acompanhe a distribuição e o andamento das requisições.</p>
 
 <form method="get" class="filtro-periodo">
     <div class="filtro-campo">
@@ -28,7 +28,7 @@
     </div>
     <div class="filtro-acoes">
         <button type="submit" class="botao"><i class="bi bi-funnel"></i> Filtrar</button>
-        <a class="botao botao-contorno"
+        <a class="botao botao-exportar"
            href="{% url 'pedidos:performance' %}?inicio={{ inicio }}&fim={{ fim }}&usuario={{ usuario_id }}&formato=csv">
             <i class="bi bi-filetype-csv"></i> Exportar CSV
         </a>

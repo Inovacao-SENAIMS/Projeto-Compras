@@ -56,7 +56,7 @@
 
     <div class="filtros-acoes">
         <button type="submit" class="botao"><i class="bi bi-funnel"></i> Filtrar</button>
-        <a class="botao botao-contorno" href="{% querystring formato='csv' %}"><i class="bi bi-filetype-csv"></i> Exportar CSV</a>
+        <a class="botao botao-exportar" href="{% querystring formato='csv' %}"><i class="bi bi-filetype-csv"></i> Exportar CSV</a>
         {% if filtro_ativo %}<a class="link-secundario" href="{{ request.path }}"><i class="bi bi-x-lg"></i> Limpar</a>{% endif %}
     </div>
 </form>

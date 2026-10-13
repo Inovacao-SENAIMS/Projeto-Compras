@@ -1093,15 +1093,16 @@ button.link {
     white-space: nowrap;
 }
 
-.botao-contorno {
-    background: #fff;
-    color: var(--cor-primaria-clara);
-    border: 1px solid var(--cor-borda);
+.botao-exportar {
+    background: var(--cor-accent);
+    color: #fff;
+    border: 1px solid var(--cor-accent);
 }
 
-.botao-contorno:hover {
-    background: #eef2f6;
-    color: var(--cor-primaria);
+.botao-exportar:hover {
+    background: var(--cor-accent-dark);
+    border-color: var(--cor-accent-dark);
+    color: #fff;
 }
 
 /* Cards compactos (uma linha) */
