@@ -1,0 +1,25 @@
+{
+  "brand": "SENAI | MS",
+  "description": "Paleta oficial do SENAI (Sistema Indústria): azul institucional com detalhe em laranja. Fonte de referência: Manual de Marcas Sistema Indústria / CNI.",
+  "colors": {
+    "primary": "#003876",
+    "primary_600": "#00529B",
+    "primary_400": "#3B7FC4",
+    "accent": "#E84910",
+    "accent_dark": "#B8380C",
+    "accent_soft": "#FCE9E0",
+    "ink": "#1E2A38",
+    "muted": "#64748B",
+    "bg": "#F4F6F9",
+    "surface": "#FFFFFF",
+    "border": "#E2E8F0",
+    "success": "#1E8E5A",
+    "warning": "#C9930A",
+    "danger": "#C0392B"
+  },
+  "chart_palette": [
+    "#E84910", "#003876", "#00529B", "#F2A03D",
+    "#2E9E8F", "#6B7280", "#8E44AD", "#1E8E5A",
+    "#C0392B", "#3B7FC4"
+  ]
+}

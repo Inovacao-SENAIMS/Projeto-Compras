@@ -1,0 +1,21 @@
+{
+  "brand": "SENAI/MS",
+  "description": "Tipografia da marca SENAI: Neo Sans Pro (logotipo em Bold Italic). Sem fontes pagas, usa-se stack de sistema que aproxima o Neo Sans (humanista geométrico).",
+  "font_display": "'Neo Sans Pro', 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+  "font_body": "'Neo Sans Pro', 'Mulish', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+  "scale": {
+    "xs": "12px",
+    "sm": "13px",
+    "base": "15px",
+    "lg": "18px",
+    "xl": "22px",
+    "2xl": "28px",
+    "3xl": "36px"
+  },
+  "weights": {
+    "regular": 400,
+    "medium": 600,
+    "bold": 700
+  },
+  "notes": "Para uso web com a fonte licenciada, instale o Neo Sans Pro ou carregue Montserrat/Mulish. Offline, a stack de sistema ('Segoe UI' etc.) garante renderização consistente sem CDN."
+}

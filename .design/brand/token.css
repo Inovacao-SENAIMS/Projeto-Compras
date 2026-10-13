@@ -1,0 +1,33 @@
+:root {
+  /* Cores SENAI (Sistema Indústria): azul institucional + laranja */
+  --brand-primary: #003876;
+  --brand-primary-600: #00529B;
+  --brand-primary-400: #3B7FC4;
+  --brand-accent: #E84910;        /* laranja oficial SENAI */
+  --brand-accent-dark: #B8380C;
+  --brand-accent-soft: #FCE9E0;
+
+  --ink: #1E2A38;
+  --muted: #64748B;
+  --bg: #F4F6F9;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+
+  --success: #1E8E5A;
+  --warning: #C9930A;
+  --danger: #C0392B;
+
+  /* Tipografia (Neo Sans Pro -> fallback de sistema) */
+  --font-display: 'Neo Sans Pro', 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Neo Sans Pro', 'Mulish', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Raios e sombras */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,0.10);
+
+  /* Espaçamento */
+  --gap: 1.25rem;
+  --pad: 1.25rem;
+}
