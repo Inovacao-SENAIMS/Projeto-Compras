@@ -1,9 +1,10 @@
+{% load nomes %}
 {% comment %}Lista de usuários do Time de Compras para designação (um clique).{% endcomment %}
 <div class="lista-designar">
     {% for u in responsaveis %}
         <button type="submit" name="responsavel" value="{{ u.pk }}"
                 class="opcao-usuario{% if pedido.responsavel_id == u.pk %} atual{% endif %}">
-            <i class="bi bi-person"></i> {{ u.get_username }}
+            <i class="bi bi-person"></i> {{ u|nome_usuario }}
             {% if pedido.responsavel_id == u.pk %}<span class="meta">(atual)</span>{% endif %}
         </button>
     {% empty %}

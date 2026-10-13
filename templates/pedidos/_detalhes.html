@@ -1,3 +1,4 @@
+{% load nomes %}
 {% comment %}Detalhes completos da requisição (reusado no detalhe e na tramitação).{% endcomment %}
 <dl class="dados">
     <dt>Item</dt><dd>{{ pedido.produto }}</dd>
@@ -11,7 +12,7 @@
     <dt>Responsável</dt>
     <dd>
         {% if pedido.responsavel %}
-            {{ pedido.responsavel.get_username }}{% if pedido.responsavel == user %} <strong>(você)</strong>{% endif %}
+            {{ pedido.responsavel|nome_usuario }}{% if pedido.responsavel == user %} <strong>(você)</strong>{% endif %}
         {% else %}—{% endif %}
     </dd>
     <dt>Data de Abertura</dt><dd>{{ pedido.criado_em|date:"d/m/Y - H:i" }}</dd>

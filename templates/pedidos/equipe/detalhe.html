@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load nomes %}
 
 {% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Equipe de Compras{% endblock %}
 
@@ -20,7 +21,7 @@
         <a class="botao" href="{% url 'pedidos:equipe_tramitar' pedido.pk %}"><i class="bi bi-pencil-square"></i> Tramitar</a>
     {% endif %}
     {% if pedido.responsavel and pedido.responsavel != user and not is_manager %}
-        <p class="aviso">Esta requisição está sob responsabilidade de {{ pedido.responsavel.get_username }}.</p>
+        <p class="aviso">Esta requisição está sob responsabilidade de {{ pedido.responsavel|nome_usuario }}.</p>
     {% endif %}
 </div>
 

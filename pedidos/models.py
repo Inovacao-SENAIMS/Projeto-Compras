@@ -142,7 +142,12 @@ class Pedido(models.Model):
         """Primeiro nome do responsável (exibição compacta na tabela)."""
         if not self.responsavel_id:
             return ""
-        nome = self.responsavel.get_full_name() or self.responsavel.get_username()
+        resp = self.responsavel
+        nome = (
+            resp.get_full_name()
+            or resp.first_name
+            or resp.get_username().split("@")[0]
+        )
         return nome.split()[0] if nome else ""
 
     @property

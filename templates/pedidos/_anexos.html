@@ -1,3 +1,4 @@
+{% load nomes %}
 {% comment %}Lista de anexos de um pedido, com download protegido.{% endcomment %}
 <h3>Anexos</h3>
 <ul class="anexos">
@@ -5,7 +6,7 @@
     <li>
         <a href="{% url 'pedidos:anexo_download' anexo.pk %}">{{ anexo.nome_original }}</a>
         <span class="tag">{{ anexo.get_tipo_display }}</span>
-        <span class="meta">enviado por {{ anexo.enviado_por.get_username }} em {{ anexo.enviado_em|date:"d/m/Y H:i" }}</span>
+        <span class="meta">enviado por {{ anexo.enviado_por|nome_usuario }} em {{ anexo.enviado_em|date:"d/m/Y H:i" }}</span>
     </li>
     {% empty %}
     <li class="meta">Nenhum anexo.</li>

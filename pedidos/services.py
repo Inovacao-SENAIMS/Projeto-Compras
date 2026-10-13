@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.utils import timezone
 
-from accounts.perfis import is_manager
+from accounts.perfis import is_manager, nome_exibicao
 
 from .models import HistoricoStatus, Pedido, Status, STATUS_TERMINAIS
 
@@ -24,9 +24,7 @@ def criar_pedido(form, solicitante):
     pedido = form.save(commit=False)
     pedido.criado_por = solicitante
     pedido.solicitante_nome = (
-        pedido.solicitante_nome
-        or solicitante.get_full_name()
-        or solicitante.get_username()
+        pedido.solicitante_nome or nome_exibicao(solicitante)
     )
     pedido.status = Status.ABERTA
     pedido.save()
@@ -95,7 +93,7 @@ def assumir_pedido(pedido_id, usuario):
         de=Status.ENVIADA,
         para=Status.EM_ANALISE,
         usuario=usuario,
-        observacao=f"Requisição assumida por {usuario.get_username()}.",
+        observacao=f"Requisição assumida por {nome_exibicao(usuario)}.",
     )
     return pedido
 
@@ -120,15 +118,15 @@ def designar_pedido(pedido, gestor, novo_responsavel):
         pedido.assumido_em = timezone.now()
         de = Status.ENVIADA
         observacao = (
-            f"Designado para {novo_responsavel.get_username()} "
-            f"por {gestor.get_username()}."
+            f"Designado para {nome_exibicao(novo_responsavel)} "
+            f"por {nome_exibicao(gestor)}."
         )
     else:
         de = pedido.status
-        de_nome = anterior.get_username() if anterior else "—"
+        de_nome = nome_exibicao(anterior) if anterior else "—"
         observacao = (
-            f"Redesignado de {de_nome} para {novo_responsavel.get_username()} "
-            f"por {gestor.get_username()}."
+            f"Redesignado de {de_nome} para {nome_exibicao(novo_responsavel)} "
+            f"por {nome_exibicao(gestor)}."
         )
 
     pedido.save()

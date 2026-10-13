@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load nomes %}
 
 {% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Projeto Compras{% endblock %}
 
@@ -14,7 +15,7 @@
     <dt>Urgência</dt><dd><span class="tag urgencia-{{ pedido.urgencia }}">{{ pedido.get_urgencia_display }}</span></dd>
     <dt>Possui cotação</dt><dd>{% if pedido.possui_cotacao %}Sim{% else %}Não{% endif %}</dd>
     <dt>Status</dt><dd><span class="tag status-{{ pedido.status }}">{{ pedido.get_status_display }}</span></dd>
-    <dt>Responsável</dt><dd>{{ pedido.responsavel.get_username|default:"Aguardando assunção pela equipe" }}</dd>
+    <dt>Responsável</dt><dd>{{ pedido.responsavel|nome_usuario|default:"Aguardando assunção pela equipe" }}</dd>
     <dt>Modalidade (RCA)</dt><dd>{{ pedido.get_modalidade_display|default:"—" }}</dd>
     <dt>Data de Abertura</dt><dd>{{ pedido.criado_em|date:"d/m/Y - H:i" }}</dd>
     <dt>Data de Envio</dt><dd>{{ pedido.data_envio|date:"d/m/Y - H:i"|default:"—" }}</dd>

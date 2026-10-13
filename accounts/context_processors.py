@@ -3,6 +3,7 @@
 from .perfis import is_equipe as _is_equipe
 from .perfis import is_manager as _is_manager
 from .perfis import is_time_compras as _is_time
+from .perfis import nome_exibicao as _nome
 from .perfis import perfil as _perfil
 
 
@@ -13,4 +14,5 @@ def perfil(request):
         "is_manager": _is_manager(user),
         "is_time_compras": _is_time(user),
         "perfil_nome": _perfil(user),
+        "nome_usuario": _nome(user),
     }

@@ -68,6 +68,22 @@ def perfil(user):
     return GROUP_USERISI
 
 
+def nome_exibicao(user):
+    """Nome amigável do usuário.
+
+    Prioriza o nome completo; senão o primeiro nome; senão o login sem o domínio
+    (útil agora que o login é o e-mail institucional).
+    """
+    if not user or not getattr(user, "is_authenticated", False):
+        return ""
+    nome = (user.get_full_name() or "").strip()
+    if not nome and getattr(user, "first_name", ""):
+        nome = user.first_name.strip()
+    if not nome:
+        nome = user.get_username().split("@")[0]
+    return nome
+
+
 def usuarios_time_compras(incluir_inativos=False):
     """Usuários do Time de Compras.
 

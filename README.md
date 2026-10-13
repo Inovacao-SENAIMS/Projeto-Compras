@@ -268,6 +268,10 @@ python manage.py criar_equipe --grupo UserISI_IST --usuario ana@ms.senai.br:Ana@
 > **Login pelo e-mail:** o e-mail institucional é usado como *usuário*; o login é
 > feito por ele (ex.: `ana@ms.senai.br`).
 
+> **Exibição do usuário:** nas telas o usuário aparece pelo **nome** (nome
+> completo → primeiro nome → login sem o domínio), nunca pelo e-mail — sidebar,
+> coluna Responsável, histórico, anexos e designação.
+
 Novos usuários **não exigem alteração de código**. Também é possível gerenciar
 pelo `/admin`: crie o usuário e adicione-o ao grupo correspondente
 (`UserISI_IST`, `Time_Compras` ou `Manager_Compras`).
