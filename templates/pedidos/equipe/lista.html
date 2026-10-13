@@ -48,6 +48,15 @@
                             <button type="submit" class="btn-icone" title="Assumir"><i class="bi bi-person-check"></i></button>
                         </form>
                     {% endif %}
+                    {% if is_manager %}
+                        {% if p.status == 'enviada' or p.status == 'em_analise' %}
+                            <button type="button" class="btn-icone" title="Designar"
+                                    data-designar-url="{% url 'pedidos:equipe_designar' p.pk %}"
+                                    data-responsavel-atual="{{ p.responsavel_id|default:'' }}">
+                                <i class="bi bi-person-plus"></i>
+                            </button>
+                        {% endif %}
+                    {% endif %}
                     {% if p.status == 'em_analise' %}
                         {% if p.responsavel == user or is_manager %}
                             <a class="btn-icone" title="Tramitar" href="{% url 'pedidos:equipe_tramitar' p.pk %}"><i class="bi bi-pencil-square"></i></a>
@@ -78,6 +87,7 @@
 </div>
 
 {% include "pedidos/_modal_anexos.html" %}
+{% if is_manager %}{% include "pedidos/_modal_designar.html" %}{% endif %}
 {% endblock %}
 
 {% block scripts %}

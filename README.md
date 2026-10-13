@@ -77,7 +77,7 @@ Data de Envio · Status · Data de Encerramento · Lead Time · Ações
   Encerramento − Envio; com Envio e sem Encerramento → Hoje − Envio.
 - **Ações:** botões com **Bootstrap Icons** (via CDN) — **Enviar**, **Anexos**
   (popup), **Excluir** e **Ver Detalhes** (no solicitante); na equipe, **Assumir**,
-  **Tramitar**, **Anexos** e **Ver Detalhes**.
+  **Designar** (popup, apenas Gestão), **Tramitar**, **Anexos** e **Ver Detalhes**.
 
 Layout: tabela sem quebra de linha (`nowrap`), com rolagem horizontal quando
 necessário, e **20px** de espaçamento entre a tabela, a sidebar e as bordas.

@@ -111,7 +111,10 @@ def equipe_lista(request):
         .prefetch_related("anexos")
         .all()
     )
-    return render(request, "pedidos/equipe/lista.html", {"pedidos": pedidos})
+    contexto = {"pedidos": pedidos}
+    if permissoes.pode_designar(request.user):
+        contexto["responsaveis"] = usuarios_time_compras()
+    return render(request, "pedidos/equipe/lista.html", contexto)
 
 
 @equipe_required
