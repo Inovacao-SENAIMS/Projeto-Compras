@@ -1,12 +1,22 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from django.shortcuts import render
 
 from accounts.perfis import is_equipe
+
+from pedidos.dashboard import dados_dashboard
+from pedidos.models import Pedido
 
 
 @login_required
 def home(request):
-    """Ponto de entrada único: encaminha para a área conforme o perfil."""
+    """Home = dashboard de requisições (dados conforme o perfil)."""
     if is_equipe(request.user):
-        return redirect("pedidos:equipe_lista")
-    return redirect("pedidos:painel")
+        pedidos = Pedido.objects.all()
+        escopo = "Todas as requisições"
+    else:
+        pedidos = Pedido.objects.filter(criado_por=request.user)
+        escopo = "Suas requisições"
+
+    contexto = dados_dashboard(pedidos)
+    contexto["escopo"] = escopo
+    return render(request, "core/dashboard.html", contexto)

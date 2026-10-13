@@ -36,6 +36,21 @@ Todas as telas usam um layout com sidebar sensível ao perfil:
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
 - **Configurações:** página placeholder (visível a todo usuário autenticado)
 
+### Home / Dashboard
+
+A Home (`/`) exibe um **dashboard** inspirado no design de referência
+(`.design/dashboard`):
+
+- **Cards de números**: Total, Pendentes, Concluídas e Canceladas;
+- **Requisições por Mês** (gráfico de linha — Chart.js);
+- **Requisições por Status** (rosca) + lista de números por status;
+- **Requisições por Instituto** — *pendente* (exibe "Não informado" até
+  definirmos a origem do dado);
+- **Ações Rápidas** (atalhos conforme o perfil).
+
+Os dados seguem o perfil: o **solicitante** vê as próprias requisições; o **Time**
+e a **Gestão** veem todas.
+
 ### Requisições (solicitante)
 
 Página única (`/requisicoes/`, view `painel`) onde o solicitante:
