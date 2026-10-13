@@ -396,6 +396,21 @@ button.link {
     margin-right: auto;
 }
 
+.cartao-pedido {
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin: 0 auto;
+}
+
+.cartao-pedido .dados {
+    border: none;
+    background: transparent;
+    padding: 0;
+    max-width: none;
+}
+
 .lista-designar {
     display: flex;
     flex-direction: column;

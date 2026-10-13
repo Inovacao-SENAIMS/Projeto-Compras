@@ -216,7 +216,6 @@ def equipe_tramitar(request, pk):
                     form.cleaned_data["status"],
                     observacao=form.cleaned_data.get("observacao", ""),
                     retorno_final=form.cleaned_data.get("retorno_final", ""),
-                    modalidade=form.cleaned_data.get("modalidade", ""),
                 )
             except services.RegraDeNegocioError as erro:
                 messages.error(request, str(erro))
@@ -228,7 +227,9 @@ def equipe_tramitar(request, pk):
         form = TramitacaoForm(pedido=pedido)
 
     return render(
-        request, "pedidos/equipe/tramitar.html", {"pedido": pedido, "form": form}
+        request,
+        "pedidos/equipe/tramitar.html",
+        {"pedido": pedido, "form": form, "edicao_aberta": bool(form.errors)},
     )
 
 

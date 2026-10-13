@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Painel de Compras - Projeto Compras{% endblock %}
+{% block title %}Requisições | SENAI MS{% endblock %}
 
 {% block content %}
-<h2>{% if is_manager %}Painel de Compras (Gestão){% else %}Painel de Compras (Equipe){% endif %}</h2>
+<h2>Painel de Requisições</h2>
 <p class="meta">Todas as requisições. {% if is_manager %}Você pode designar o responsável e tramitar.{% else %}Assuma uma requisição enviada para conduzir a análise.{% endif %}</p>
 
 <div class="tabela-scroll">

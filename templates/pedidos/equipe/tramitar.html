@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Tramitar requisição {{ pedido.numero|default:pedido.pk }} - Projeto Compras{% endblock %}
 
@@ -6,48 +7,51 @@
 <div class="pagina-central">
     <p><a href="{% url 'pedidos:equipe_lista' %}">← Voltar para a lista de requisições</a></p>
     <h2>Tramitar requisição {{ pedido.numero|default:pedido.pk }}</h2>
-    <p class="meta">Status atual: <span class="tag status-{{ pedido.status }}">{{ pedido.get_status_display }}</span></p>
 
-    {% include "pedidos/_detalhes.html" %}
+    <div class="cartao-pedido">
+        {% include "pedidos/_detalhes.html" %}
 
-    <h3>Atualizar tramitação</h3>
-    <form method="post" enctype="multipart/form-data" class="formulario">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
+        <div class="acoes">
+            <button type="button" id="btn-editar" class="botao {% if edicao_aberta %}oculto{% endif %}">Editar</button>
+        </div>
 
-        <p>
-            <label for="{{ form.status.id_for_label }}">Novo status</label>
-            {{ form.status }}
-            {{ form.status.errors }}
-        </p>
-        <p>
-            <label for="{{ form.modalidade.id_for_label }}">Modalidade RCA (Regulamento SENAI) <span class="obrigatorio">*</span></label>
-            {{ form.modalidade }}
-            {{ form.modalidade.errors }}
-        </p>
-        <p>
-            <label for="{{ form.observacao.id_for_label }}">Observação</label>
-            {{ form.observacao }}
-            {{ form.observacao.errors }}
-        </p>
-        <p>
-            <label for="{{ form.retorno_final.id_for_label }}">Retorno final ao solicitante</label>
-            {{ form.retorno_final }}
-            <small class="ajuda">Obrigatório ao concluir a requisição.</small>
-            {{ form.retorno_final.errors }}
-        </p>
-        <p>
-            <label for="{{ form.arquivos.id_for_label }}">Anexar arquivos (opcional)</label>
-            {{ form.arquivos }}
-            {{ form.arquivos.errors }}
-        </p>
+        <div id="area-editar" class="{% if not edicao_aberta %}oculto{% endif %}">
+            <form method="post" enctype="multipart/form-data" class="formulario formulario-modal">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
 
-        <button type="submit" class="botao">Salvar tramitação</button>
-    </form>
+                <p>
+                    <label for="{{ form.status.id_for_label }}">Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </p>
+                <p>
+                    <label for="{{ form.observacao.id_for_label }}">Observação</label>
+                    {{ form.observacao }}
+                    {{ form.observacao.errors }}
+                </p>
+                <p id="campo-retorno" class="oculto">
+                    <label for="{{ form.retorno_final.id_for_label }}">Retorno final ao solicitante <span class="obrigatorio">*</span></label>
+                    {{ form.retorno_final }}
+                    <small class="ajuda">Obrigatório ao concluir a requisição.</small>
+                    {{ form.retorno_final.errors }}
+                </p>
+                <p>
+                    <label for="{{ form.arquivos.id_for_label }}">Anexar arquivos</label>
+                    {{ form.arquivos }}
+                    {{ form.arquivos.errors }}
+                </p>
 
-    {% include "pedidos/_anexos.html" %}
-    {% include "pedidos/_historico.html" %}
+                <button type="submit" class="botao">Salvar tramitação</button>
+            </form>
+        </div>
+
+        {% include "pedidos/_anexos.html" %}
+        {% include "pedidos/_historico.html" %}
+    </div>
 </div>
 {% endblock %}
 
-{% block scripts %}{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/tramitar.js' %}"></script>
+{% endblock %}

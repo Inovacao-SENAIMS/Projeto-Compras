@@ -20,10 +20,10 @@
 
                 {% if is_equipe %}
                     <a class="nav-item {% if request.resolver_match.url_name == 'equipe_lista' %}ativo{% endif %}"
-                       href="{% url 'pedidos:equipe_lista' %}">{% if is_manager %}Painel de Compras (Gestão){% else %}Painel de Compras (Equipe){% endif %}</a>
+                       href="{% url 'pedidos:equipe_lista' %}">Requisições</a>
                 {% else %}
                     <a class="nav-item {% if request.resolver_match.url_name == 'painel' %}ativo{% endif %}"
-                       href="{% url 'pedidos:painel' %}">Painel de Requisições</a>
+                       href="{% url 'pedidos:painel' %}">Requisições</a>
                 {% endif %}
 
                 <a class="nav-item {% if request.resolver_match.url_name == 'configuracoes' %}ativo{% endif %}"
@@ -47,7 +47,6 @@
         {% if user.is_authenticated %}
         <div class="sidebar-rodape">
             <span class="usuario">{{ user.get_username }}</span>
-            <span class="perfil">{{ perfil_nome }}</span>
         </div>
         {% endif %}
     </aside>

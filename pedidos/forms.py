@@ -124,12 +124,6 @@ class TramitacaoForm(forms.Form):
         required=False,
         widget=forms.Textarea(attrs={"class": "campo", "rows": 3}),
     )
-    modalidade = forms.ChoiceField(
-        label="Modalidade (RCA)",
-        required=True,
-        choices=[("", "Selecione a modalidade RCA")] + list(Modalidade.choices),
-        widget=forms.Select(attrs={"class": "campo"}),
-    )
     arquivos = MultipleFileField(
         label="Anexos",
         required=False,
@@ -144,8 +138,6 @@ class TramitacaoForm(forms.Form):
             self.fields["status"].choices = [
                 (s.value, s.label) for s in pedido.transicoes_permitidas
             ]
-            if pedido.modalidade:
-                self.fields["modalidade"].initial = pedido.modalidade
 
     def clean(self):
         dados = super().clean()
