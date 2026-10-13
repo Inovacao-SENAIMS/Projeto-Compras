@@ -176,9 +176,10 @@ def equipe_designar(request, pk):
         messages.error(request, str(erro))
     else:
         messages.success(
-            request, f"Requisição designada para {responsavel.get_username()}."
+            request,
+            f"Requisição {pedido.numero} designada para {responsavel.get_username()}.",
         )
-    return redirect("pedidos:equipe_detalhe", pk=pk)
+    return redirect("pedidos:equipe_lista")
 
 
 @require_POST

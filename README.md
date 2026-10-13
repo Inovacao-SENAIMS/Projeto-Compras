@@ -80,6 +80,9 @@ Data de Envio · Status · Data de Encerramento · Lead Time · Ações
   (popup), **Excluir** e **Ver Detalhes** (no solicitante); na equipe, **Assumir**,
   **Designar** / **Alterar Responsável** (popup, apenas Gestão — basta clicar no
   usuário), **Tramitar**, **Anexos** e **Ver Detalhes**.
+- **Designar/Alterar Responsável:** ao clicar no usuário, o sistema pede
+  **confirmação**; após confirmar, exibe a **mensagem de sucesso** e retorna ao
+  **Painel de Compras**.
 
 Layout: tabela sem quebra de linha (`nowrap`), com rolagem horizontal quando
 necessário, e **20px** de espaçamento entre a tabela, a sidebar e as bordas.

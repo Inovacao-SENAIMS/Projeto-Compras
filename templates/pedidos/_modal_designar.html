@@ -5,7 +5,7 @@
             <h3 id="titulo-designar">Selecionar responsável</h3>
             <button type="button" class="modal-fechar" data-fechar aria-label="Fechar">&times;</button>
         </div>
-        <form method="post" id="form-designar" class="formulario formulario-modal">
+        <form method="post" id="form-designar" class="formulario formulario-modal" data-confirm>
             {% csrf_token %}
             <p class="meta">Clique no usuário para designá-lo como responsável.</p>
             {% include "pedidos/_lista_responsaveis.html" %}

@@ -44,4 +44,17 @@
         });
         ligarFechamento(modalDesignar);
     }
+
+    // --- Confirmação antes de designar (tabela e detalhe) ---
+    document.querySelectorAll("form[data-confirm]").forEach(function (form) {
+        form.addEventListener("submit", function (evento) {
+            var nome = evento.submitter ? evento.submitter.textContent.trim() : "";
+            var msg = nome
+                ? "Confirmar designação de: " + nome + "?"
+                : "Confirmar designação do responsável?";
+            if (!window.confirm(msg)) {
+                evento.preventDefault();
+            }
+        });
+    });
 })();

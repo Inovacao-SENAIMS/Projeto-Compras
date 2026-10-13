@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Requisição {{ pedido.numero|default:pedido.pk }} - Equipe de Compras{% endblock %}
 
@@ -47,7 +48,7 @@
 {% if pode_designar %}
 <div class="bloco-designar">
     <h3>Designar / Alterar responsável</h3>
-    <form method="post" action="{% url 'pedidos:equipe_designar' pedido.pk %}" class="formulario">
+    <form method="post" action="{% url 'pedidos:equipe_designar' pedido.pk %}" class="formulario" data-confirm>
         {% csrf_token %}
         <p class="meta">Clique no usuário para designá-lo como responsável.</p>
         {% include "pedidos/_lista_responsaveis.html" %}
@@ -64,4 +65,8 @@
 
 {% include "pedidos/_anexos.html" %}
 {% include "pedidos/_historico.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/tabela.js' %}"></script>
 {% endblock %}
