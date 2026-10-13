@@ -34,7 +34,7 @@ Todas as telas usam um layout com sidebar sensível ao perfil:
 - **Time_Compras:** Home · Requisições · Configurações · Logout
 - **Manager_Compras:** Home · Requisições · Configurações · Logout
 - **Painel ADM:** exibido apenas para usuários `is_staff` (link para `/admin/`)
-- **Configurações:** página placeholder (visível a todo usuário autenticado)
+- **Configurações:** dados do usuário e (Gestão/Superusuário) gestão de usuários.
 
 ### Identidade visual (SENAI)
 
@@ -72,6 +72,18 @@ O usuário criado entra como **UserISI_IST** (usuário comum/solicitante), já a
 e faz login pelo **e-mail** (usado como usuário). O **Instituto** fica associado ao
 usuário (modelo `Perfil`, em `accounts`) e alimenta o gráfico "Requisições por
 Instituto" do dashboard.
+
+### Configurações (por perfil)
+
+- **Usuário comum (`UserISI_IST`):** exibe os dados informados no cadastro — nome,
+  e-mail, área de atuação, cargo, instituto, contato e ramal.
+- **Gestão (`Manager_Compras`):** seus dados + a **lista dos membros do Time de
+  Compras**, podendo **ativar, inativar e excluir** usuários.
+- **SuperUsuário/ADM:** seus dados + a **lista de todos os usuários**, podendo
+  **ativar, inativar e excluir**.
+
+Regras: ninguém gerencia a si mesmo; a Gestão gerencia apenas membros do Time de
+Compras; a exclusão é bloqueada quando o usuário possui requisições vinculadas.
 
 ### Requisições (solicitante)
 

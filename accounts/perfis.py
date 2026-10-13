@@ -68,10 +68,31 @@ def perfil(user):
     return GROUP_USERISI
 
 
-def usuarios_time_compras():
-    """Usuários do Time de Compras (destinatários da designação do gestor)."""
+def usuarios_time_compras(incluir_inativos=False):
+    """Usuários do Time de Compras.
+
+    Por padrão apenas ativos (para designação); use ``incluir_inativos=True`` para
+    a tela de gestão de usuários.
+    """
     User = get_user_model()
-    return (
-        User.objects.filter(groups__name=GROUP_TIME, is_active=True)
-        .order_by("username")
-    )
+    queryset = User.objects.filter(groups__name=GROUP_TIME)
+    if not incluir_inativos:
+        queryset = queryset.filter(is_active=True)
+    return queryset.order_by("username")
+
+
+def pode_gerenciar(ator, alvo):
+    """Quem pode ativar/inativar/excluir outro usuário.
+
+    - superusuário gerencia qualquer usuário (exceto a si mesmo);
+    - Gestão gerencia apenas membros do Time de Compras.
+    """
+    if not ator or not ator.is_authenticated:
+        return False
+    if ator.pk == alvo.pk:
+        return False
+    if ator.is_superuser:
+        return True
+    if is_manager(ator):
+        return alvo.groups.filter(name=GROUP_TIME).exists()
+    return False

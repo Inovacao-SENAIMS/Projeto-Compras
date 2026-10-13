@@ -5,14 +5,88 @@
 {% block content %}
 <h2><i class="bi bi-gear"></i> Configurações</h2>
 
+<h3>Meus dados</h3>
 <dl class="dados">
+    <dt>Nome completo</dt><dd>{{ user.get_full_name|default:"—" }}</dd>
     <dt>Usuário</dt><dd>{{ user.get_username }}</dd>
-    <dt>Nome</dt><dd>{{ user.get_full_name|default:"—" }}</dd>
     <dt>E-mail</dt><dd>{{ user.email|default:"—" }}</dd>
     <dt>Perfil</dt><dd>{{ perfil_nome }}</dd>
+    {% if perfil %}
+        <dt>Área de atuação</dt><dd>{{ perfil.area_atuacao }}</dd>
+        <dt>Cargo</dt><dd>{{ perfil.cargo }}</dd>
+        <dt>Instituto</dt><dd>{{ perfil.get_instituto_display }}</dd>
+        <dt>Contato</dt><dd>{{ perfil.telefone }}</dd>
+        <dt>Ramal</dt><dd>{{ perfil.ramal }}</dd>
+    {% endif %}
 </dl>
 
+{% if not perfil %}
 <div class="aviso-box">
-    <p>Esta área de configurações ainda está em construção.</p>
+    <p>Seus dados de cadastro (área de atuação, cargo, instituto, contato e ramal)
+        não estão disponíveis.</p>
 </div>
+{% endif %}
+
+{% if gerenciar_usuarios %}
+<h3>{{ titulo_lista }}</h3>
+<div class="tabela-scroll">
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Usuário</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Instituto</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr>
+                <td>{{ u.get_username }}</td>
+                <td>{{ u.get_full_name|default:"—" }}</td>
+                <td>{{ u.email|default:"—" }}</td>
+                <td>
+                    {% for g in u.groups.all %}{{ g.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+                </td>
+                <td>{{ u.perfil.get_instituto_display|default:"—" }}</td>
+                <td>
+                    {% if u.is_active %}
+                        <span class="tag tag-ativo"><i class="bi bi-check-circle"></i> Ativo</span>
+                    {% else %}
+                        <span class="tag tag-inativo"><i class="bi bi-slash-circle"></i> Inativo</span>
+                    {% endif %}
+                </td>
+                <td class="acoes-tabela">
+                    {% if u != user %}
+                        {% if u.is_active %}
+                            <form method="post" action="{% url 'accounts:usuario_inativar' u.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-icone" title="Inativar"><i class="bi bi-toggle-on"></i></button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{% url 'accounts:usuario_ativar' u.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-icone" title="Ativar"><i class="bi bi-toggle-off"></i></button>
+                            </form>
+                        {% endif %}
+                        <form method="post" action="{% url 'accounts:usuario_excluir' u.pk %}" class="inline"
+                              onsubmit="return confirm('Excluir o usuário {{ u.get_username }}?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-icone btn-icone-perigo" title="Excluir"><i class="bi bi-trash"></i></button>
+                        </form>
+                    {% else %}
+                        <span class="meta">(você)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="vazio">Nenhum usuário.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
 {% endblock %}
