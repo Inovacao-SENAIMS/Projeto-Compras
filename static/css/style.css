@@ -146,21 +146,25 @@ body {
     justify-content: center;
     width: 30px;
     height: 30px;
-    margin-right: 4px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
-    background: #fff;
+    margin: 0 2px;
+    border: none;
+    background: transparent;
     color: var(--cor-primaria-clara);
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 1rem;
     text-decoration: none;
     padding: 0;
     vertical-align: middle;
+    border-radius: 6px;
 }
 
 .btn-icone:hover {
     background: #eef2f6;
     color: var(--cor-primaria);
+}
+
+.btn-icone:focus {
+    outline: none;
 }
 
 .btn-icone-perigo {
@@ -433,7 +437,7 @@ button.link {
 
 .tabela th,
 .tabela td {
-    text-align: left;
+    text-align: center;
     padding: 0.45rem 0.55rem;
     border-bottom: 1px solid var(--cor-borda);
     font-size: 0.83rem;
