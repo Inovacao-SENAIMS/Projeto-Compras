@@ -108,6 +108,73 @@ const API = (() => {
     }, 60000);
   }
 
+  /* ------------------------- loader global -------------------------
+   * Feedback visual para o usuário durante as chamadas (o Apps Script leva
+   * alguns segundos). Barra no topo para qualquer chamada e overlay
+   * "Processando…" para gravações (evita duplo clique). */
+  const ACOES_ESCRITA = {
+    criarPedido: 1, enviarPedido: 1, assumirPedido: 1, designarPedido: 1,
+    tramitarPedido: 1, excluirPedido: 1, anexarArquivo: 1,
+    criarUsuarioAdmin: 1, alterarGrupoUsuario: 1, alterarStatusUsuario: 1,
+    excluirUsuario: 1,
+  };
+
+  let cargasAtivas = 0;
+  let escritasAtivas = 0;
+  let timerBarra = null;
+  let timerOverlay = null;
+
+  function garantirLoader() {
+    if (qs("#loader-global")) return;
+    document.body.insertAdjacentHTML("beforeend", `
+      <div id="loader-global" aria-hidden="true"><span class="loader-barra"></span></div>
+      <div id="loader-overlay" hidden>
+        <div class="loader-caixa">
+          <span class="loader-spinner" aria-hidden="true"></span>
+          <span>Processando…</span>
+        </div>
+      </div>`);
+  }
+
+  function iniciarCarga(escrita) {
+    garantirLoader();
+    cargasAtivas++;
+    if (cargasAtivas === 1) {
+      timerBarra = setTimeout(() => {
+        const el = qs("#loader-global");
+        if (el) el.classList.add("ativo");
+      }, 150);
+    }
+    if (escrita) {
+      escritasAtivas++;
+      if (escritasAtivas === 1) {
+        timerOverlay = setTimeout(() => {
+          const el = qs("#loader-overlay");
+          if (el) el.hidden = false;
+        }, 350);
+      }
+    }
+  }
+
+  function finalizarCarga(escrita) {
+    cargasAtivas = Math.max(0, cargasAtivas - 1);
+    if (cargasAtivas === 0) {
+      clearTimeout(timerBarra);
+      timerBarra = null;
+      const el = qs("#loader-global");
+      if (el) el.classList.remove("ativo");
+    }
+    if (escrita) {
+      escritasAtivas = Math.max(0, escritasAtivas - 1);
+      if (escritasAtivas === 0) {
+        clearTimeout(timerOverlay);
+        timerOverlay = null;
+        const el = qs("#loader-overlay");
+        if (el) el.hidden = true;
+      }
+    }
+  }
+
   /* ------------------------- API pública ------------------------- */
 
   async function chamar(acao, payload = {}, token = null) {
@@ -135,36 +202,42 @@ const API = (() => {
     }
 
     const execucao = (async () => {
-      const item = {
-        id: "req-" + (++seq) + "-" + Date.now(),
-        acao,
-        token: tokenReal || "",
-        payload,
-      };
+      const escrita = !!ACOES_ESCRITA[acao];
+      iniciarCarga(escrita);
+      try {
+        const item = {
+          id: "req-" + (++seq) + "-" + Date.now(),
+          acao,
+          token: tokenReal || "",
+          payload,
+        };
 
-      const resp = await new Promise((resolve) => {
-        item.resolve = resolve;
-        if (pronto) enviarReal(item);
-        else fila.push(item);
-      });
+        const resp = await new Promise((resolve) => {
+          item.resolve = resolve;
+          if (pronto) enviarReal(item);
+          else fila.push(item);
+        });
 
-      if (resp.ok === false && /sess[iã]o expirada/i.test(resp.erro || "")) {
-        Sessao.limpar();
-        document.dispatchEvent(new CustomEvent(EV_SESSAO_EXPIRADA, { detail: resp.erro }));
+        if (resp.ok === false && /sess[iã]o expirada/i.test(resp.erro || "")) {
+          Sessao.limpar();
+          document.dispatchEvent(new CustomEvent(EV_SESSAO_EXPIRADA, { detail: resp.erro }));
+        }
+
+        /* Diagnóstico amigável: ação nova ainda não publicada no Apps Script */
+        if (resp.ok === false && /a[cç][aã]o desconhecida/i.test(resp.erro || "")) {
+          resp.erro = resp.erro +
+            " — o deploy do Apps Script parece desatualizado: atualize Code.gs e " +
+            "Usuarios.gs e publique uma NOVA VERSÃO (Implantar → Gerenciar implantações → ✏️ → Nova versão).";
+        }
+
+        if (resp.ok) {
+          if (CACHEAVEIS[acao]) cache.set(chave, { t: Date.now(), resp });
+          else cache.clear(); /* escrita: invalida leituras */
+        }
+        return resp;
+      } finally {
+        finalizarCarga(escrita);
       }
-
-      /* Diagnóstico amigável: ação nova ainda não publicada no Apps Script */
-      if (resp.ok === false && /a[cç][aã]o desconhecida/i.test(resp.erro || "")) {
-        resp.erro = resp.erro +
-          " — o deploy do Apps Script parece desatualizado: atualize Code.gs e " +
-          "Usuarios.gs e publique uma NOVA VERSÃO (Implantar → Gerenciar implantações → ✏️ → Nova versão).";
-      }
-
-      if (resp.ok) {
-        if (CACHEAVEIS[acao]) cache.set(chave, { t: Date.now(), resp });
-        else cache.clear(); /* escrita: invalida leituras */
-      }
-      return resp;
     })();
 
     if (CACHEAVEIS[acao]) emVoo.set(chave, execucao);
