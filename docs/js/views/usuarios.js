@@ -45,14 +45,14 @@ ROTAS["#/usuarios"] = async function () {
             <select class="campo selecao-perfil" data-usuario="${esc(u.email)}" data-original="${esc(u.grupo)}" ${u.sou_eu ? "disabled" : ""}>
               ${opcoes}
             </select>
-            <button type="button" class="botao botao-pequeno btn-salvar-perfil" data-usuario="${esc(u.email)}"
-                    title="Salvar alteração de perfil" disabled>
-              <i class="bi bi-check-lg"></i> Salvar</button>
           </span>
         </td>
         <td>${u.ativo ? '<span class="tag status-concluida">Ativo</span>'
                       : '<span class="tag status-cancelada">Inativo</span>'}</td>
         <td class="acoes-tabela">
+          <button type="button" class="btn-icone btn-salvar-perfil" data-usuario="${esc(u.email)}"
+                  title="Salvar alteração de perfil" disabled>
+            <i class="bi bi-floppy"></i></button>
           <button type="button" class="btn-icone" data-usuario="${esc(u.email)}" data-op="toggle"
                   title="${u.ativo ? "Inativar" : "Ativar"}" ${u.sou_eu ? "disabled" : ""}>
             <i class="bi bi-${u.ativo ? "person-dash" : "person-check"}"></i></button>
@@ -95,12 +95,13 @@ ROTAS["#/usuarios"] = async function () {
 
       btn.disabled = true;
       const htmlOriginal = btn.innerHTML;
-      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Salvando…';
+      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
       const r = await API.chamar("alterarGrupoUsuario", { email, grupo: sel.value });
       if (mostrarSucessoOuErro(r)) {
         await carregar();
       } else {
         btn.innerHTML = htmlOriginal;
+        btn.disabled = false;
         sel.value = sel.dataset.original;   /* volta ao valor gravado */
         sel.classList.remove("perfil-alterado");
       }
