@@ -55,9 +55,6 @@ ROTAS["#/requisicoes"] = async function () {
       <button type="button" class="botao botao-secundario botao-compacto" id="btn-toggle-filtros"></button>
       <button type="button" class="botao botao-secundario botao-compacto" id="btn-fixar-filtros"
               title="Manter a faixa de filtros sempre expandida"></button>
-      <button type="button" class="botao botao-exportar botao-compacto" id="btn-csv" title="Exportar a lista (respeita os filtros aplicados)">
-        <i class="bi bi-filetype-csv"></i> Exportar CSV
-      </button>
     </div>
     <div id="area-filtros" hidden>${montarFiltros([...nomesResp.entries()])}</div>
     <div class="tabela-scroll">
@@ -119,6 +116,16 @@ ROTAS["#/requisicoes"] = async function () {
     atualizarBarraFiltros();
   });
 
+  /* Limpar filtros (botão dentro do container de filtros) */
+  const btnLimpar = qs("#btn-limpar");
+  if (btnLimpar) {
+    btnLimpar.addEventListener("click", () => {
+      qsa(".filtros input, .filtros select").forEach((el) => { el.value = ""; });
+      renderTabela();
+      atualizarBarraFiltros();
+    });
+  }
+
   atualizarBarraFiltros();
 
   renderTabela();
@@ -178,8 +185,14 @@ function montarFiltros(responsaveis) {
       </div>
     </div>
     <div class="filtros-acoes">
-      <a class="link-secundario" href="#/requisicoes" id="btn-limpar"><i class="bi bi-x-lg"></i> Limpar</a>
-      <span class="meta">O botão Exportar CSV fica na barra acima.</span>
+      <button type="button" class="botao botao-exportar" id="btn-csv"
+              title="Exportar a lista respeitando os filtros aplicados">
+        <i class="bi bi-filetype-csv"></i> Exportar CSV
+      </button>
+      <button type="button" class="botao botao-secundario" id="btn-limpar"
+              title="Limpar todos os filtros">
+        <i class="bi bi-x-lg"></i> Limpar
+      </button>
     </div>
   </form>`;
 }
