@@ -38,6 +38,7 @@ function apiListarUsuarios(payload, usuario) {
     data: usuarios.map((u) => {
       const pub = levantarUsuarioPublico(u);
       pub.sou_eu = pub.email === eu;
+      pub.is_admin = ehAdmin(pub.email);
       return pub;
     }),
   };
@@ -62,6 +63,7 @@ function apiAlterarStatusUsuario(payload, usuario) {
   const ativo = !!payload.ativo;
   exigir((isManager(usuario) || isSuper(usuario)), "Sem permissão para gerenciar usuários.");
   exigir(email !== String(usuario.email).toLowerCase(), "Ninguém gerencia a si mesmo.");
+  exigirNaoAdmin(email, "inativada");
 
   const alvo = buscarUsuarioPorLinha(email);
   exigir(alvo, "Usuário não encontrado.");
@@ -76,6 +78,7 @@ function apiExcluirUsuario(payload, usuario) {
   const email = String(payload.email || "").trim().toLowerCase();
   exigir(isManager(usuario) || isSuper(usuario), "Sem permissão para excluir usuários.");
   exigir(email !== String(usuario.email).toLowerCase(), "Ninguém exclui a si mesmo.");
+  exigirNaoAdmin(email, "excluída");
 
   const alvo = buscarUsuarioPorLinha(email);
   exigir(alvo, "Usuário não encontrado.");
@@ -133,6 +136,7 @@ function apiAlterarGrupoUsuario(payload, usuario) {
   const grupo = String(payload.grupo || "");
 
   exigir(email !== String(usuario.email).toLowerCase(), "Você não pode alterar o próprio perfil.");
+  exigirNaoAdmin(email, "alterada");
   exigir([GRUPOS.SOLICITANTE, GRUPOS.TIME, GRUPOS.MANAGER].indexOf(grupo) >= 0,
     "Perfil inválido. Use UserISI_IST, Time_Compras ou Manager_Compras.");
 

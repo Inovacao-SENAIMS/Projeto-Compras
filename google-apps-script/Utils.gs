@@ -93,6 +93,37 @@ function removerLinha(nome, linha) {
   aba(nome).deleteRow(linha);
 }
 
+/* --------------------------- administração/permissões --------------------------- */
+
+/** E-mail da conta ADMIN do sistema (não pode ser excluída/alterada).
+ * Configurável pela propriedade de script ADMIN_EMAIL (padrão abaixo). */
+const ADMIN_EMAIL_PADRAO = "gestor@ms.senai.br";
+
+function emailAdmin() {
+  const prop = PropertiesService.getScriptProperties().getProperty("ADMIN_EMAIL");
+  return String(prop || ADMIN_EMAIL_PADRAO).toLowerCase();
+}
+
+function ehAdmin(email) {
+  return String(email || "").trim().toLowerCase() === emailAdmin();
+}
+
+/** Garante que a conta alvo não é a administrativa. */
+function exigirNaoAdmin(email, acao) {
+  exigir(!ehAdmin(email),
+    "A conta administrativa do sistema (" + emailAdmin() + ") não pode ser " + acao + ".");
+}
+
+/** Aba por nome, criando-a com o cabeçalho informado se ainda não existir. */
+function abaOuCriar(nome, cabecalho) {
+  const sh = ss().getSheetByName(nome);
+  if (sh) return sh;
+  const novo = ss().insertSheet(nome);
+  if (cabecalho && cabecalho.length) novo.getRange(1, 1, 1, cabecalho.length).setValues([cabecalho]);
+  novo.setFrozenRows(1);
+  return novo;
+}
+
 /* --------------------------- ações de usuário --------------------------- */
 
 function buscarUsuario(email) {

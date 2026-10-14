@@ -16,14 +16,15 @@ function rotaAtual() {
 function renderizarRota() {
   const rota = rotaAtual();
   const s = Sessao.ler();
-  const publica = rota === "#/login" || rota === "#/cadastro";
+  const publica = rota === "#/login" || rota === "#/cadastro" || rota.startsWith("#/redefinir/");
 
   /* Guarda de sessão: qualquer rota protegida sem sessão → login */
   if (!s && !publica) { location.hash = "#/login"; return; }
-  if (s && publica)   { location.hash = "#/home"; return; }
+  if (s && (rota === "#/login" || rota === "#/cadastro")) { location.hash = "#/home"; return; }
 
   const fn = (window.ROTAS || {})[rota]
     || (rota.startsWith("#/tramitar/") && (window.ROTAS || {})["#/tramitar/<numero>"])
+    || (rota.startsWith("#/redefinir/") && (window.ROTAS || {})["#/redefinir/<token>"])
     || null;
   if (!fn) {
     /* Rota desconhecida: mensagem visível em vez de tela em branco. */
@@ -37,8 +38,8 @@ function renderizarRota() {
   }
 
   try {
-    /* Passa o "sobrenome" da rota (ex.: nº da requisição) quando existir. */
-    const parametro = rota.startsWith("#/tramitar/")
+    /* Passa o "sobrenome" da rota (nº da requisição / token) quando existir. */
+    const parametro = (rota.startsWith("#/tramitar/") || rota.startsWith("#/redefinir/"))
       ? decodeURIComponent(rota.split("/").pop() || "")
       : undefined;
     fn(parametro);

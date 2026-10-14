@@ -86,6 +86,10 @@ const ROTAS_API = {
   cadastrarUsuario: apiCadastrarUsuario,
   logout: apiLogout,
 
+  /* Reset de senha (Setup.gs) */
+  solicitarResetSenha: apiSolicitarResetSenha,
+  redefinirSenha: apiRedefinirSenha,
+
   /* Pedidos (Pedidos.gs) */
   listarPedidos: apiListarPedidos,
   detalharPedido: apiDetalharPedido,
@@ -120,4 +124,6 @@ const ROTAS_API = {
 const ROTA_PUBLICA = {
   login: true,
   cadastrarUsuario: true,
+  solicitarResetSenha: true,
+  redefinirSenha: true,
 };

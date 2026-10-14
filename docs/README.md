@@ -36,8 +36,11 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
    `Code.gs`, `Utils.gs`, `Auth.gs`, `Usuarios.gs`, `Pedidos.gs`, `Anexos.gs`,
    `Dashboard.gs`, `Performance.gs`, `Setup.gs` — **e o `Bridge.html` como
    arquivo do tipo HTML** (Arquivo → + → HTML, com o nome exato `Bridge`).
-4. No editor, execute **uma** vez: `inicializar()` (cria as abas com cabeçalhos
-   e a pasta de Drive "Compras Anexos").
+4. No editor, execute **uma** vez: `inicializar()` (cria as abas com cabeçalhos,
+   a pasta de Drive "Compras Anexos" e registra a conta ADMIN). Rode novamente
+   sempre que atualizar o código que adiciona abas novas (ex.: `ResetSenha`).
+   - **Conceda a permissão de e-mail** quando solicitado: o fluxo "Esqueci minha
+     senha" usa `MailApp` para enviar o link de redefinição.
 5. Execute uma vez: `criarGestorInicial()` (cria `gestor@ms.senai.br` /
    `Gestor@2026` — **troque a senha depois**; ou cadastre o gestor pela tela).
 
@@ -86,6 +89,8 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 | Documentos (equipe): lista de todos os anexos com filtros, pré-visualização (popup) e download | ✅ |
 | Performance da Gestão (filtros, indicadores, tabela, gráficos, CSV) | ✅ |
 | Configurações: dados + gestão de usuários (PROTECT na exclusão) | ✅ |
+| Conta ADMIN protegida (`gestor@ms.senai.br`): não pode ser excluída, inativada nem ter perfil alterado | ✅ |
+| "Esqueci minha senha": e-mail com link de redefinição (validade 30 min, uso único) | ✅ |
 | Visual SENAI (azul #003876, laranja #E84910), sidebar por perfil | ✅ |
 
 ## 5. Segurança

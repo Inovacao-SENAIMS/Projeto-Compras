@@ -35,7 +35,12 @@
           Não tem conta?
           <a href="#/cadastro"><i class="bi bi-person-plus"></i> Cadastre-se</a>
         </p>
+        <p class="login-rodape">
+          <a href="#" id="lnk-esqueci"><i class="bi bi-key"></i> Esqueci minha senha</a>
+        </p>
       </div>`);
+
+    qs("#lnk-esqueci").addEventListener("click", (ev) => { ev.preventDefault(); modalEsqueciSenha(); });
 
     qs("#form-login").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -157,6 +162,103 @@
       } else {
         btn.disabled = false;
         btn.innerHTML = rotulo;
+      }
+    });
+  };
+
+  /* ---------------------- ESQUECI A SENHA (popup) ---------------------- */
+  function modalEsqueciSenha() {
+    const overlay = abrirModalHTML(`
+      <div class="modal-cabecalho">
+        <h2><i class="bi bi-key"></i> Redefinir senha</h2>
+        <button type="button" class="modal-fechar" data-fechar>&times;</button>
+      </div>
+      <div class="modal-corpo">
+        <p class="meta">Informe seu e-mail institucional. Enviaremos um link para você criar uma nova senha.</p>
+        <form id="form-esqueci" class="formulario">
+          <p>
+            <label for="e-email">E-mail institucional</label>
+            <input id="e-email" class="campo" placeholder="nome@ms.senai.br" required>
+          </p>
+          <div class="modal-acoes">
+            <button type="submit" class="botao"><i class="bi bi-envelope"></i> Enviar link</button>
+            <button type="button" class="botao botao-cancelar" data-fechar>Cancelar</button>
+          </div>
+        </form>
+      </div>`);
+
+    overlay.querySelector("#form-esqueci").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = overlay.querySelector("#e-email").value.trim();
+      if (!eMailInstitucionalOk(email)) {
+        mostrarMensagem("error", "Só é aceito e-mail institucional @ms.senai.br.");
+        return;
+      }
+      const btn = overlay.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      const rot = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Enviando…';
+
+      const r = await API.chamar("solicitarResetSenha", {
+        email,
+        base_url: location.origin + location.pathname,
+      }, "");
+
+      if (r.ok) {
+        overlay.remove();
+        mostrarMensagem("success", (r.data && r.data.mensagem) ||
+          "Se existir uma conta com este e-mail, enviaremos as instruções de redefinição.");
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = rot;
+        mostrarMensagem("error", r.erro || "Não foi possível solicitar a redefinição.");
+      }
+    });
+  }
+
+  /* ---------------------- REDEFINIR SENHA (link do e-mail) ---------------------- */
+  ROTAS["#/redefinir/<token>"] = function (token) {
+    cascaAuth(`
+      <div class="login-card">
+        <h2>Nova senha</h2>
+        <p class="meta">Defina uma nova senha para a sua conta.</p>
+        <form id="form-redefinir" class="formulario">
+          <p>
+            <label for="r-senha1">Nova senha</label>
+            <input id="r-senha1" type="password" class="campo" required>
+          </p>
+          <p>
+            <label for="r-senha2">Confirmar nova senha</label>
+            <input id="r-senha2" type="password" class="campo" required>
+          </p>
+          <div class="modal-acoes">
+            <button type="submit" class="botao"><i class="bi bi-check-lg"></i> Redefinir senha</button>
+            <a class="link-secundario" href="#/login">Voltar ao login</a>
+          </div>
+        </form>
+      </div>`);
+
+    qs("#form-redefinir").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const s1 = val("r-senha1");
+      const s2 = val("r-senha2");
+      if (!token) { mostrarMensagem("error", "Link inválido. Solicite uma nova redefinição."); return; }
+      if (s1.length < 6) { mostrarMensagem("error", "A senha deve ter ao menos 6 caracteres."); return; }
+      if (s1 !== s2) { mostrarMensagem("error", "As senhas não coincidem."); return; }
+
+      const btn = qs("#form-redefinir button[type=submit]");
+      btn.disabled = true;
+      const rot = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Salvando…';
+
+      const r = await API.chamar("redefinirSenha", { token, senha: s1, senha2: s2 }, "");
+      if (r.ok) {
+        mostrarMensagem("success", "Senha redefinida com sucesso! Faça login.");
+        setTimeout(() => (location.hash = "#/login"), 1400);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = rot;
+        mostrarMensagem("error", r.erro || "Não foi possível redefinir a senha.");
       }
     });
   };

@@ -14,6 +14,7 @@ const ABAS = {
   AnexosAudit: ["id", "numero_req", "tipo", "nome_original", "drive_file_id",
                 "enviado_por", "enviado_em"],
   Sessoes: ["token", "email", "expira_em"],
+  ResetSenha: ["token", "email", "expira_em", "usado", "criado_em"],
 };
 
 function inicializar() {
@@ -28,13 +29,19 @@ function inicializar() {
     }
   });
 
+  /* registra a conta ADMIN (protege contra exclusão/desativação) */
+  const props = PropertiesService.getScriptProperties();
+  if (!props.getProperty("ADMIN_EMAIL")) {
+    props.setProperty("ADMIN_EMAIL", ADMIN_EMAIL_PADRAO);
+  }
+
   pastaRaizAnexos(); // cria e registra a pasta de Drive
-  Logger.log("Inicialização concluída. Abas + pasta 'Compras Anexos' prontas.");
+  Logger.log("Inicialização concluída. Abas + pasta 'Compras Anexos' prontas. ADMIN: " + emailAdmin());
 }
 
 /** Cria o usuário Gestor inicial (trocar a senha depois do 1º login). */
 function criarGestorInicial() {
-  const email = "gestor@ms.senai.br";
+  const email = ADMIN_EMAIL_PADRAO;
   const senha = "Gestor@2026"; // trocar!
   exigir(!buscarUsuario(email), "Usuário já existe.");
   const salt = Utilities.getUuid();
@@ -43,4 +50,98 @@ function criarGestorInicial() {
     "Gestão", "Gestor de Compras", CONFIG_INSTITUTOS[0], "", "", true,
   ]);
   Logger.log("Gestor criado: " + email);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reset de senha por e-mail                                          */
+/* ------------------------------------------------------------------ */
+
+const ABA_RESET = "ResetSenha";
+const CAB_RESET = ["token", "email", "expira_em", "usado", "criado_em"];
+const RESET_VALIDADE_MIN = 30; /* minutos */
+
+/** Passo 1: o usuário informa o e-mail e recebe o link de redefinição. */
+function apiSolicitarResetSenha(payload) {
+  const email = String(payload.email || "").trim().toLowerCase();
+  exigirEmailInstitucional(email);
+
+  /* Resposta sempre igual (não revela se o e-mail existe) */
+  const respostaPadrao = {
+    ok: true,
+    data: { mensagem: "Se existir uma conta com este e-mail, enviaremos as instruções de redefinição." },
+  };
+
+  const u = buscarUsuario(email);
+  if (!u || !isValido(u)) return respostaPadrao;
+
+  const sh = abaOuCriar(ABA_RESET, CAB_RESET);
+
+  /* invalida tokens anteriores deste e-mail */
+  const linhas = sh.getDataRange().getValues();
+  for (let i = linhas.length - 1; i >= 1; i--) {
+    if (String(linhas[i][1]).toLowerCase() === email) sh.deleteRow(i + 1);
+  }
+
+  const token = Utilities.getUuid().replace(/-/g, "");
+  const expira = new Date(Date.now() + RESET_VALIDADE_MIN * 60 * 1000);
+  sh.appendRow([token, email, expira, false, new Date()]);
+
+  /* base_url vem do próprio site (informa onde o SPA está publicado) */
+  const base = String(payload.base_url || "").replace(/#.*$/, "");
+  const link = base ? base + "#/redefinir/" + token : token;
+
+  const nome = u.nome_completo || email;
+  const assunto = "Projeto Compras — redefinição de senha";
+  const corpo =
+    "Olá, " + nome + "!\n\n" +
+    "Recebemos um pedido de redefinição de senha da sua conta no Projeto Compras.\n\n" +
+    (base
+      ? "Abra o link abaixo para definir uma nova senha:\n" + link + "\n\n"
+      : "Use este código para redefinir sua senha: " + token + "\n\n") +
+    "O link/código é válido por " + RESET_VALIDADE_MIN + " minutos.\n" +
+    "Se você não solicitou, ignore este e-mail.\n\n" +
+    "Sistema FIEMS — Projeto Compras";
+
+  try {
+    MailApp.sendEmail({ to: email, subject: assunto, body: corpo });
+  } catch (e) {
+    Logger.log("Falha ao enviar e-mail de reset: " + (e && e.message));
+  }
+
+  return respostaPadrao;
+}
+
+/** Passo 2: o usuário define a nova senha com o token recebido. */
+function apiRedefinirSenha(payload) {
+  const token = String(payload.token || "").trim();
+  const senha = String(payload.senha || "");
+  const senha2 = String(payload.senha2 || "");
+
+  exigir(token, "Token ausente. Solicite uma nova redefinição.");
+  exigir(senha.length >= 6, "A senha deve ter ao menos 6 caracteres.");
+  exigir(!senha2 || senha === senha2, "As senhas não coincidem.");
+
+  const sh = abaOuCriar(ABA_RESET, CAB_RESET);
+  const linhas = sh.getDataRange().getValues();
+  for (let i = 1; i < linhas.length; i++) {
+    if (String(linhas[i][0]) !== token) continue;
+
+    const expira = new Date(linhas[i][2]);
+    const usado = String(linhas[i][3]).toUpperCase() === "TRUE";
+    exigir(!usado, "Este link de redefinição já foi utilizado.");
+    exigir(expira.getTime() > Date.now(), "Este link de redefinição expirou. Solicite outro.");
+
+    const email = String(linhas[i][1]).toLowerCase();
+    const alvo = buscarUsuarioPorLinha(email);
+    exigir(alvo, "Usuário não encontrado.");
+
+    const salt = Utilities.getUuid();
+    aba("Usuarios").getRange(alvo.__linha__, 4).setValue(hashSenha(senha, salt)); /* senha_hash */
+    aba("Usuarios").getRange(alvo.__linha__, 5).setValue(salt);                    /* salt */
+    sh.getRange(i + 1, 4).setValue(true);                                          /* usado */
+
+    return { ok: true, data: { email, mensagem: "Senha redefinida com sucesso. Faça login." } };
+  }
+
+  throw new Error("Link de redefinição inválido. Solicite uma nova redefinição.");
 }

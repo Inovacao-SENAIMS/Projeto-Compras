@@ -36,13 +36,14 @@ ROTAS["#/usuarios"] = async function () {
         .filter((g) => g !== "SuperUsuario")
         .map((g) => `<option value="${g}" ${u.grupo === g ? "selected" : ""}>${GRUPOS_ROTULO[g]}</option>`)
         .join("");
+      const bloqueado = u.sou_eu || u.is_admin;   /* admin do sistema: nunca gerenciável */
       return `
       <tr>
-        <td>${esc(u.nome_completo)}${u.sou_eu ? ' <span class="tag">você</span>' : ""}</td>
+        <td>${esc(u.nome_completo)}${u.sou_eu ? ' <span class="tag">você</span>' : ""}${u.is_admin ? ' <span class="tag tag-admin">admin</span>' : ""}</td>
         <td>${esc(u.email)}</td>
         <td>
           <span class="perfil-celula">
-            <select class="campo selecao-perfil" data-usuario="${esc(u.email)}" data-original="${esc(u.grupo)}" ${u.sou_eu ? "disabled" : ""}>
+            <select class="campo selecao-perfil" data-usuario="${esc(u.email)}" data-original="${esc(u.grupo)}" ${bloqueado ? "disabled" : ""}>
               ${opcoes}
             </select>
           </span>
@@ -54,10 +55,10 @@ ROTAS["#/usuarios"] = async function () {
                   title="Salvar alteração de perfil" disabled>
             <i class="bi bi-floppy"></i></button>
           <button type="button" class="btn-icone" data-usuario="${esc(u.email)}" data-op="toggle"
-                  title="${u.ativo ? "Inativar" : "Ativar"}" ${u.sou_eu ? "disabled" : ""}>
+                  title="${u.ativo ? "Inativar" : "Ativar"}" ${bloqueado ? "disabled" : ""}>
             <i class="bi bi-${u.ativo ? "person-dash" : "person-check"}"></i></button>
           <button type="button" class="btn-icone btn-icone-perigo" data-usuario="${esc(u.email)}" data-op="excluir"
-                  title="Excluir" ${u.sou_eu ? "disabled" : ""}>
+                  title="${u.is_admin ? "Conta admin do sistema — não pode ser excluída" : "Excluir"}" ${bloqueado ? "disabled" : ""}>
             <i class="bi bi-trash"></i></button>
         </td>
       </tr>`;

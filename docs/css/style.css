@@ -1518,3 +1518,10 @@ button.botao.botao-cancelar:hover {
     text-align: center;
 }
 .doc-preview-indisponivel i { font-size: 2.4rem; }
+
+/* Selo de conta administrativa (protegida) na página Usuários */
+.tag-admin {
+    background: #E84910;
+    color: #fff;
+    font-weight: 700;
+}
