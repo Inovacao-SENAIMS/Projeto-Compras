@@ -55,6 +55,9 @@ ROTAS["#/requisicoes"] = async function () {
       <button type="button" class="botao botao-secundario" id="btn-toggle-filtros"></button>
       <button type="button" class="botao botao-secundario" id="btn-fixar-filtros"
               title="Manter a faixa de filtros sempre expandida"></button>
+      <button type="button" class="botao botao-exportar" id="btn-csv" title="Exportar a lista (respeita os filtros aplicados)">
+        <i class="bi bi-filetype-csv"></i> Exportar CSV
+      </button>
     </div>
     <div id="area-filtros" hidden>${montarFiltros([...nomesResp.entries()])}</div>
     <div class="tabela-scroll">
@@ -175,8 +178,8 @@ function montarFiltros(responsaveis) {
       </div>
     </div>
     <div class="filtros-acoes">
-      <button type="button" class="botao botao-exportar" id="btn-csv"><i class="bi bi-filetype-csv"></i> Exportar CSV</button>
       <a class="link-secundario" href="#/requisicoes" id="btn-limpar"><i class="bi bi-x-lg"></i> Limpar</a>
+      <span class="meta">O botão Exportar CSV fica na barra acima.</span>
     </div>
   </form>`;
 }
