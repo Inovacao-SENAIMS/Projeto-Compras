@@ -388,10 +388,10 @@ function exportarCSV() {
 }
 
 /* -------------------------------------------------- infra de modal */
-function abrirModalHTML(html) {
+function abrirModalHTML(html, classeExtra) {
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay aberto";   /* a CSS exige "aberto" p/ centralizar */
-  overlay.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  overlay.innerHTML = `<div class="modal ${classeExtra || ""}" role="dialog" aria-modal="true">${html}</div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay || e.target.closest("[data-fechar]")) overlay.remove();
@@ -466,7 +466,7 @@ function modalNovaRequisicao() {
           <button type="button" class="botao botao-cancelar" data-fechar>Cancelar</button>
         </div>
       </form>
-    </div>`);
+    </div>`, "modal-largo");
 
   const sim = overlay.querySelector("#r-cotacao-sim");
   const wrap = overlay.querySelector("#wrap-cotacao-arquivo");
