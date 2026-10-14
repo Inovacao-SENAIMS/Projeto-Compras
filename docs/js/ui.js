@@ -28,11 +28,13 @@ function montarLayout() {
           <i class="bi bi-person-circle"></i>
           <span class="usuario">${esc(s.nome)}</span>
         </div>
+        <footer class="rodape-marca rodape-lateral">
+          <img src="img/SENAI.png" alt="SENAI | Sistema FIEMS">
+        </footer>
       </div>
     </aside>
     <main class="conteudo" id="conteudo"></main>
-  </div>
-  <footer class="rodape-marca"><img src="img/senai-fiems-logo.png" alt="SENAI | Sistema FIEMS"></footer>`;
+  </div>`;
 
   qs("#btn-logout").addEventListener("click", async () => {
     const token = Sessao.ler() && Sessao.ler().token;
@@ -66,4 +68,73 @@ function atualizarNav(routeAtiva) {
 /** Renderiza o interior do <main class="conteudo"> com o título da página. */
 function conteudoInner(titulo, htmlExtra) {
   return `<header class="pagina-cabecalho"><h1>${esc(titulo)}</h1></header>${htmlExtra || ""}`;
+}
+
+/** Cria um gráfico Chart.js de forma tolerante a falhas.
+ * Se o Chart.js não estiver disponível (CDN bloqueado/offline) ou o canvas
+ * não existir, não lança erro — a página continua funcionando. */
+function criarGrafico(idOuEl, config) {
+  const el = typeof idOuEl === "string" ? qs(idOuEl) : idOuEl;
+  if (!el || typeof Chart === "undefined") return null;
+  try {
+    return new Chart(el, config);
+  } catch (e) {
+    console.error("Falha ao criar gráfico:", e);
+    return null;
+  }
+}
+
+/* Barra de filtros reutilizável: expandir / fixar (persistido) / recolher.
+ * Padrão comum às páginas de Requisições e Performance.
+ *
+ * opts = { area, toggle, fixar, chave, contar }
+ *   area/toggle/fixar : seletores CSS dos elementos já renderizados
+ *   chave             : chave de localStorage (uma por página)
+ *   contar            : função que retorna o nº de filtros ativos (badge)
+ */
+function inicializarBarraFiltros(opts) {
+  const area = qs(opts.area);
+  const btnToggle = qs(opts.toggle);
+  const btnFixar = qs(opts.fixar);
+  if (!area || !btnToggle || !btnFixar) return { atualizar() {} };
+
+  let fixado = localStorage.getItem(opts.chave) === "1";
+  let visivel = fixado;
+  const contar = typeof opts.contar === "function" ? opts.contar : () => 0;
+
+  function atualizar() {
+    area.hidden = !visivel;
+
+    const n = contar();
+    btnToggle.innerHTML =
+      `<i class="bi bi-funnel${visivel ? "-fill" : ""}"></i> ` +
+      (visivel ? "Ocultar filtros" : "Mostrar filtros") +
+      (n ? ` <span class="badge-filtros">${n}</span>` : "") +
+      ` <i class="bi bi-chevron-${visivel ? "up" : "down"}"></i>`;
+
+    btnFixar.innerHTML =
+      `<i class="bi bi-pin-angle${fixado ? "-fill" : ""}"></i> ` +
+      (fixado ? "Menu fixado" : "Fixar Menu");
+    btnFixar.classList.toggle("botao-ativo", fixado);
+    btnFixar.title = fixado
+      ? "Clique para desafixar (a faixa volta a recolher automaticamente)"
+      : "Manter a faixa de filtros sempre expandida";
+  }
+
+  btnToggle.addEventListener("click", () => {
+    visivel = !visivel;
+    if (!visivel) { fixado = false; localStorage.removeItem(opts.chave); }
+    atualizar();
+  });
+
+  btnFixar.addEventListener("click", () => {
+    fixado = !fixado;
+    visivel = fixado; /* fixar abre; desafixar recolhe */
+    if (fixado) localStorage.setItem(opts.chave, "1");
+    else localStorage.removeItem(opts.chave);
+    atualizar();
+  });
+
+  atualizar();
+  return { atualizar, estaVisivel: () => visivel };
 }

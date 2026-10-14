@@ -10,19 +10,14 @@ let RESPO_LISTA = [];
 let ORDENACAO = { campo: null, dir: 1 };
 
 /* Faixa de filtros: recolhida por padrão; "Fixar Menu" mantém expandida
- * (persistido em localStorage entre navegações e recarregamentos). */
+ * (persistido em localStorage entre navegações e recarregamentos).
+ * O comportamento é compartilhado — ver inicializarBarraFiltros (ui.js). */
 const CHAVE_FILTROS_FIXADO = "compras.filtros.fixado";
-let FILTROS_FIXADO = false;
-let FILTROS_VISIVEL = false;
 
 ROTAS["#/requisicoes"] = async function () {
   atualizarNav("#/requisicoes");
   const equipe = Sessao.isEquipe();
   ORDENACAO = { campo: null, dir: 1 };
-
-  /* Estado dos filtros: recolhido por padrão; "fixado" persiste. */
-  FILTROS_FIXADO = localStorage.getItem(CHAVE_FILTROS_FIXADO) === "1";
-  FILTROS_VISIVEL = FILTROS_FIXADO;
 
   qs("#conteudo").innerHTML = `
     <div id="mensagens-flutuantes" hidden></div>
@@ -66,55 +61,21 @@ ROTAS["#/requisicoes"] = async function () {
     </div>`;
 
   qs("#req-conteudo").hidden = false;
+
+  /* ---- expandir / fixar / recolher a faixa de filtros (helper compartilhado) ---- */
+  const barraFiltros = inicializarBarraFiltros({
+    area: "#area-filtros",
+    toggle: "#btn-toggle-filtros",
+    fixar: "#btn-fixar-filtros",
+    chave: CHAVE_FILTROS_FIXADO,
+    contar: () => {
+      const f = filtroValores();
+      return Object.keys(f).filter((k) => f[k] !== "").length;
+    },
+  });
+
   qsa(".filtros input, .filtros select").forEach((el) =>
-    el.addEventListener("change", () => { renderTabela(); atualizarBarraFiltros(); }));
-
-  /* ---- expandir / fixar / recolher a faixa de filtros ---- */
-  const areaFiltros = qs("#area-filtros");
-  const btnToggle = qs("#btn-toggle-filtros");
-  const btnFixar = qs("#btn-fixar-filtros");
-
-  function filtrosAtivos() {
-    const f = filtroValores();
-    return Object.keys(f).filter((k) => f[k] !== "").length;
-  }
-
-  function atualizarBarraFiltros() {
-    areaFiltros.hidden = !FILTROS_VISIVEL;
-
-    const n = filtrosAtivos();
-    btnToggle.innerHTML =
-      `<i class="bi bi-funnel${FILTROS_VISIVEL ? "-fill" : ""}"></i> ` +
-      (FILTROS_VISIVEL ? "Ocultar filtros" : "Mostrar filtros") +
-      (n ? ` <span class="badge-filtros">${n}</span>` : "") +
-      ` <i class="bi bi-chevron-${FILTROS_VISIVEL ? "up" : "down"}"></i>`;
-
-    btnFixar.innerHTML =
-      `<i class="bi bi-pin-angle${FILTROS_FIXADO ? "-fill" : ""}"></i> ` +
-      (FILTROS_FIXADO ? "Menu fixado" : "Fixar Menu");
-    btnFixar.classList.toggle("botao-ativo", FILTROS_FIXADO);
-    btnFixar.title = FILTROS_FIXADO
-      ? "Clique para desafixar (a faixa volta a recolher automaticamente)"
-      : "Manter a faixa de filtros sempre expandida";
-  }
-
-  btnToggle.addEventListener("click", () => {
-    FILTROS_VISIVEL = !FILTROS_VISIVEL;
-    /* recolher deixa de manter fixado (o normal é recolhido) */
-    if (!FILTROS_VISIVEL) {
-      FILTROS_FIXADO = false;
-      localStorage.removeItem(CHAVE_FILTROS_FIXADO);
-    }
-    atualizarBarraFiltros();
-  });
-
-  btnFixar.addEventListener("click", () => {
-    FILTROS_FIXADO = !FILTROS_FIXADO;
-    FILTROS_VISIVEL = FILTROS_FIXADO; /* fixar abre; desafixar recolhe */
-    if (FILTROS_FIXADO) localStorage.setItem(CHAVE_FILTROS_FIXADO, "1");
-    else localStorage.removeItem(CHAVE_FILTROS_FIXADO);
-    atualizarBarraFiltros();
-  });
+    el.addEventListener("change", () => { renderTabela(); barraFiltros.atualizar(); }));
 
   /* Limpar filtros (botão dentro do container de filtros) */
   const btnLimpar = qs("#btn-limpar");
@@ -122,11 +83,9 @@ ROTAS["#/requisicoes"] = async function () {
     btnLimpar.addEventListener("click", () => {
       qsa(".filtros input, .filtros select").forEach((el) => { el.value = ""; });
       renderTabela();
-      atualizarBarraFiltros();
+      barraFiltros.atualizar();
     });
   }
-
-  atualizarBarraFiltros();
 
   renderTabela();
 };

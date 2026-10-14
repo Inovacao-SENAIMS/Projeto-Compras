@@ -81,7 +81,7 @@ ROTAS["#/home"] = async function () {
   const azul = "#003876", azul2 = "#00529B", laranja = "#E84910";
   const paleta = [azul, azul2, laranja, "#3b76b8", "#8aa9c9", "#f2917a", "#c24a24"];
 
-  new Chart(qs("#graficoMes"), {
+  criarGrafico("#graficoMes", {
     type: "line",
     data: {
       labels: d.por_mes.map((m) => m.rotulo),
@@ -99,7 +99,7 @@ ROTAS["#/home"] = async function () {
   });
 
   const chaves = Object.keys(CONFIG.STATUS);
-  new Chart(qs("#graficoStatus"), {
+  criarGrafico("#graficoStatus", {
     type: "doughnut",
     data: {
       labels: chaves.map((k) => CONFIG.STATUS[k]),
@@ -108,7 +108,7 @@ ROTAS["#/home"] = async function () {
     options: { plugins: { legend: { position: "bottom" } } },
   });
 
-  new Chart(qs("#graficoInstituto"), {
+  criarGrafico("#graficoInstituto", {
     type: "bar",
     data: {
       labels: d.por_instituto.map((x) => x.instituto),

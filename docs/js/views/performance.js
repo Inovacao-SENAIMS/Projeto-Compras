@@ -15,7 +15,6 @@ ROTAS["#/performance"] = async function () {
     <div id="mensagens-flutuantes" hidden></div>
     <div class="cabecalho-pagina">
       <h2><i class="bi bi-graph-up-arrow"></i> Performance do Time</h2>
-      <button type="button" class="botao botao-exportar" id="perf-csv"><i class="bi bi-filetype-csv"></i> Exportar CSV</button>
     </div>
     <div class="carregando"><i class="bi bi-arrow-repeat"></i> Carregando…</div>`;
 
@@ -41,6 +40,18 @@ ROTAS["#/performance"] = async function () {
     </tr>`).join("");
 
   qs("#conteudo").innerHTML = `
+    <div class="cabecalho-pagina">
+      <h2><i class="bi bi-graph-up-arrow"></i> Performance do Time</h2>
+      <button type="button" class="botao botao-exportar" id="perf-csv"><i class="bi bi-filetype-csv"></i> Exportar CSV</button>
+    </div>
+
+    <div class="filtros-barra">
+      <button type="button" class="botao botao-secundario botao-compacto" id="btn-toggle-filtros-perf"></button>
+      <button type="button" class="botao botao-secundario botao-compacto" id="btn-fixar-filtros-perf"
+              title="Manter a faixa de filtros sempre expandida"></button>
+    </div>
+
+    <div id="area-filtros-perf" hidden>
     <div class="filtros">
       <div class="filtros-grade">
         <div class="filtro-campo">
@@ -59,8 +70,11 @@ ROTAS["#/performance"] = async function () {
       </div>
       <div class="filtros-acoes">
         <button type="button" class="botao" id="p-filtrar"><i class="bi bi-funnel"></i> Filtrar</button>
-        <a class="link-secundario" href="#/performance"><i class="bi bi-x-lg"></i> Limpar</a>
+        <button type="button" class="botao botao-secundario" id="p-limpar" title="Limpar todos os filtros">
+          <i class="bi bi-x-lg"></i> Limpar
+        </button>
       </div>
+    </div>
     </div>
 
     <div class="dash-grade-cards">
@@ -100,7 +114,39 @@ ROTAS["#/performance"] = async function () {
   const azul = "#003876", azul2 = "#00529B", laranja = "#E84910";
   const paleta = [azul, azul2, laranja, "#3b76b8", "#8aa9c9", "#f2917a", "#c24a24"];
 
-  new Chart(qs("#perf-status"), {
+  /* ---- (1) faixa de filtros: expandir / fixar / recolher (padrão Requisições) ---- */
+  const CHAVE_PERF_FIXADO = "compras.filtros.fixado.performance";
+  const barraPerf = inicializarBarraFiltros({
+    area: "#area-filtros-perf",
+    toggle: "#btn-toggle-filtros-perf",
+    fixar: "#btn-fixar-filtros-perf",
+    chave: CHAVE_PERF_FIXADO,
+    contar: () => ["p-de", "p-ate", "p-usuario"].filter((id) => val(id) !== "").length,
+  });
+
+  qsa("#area-filtros-perf input, #area-filtros-perf select").forEach((el) =>
+    el.addEventListener("change", () => barraPerf.atualizar()));
+
+  qs("#p-filtrar").addEventListener("click", () => {
+    PERFORMANCE_OK = { de: val("p-de"), ate: val("p-ate"), usuario: val("p-usuario") };
+    ROTAS["#/performance"](); /* re-renderiza com os filtros aplicados */
+  });
+
+  qs("#p-limpar").addEventListener("click", () => {
+    qsa("#area-filtros-perf input, #area-filtros-perf select").forEach((el) => { el.value = ""; });
+    PERFORMANCE_OK = { de: "", ate: "", usuario: "" };
+    ROTAS["#/performance"](); /* recarrega sem filtros */
+  });
+
+  qs("#perf-csv").addEventListener("click", () => {
+    const cab = ["Membro", "Atribuídas", "Em Análise", "Concluídas", "Canceladas", "Lead Time Médio (dias)"];
+    const lin = d.membros.map((m) => [m.nome, m.atribuidas, m.em_analise, m.concluida, m.cancelada,
+      m.lead_medio == null ? "" : m.lead_medio]);
+    baixarCSV("performance.csv", [cab, ...lin].map((l) => l.map(csvEsc).join(";")).join("\n"));
+  });
+
+  /* ---- (2) gráficos (tolerantes a falha do Chart.js) ---- */
+  criarGrafico("#perf-status", {
     type: "doughnut",
     data: {
       labels: ["Em Análise", "Concluídas", "Canceladas"],
@@ -112,24 +158,12 @@ ROTAS["#/performance"] = async function () {
     options: { plugins: { legend: { position: "bottom" } } },
   });
 
-  new Chart(qs("#perf-membro"), {
+  criarGrafico("#perf-membro", {
     type: "bar",
     data: {
       labels: d.membros.map((m) => m.nome),
       datasets: [{ label: "Atribuídas", data: d.membros.map((m) => m.atribuidas), backgroundColor: azul }],
     },
     options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
-  });
-
-  qs("#p-filtrar").addEventListener("click", () => {
-    PERFORMANCE_OK = { de: val("p-de"), ate: val("p-ate"), usuario: val("p-usuario") };
-    ROTAS["#/performance"](); /* re-renderiza com os filtros aplicados */
-  });
-
-  qs("#perf-csv").addEventListener("click", () => {
-    const cab = ["Membro", "Atribuídas", "Em Análise", "Concluídas", "Canceladas", "Lead Time Médio (dias)"];
-    const lin = d.membros.map((m) => [m.nome, m.atribuidas, m.em_analise, m.concluida, m.cancelada,
-      m.lead_medio == null ? "" : m.lead_medio]);
-    baixarCSV("performance.csv", [cab, ...lin].map((l) => l.map(csvEsc).join(";")).join("\n"));
   });
 };
