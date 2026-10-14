@@ -153,6 +153,13 @@ const API = (() => {
         document.dispatchEvent(new CustomEvent(EV_SESSAO_EXPIRADA, { detail: resp.erro }));
       }
 
+      /* Diagnóstico amigável: ação nova ainda não publicada no Apps Script */
+      if (resp.ok === false && /a[cç][aã]o desconhecida/i.test(resp.erro || "")) {
+        resp.erro = resp.erro +
+          " — o deploy do Apps Script parece desatualizado: atualize Code.gs e " +
+          "Usuarios.gs e publique uma NOVA VERSÃO (Implantar → Gerenciar implantações → ✏️ → Nova versão).";
+      }
+
       if (resp.ok) {
         if (CACHEAVEIS[acao]) cache.set(chave, { t: Date.now(), resp });
         else cache.clear(); /* escrita: invalida leituras */
