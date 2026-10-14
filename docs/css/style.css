@@ -1310,3 +1310,37 @@ button.link {
 .btn-salvar-perfil:disabled:hover { background: transparent; color: #c2cbd8; }
 .btn-salvar-perfil:not(:disabled) { color: #1E8E5A; }
 .btn-salvar-perfil:not(:disabled):hover { background: #e7f5ee; color: #177048; }
+
+/* Barra de expandir/fixar/recolher a faixa de filtros */
+.filtros-barra {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+}
+.botao-secundario {
+    background: #fff;
+    color: var(--cor-primaria-clara);
+    border: 1px solid #d5dee8;
+}
+.botao-secundario:hover {
+    background: #f1f5f9;
+    color: var(--cor-primaria);
+}
+.botao-ativo,
+.botao-ativo:hover {
+    background: var(--cor-primaria);
+    color: #fff;
+    border-color: var(--cor-primaria);
+}
+.badge-filtros {
+    display: inline-block;
+    min-width: 1.15rem;
+    text-align: center;
+    background: #E84910;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.05rem 0.4rem;
+}
