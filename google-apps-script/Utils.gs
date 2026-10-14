@@ -97,7 +97,8 @@ function removerLinha(nome, linha) {
 
 /** E-mail da conta ADMIN do sistema (não pode ser excluída/alterada).
  * Configurável pela propriedade de script ADMIN_EMAIL (padrão abaixo). */
-const ADMIN_EMAIL_PADRAO = "gestor@ms.senai.br";
+const ADMIN_EMAIL_PADRAO = "admin@ms.senai.br";
+const ADMIN_SENHA_PADRAO = "admin123";
 
 function emailAdmin() {
   const prop = PropertiesService.getScriptProperties().getProperty("ADMIN_EMAIL");

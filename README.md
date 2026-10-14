@@ -66,4 +66,4 @@ pasta `docs/`) estão no guia:
 
 **[`docs/README.md`](docs/README.md)**
 
-Acesso inicial da Gestão: `gestor@ms.senai.br` — trocar a senha no 1º login.
+Acesso inicial da Gestão: `admin@ms.senai.br` / `admin123` — trocar a senha no 1º login.

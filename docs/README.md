@@ -41,8 +41,10 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
    sempre que atualizar o código que adiciona abas novas (ex.: `ResetSenha`).
    - **Conceda a permissão de e-mail** quando solicitado: o fluxo "Esqueci minha
      senha" usa `MailApp` para enviar o link de redefinição.
-5. Execute uma vez: `criarGestorInicial()` (cria `gestor@ms.senai.br` /
-   `Gestor@2026` — **troque a senha depois**; ou cadastre o gestor pela tela).
+5. Execute uma vez: `criarGestorInicial()` — cria a conta **ADMIN**
+   (`admin@ms.senai.br` / `admin123`; troque a senha depois).
+   Se já existia a conta antiga `gestor@ms.senai.br`, rode `migrarAdministrador()`
+   (renomeia para `admin@ms.senai.br`, redefine a senha e atualiza as referências).
 
 ### 2.2 Deploy do Web App
 
@@ -89,7 +91,8 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 | Documentos (equipe): lista de todos os anexos com filtros, pré-visualização (popup) e download | ✅ |
 | Performance da Gestão (filtros, indicadores, tabela, gráficos, CSV) | ✅ |
 | Configurações: dados + gestão de usuários (PROTECT na exclusão) | ✅ |
-| Conta ADMIN protegida (`gestor@ms.senai.br`): não pode ser excluída, inativada nem ter perfil alterado | ✅ |
+| Conta ADMIN protegida (`admin@ms.senai.br`): não pode ser excluída, inativada nem ter perfil alterado | ✅ |
+| SuperUsuário invisível em todas as listas e relatórios (usuários, responsáveis, performance, documentos, instituto) | ✅ |
 | "Esqueci minha senha": e-mail com link de redefinição (validade 30 min, uso único) | ✅ |
 | Visual SENAI (azul #003876, laranja #E84910), sidebar por perfil | ✅ |
 
@@ -104,7 +107,7 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 - Sessões com token de 8h + logout (aba `Sessoes`, limpeza de expiradas).
 - Arquivos nunca expostos; download só via API (`baixarArquivo`), com verificação
   de permissão (403-equivalente).
-- Em produção, considere: trocar a senha do gestor `Gestor@2026` e avaliar a
+- Em produção, considere: trocar a senha do administrador `admin123` e avaliar a
   migração para **Google Sign-In (OAuth)** — mais forte que senha + hash.
 
 ## 6. Limitações conhecidas

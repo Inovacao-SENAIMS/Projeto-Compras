@@ -39,17 +39,67 @@ function inicializar() {
   Logger.log("Inicialização concluída. Abas + pasta 'Compras Anexos' prontas. ADMIN: " + emailAdmin());
 }
 
-/** Cria o usuário Gestor inicial (trocar a senha depois do 1º login). */
+/** Cria o usuário ADMIN inicial (trocar a senha depois do 1º login). */
 function criarGestorInicial() {
   const email = ADMIN_EMAIL_PADRAO;
-  const senha = "Gestor@2026"; // trocar!
+  const senha = ADMIN_SENHA_PADRAO;
   exigir(!buscarUsuario(email), "Usuário já existe.");
   const salt = Utilities.getUuid();
   inserirLinha("Usuarios", [
-    "Gestor de Compras", email, GRUPOS.MANAGER, hashSenha(senha, salt), salt,
-    "Gestão", "Gestor de Compras", CONFIG_INSTITUTOS[0], "", "", true,
+    "Administrador do Sistema", email, GRUPOS.MANAGER, hashSenha(senha, salt), salt,
+    "Gestão", "Administrador", CONFIG_INSTITUTOS[0], "", "", true,
   ]);
-  Logger.log("Gestor criado: " + email);
+  Logger.log("Administrador criado: " + email);
+}
+
+/**
+ * Migração: transforma a conta administrativa antiga em admin@ms.senai.br,
+ * define a senha padrão e atualiza TODAS as referências por e-mail nas abas
+ * (pedidos, histórico e auditoria de anexos). Rode UMA vez.
+ */
+function migrarAdministrador() {
+  const emailNovo = ADMIN_EMAIL_PADRAO;
+  const emailAntigo = "gestor@ms.senai.br";
+
+  const antigo = buscarUsuarioPorLinha(emailAntigo);
+  const novo = buscarUsuarioPorLinha(emailNovo);
+  exigir(antigo || novo, "Não encontrei a conta administrativa (" + emailAntigo + " nem " + emailNovo + ").");
+
+  let alvo = antigo || novo;
+  if (antigo && novo && antigo.__linha__ !== novo.__linha__) {
+    /* já existia admin@: remove a duplicata antiga e ajusta na conta nova */
+    removerLinha("Usuarios", antigo.__linha__);
+    alvo = novo;
+  }
+
+  /* Recalcula a linha do alvo (uma remoção acima pode deslocar as referências) */
+  const linha = (novo ? buscarUsuarioPorLinha(emailNovo) : alvo).__linha__;
+  const salt = Utilities.getUuid();
+  const sh = aba("Usuarios");
+
+  sh.getRange(linha, 2).setValue(emailNovo);                        /* email */
+  sh.getRange(linha, 3).setValue(GRUPOS.MANAGER);                  /* grupo */
+  sh.getRange(linha, 4).setValue(hashSenha(ADMIN_SENHA_PADRAO, salt)); /* senha_hash */
+  sh.getRange(linha, 5).setValue(salt);                            /* salt */
+  sh.getRange(linha, 11).setValue(true);                           /* ativo */
+
+  /* atualiza referências por e-mail em outras abas */
+  function trocarColuna(nomeAba, coluna) {
+    const abaAlvo = aba(nomeAba);
+    const vals = abaAlvo.getDataRange().getValues();
+    for (let i = 1; i < vals.length; i++) {
+      if (String(vals[i][coluna - 1]).toLowerCase() === emailAntigo) {
+        abaAlvo.getRange(i + 1, coluna).setValue(emailNovo);
+      }
+    }
+  }
+  trocarColuna("Pedidos", 9);                /* criado_por */
+  trocarColuna("Pedidos", 12);               /* responsavel */
+  trocarColuna("HistoricoStatus", 4);        /* usuario */
+  trocarColuna("AnexosAudit", 6);            /* enviado_por */
+
+  PropertiesService.getScriptProperties().setProperty("ADMIN_EMAIL", emailNovo);
+  Logger.log("Admin migrado para " + emailNovo + " (senha: " + ADMIN_SENHA_PADRAO + ").");
 }
 
 /* ------------------------------------------------------------------ */

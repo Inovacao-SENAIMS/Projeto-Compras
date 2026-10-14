@@ -153,8 +153,8 @@ function apiAlterarGrupoUsuario(payload, usuario) {
 const COLUNA_USUARIO_ATIVO = 11;
 
 function apiListaResponsaveis(payload, usuario) {
-  /* Para o designar popup: apenas membros do Time (+ Gestão). */
-  const ls = lerAba("Usuarios").filter((u) => isValido(u) && isEquipe(u));
+  /* Para o designar popup: membros do Time (+ Gestão). SuperUsuário é invisível. */
+  const ls = lerAba("Usuarios").filter((u) => isValido(u) && isEquipe(u) && !isSuper(u));
   return {
     ok: true,
     data: ls.map((u) => ({ email: String(u.email).toLowerCase(), nome: u.nome_completo })),

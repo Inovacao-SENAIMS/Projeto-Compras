@@ -7,7 +7,6 @@ const GRUPOS_ROTULO = {
   UserISI_IST: "Solicitante",
   Time_Compras: "Time de Compras",
   Manager_Compras: "Gestão",
-  SuperUsuario: "SuperUsuário",
 };
 
 let USU_CACHE = [];

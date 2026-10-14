@@ -28,8 +28,11 @@ function apiDashboard(payload, usuario) {
     }
 
     const u = buscarUsuario(p.criado_por);
-    const inst = u ? String(u.instituto || "—") : "—";
-    porInstituto[inst] = (porInstituto[inst] || 0) + 1;
+    /* SuperUsuário é invisível nos relatórios (não conta no gráfico por instituto) */
+    if (!(u && isSuper(u))) {
+      const inst = u ? String(u.instituto || "—") : "—";
+      porInstituto[inst] = (porInstituto[inst] || 0) + 1;
+    }
   });
 
   /* últimos 12 meses (de mês corrente para trás) */

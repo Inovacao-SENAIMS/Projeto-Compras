@@ -84,7 +84,13 @@ function apiListarDocumentos(payload, usuario) {
   const pedidos = {};
   lerAba("Pedidos").forEach((p) => { pedidos[String(p.numero)] = p; });
 
-  const docs = lerAba("AnexosAudit").map((a) => {
+  const docs = lerAba("AnexosAudit")
+    .filter((a) => {
+      /* SuperUsuário é invisível nos relatórios/listagens */
+      const u = buscarUsuario(a.enviado_por);
+      return !(u && isSuper(u));
+    })
+    .map((a) => {
     const p = pedidos[String(a.numero_req)] || {};
     return {
       id: String(a.id),

@@ -19,6 +19,12 @@ function apiPerformance(payload, usuario) {
     return true;
   });
 
+  /* SuperUsuário é invisível nos relatórios */
+  const ehSuperEmail = (em) => {
+    const u = buscarUsuario(em);
+    return !!u && isSuper(u);
+  };
+
   const cnt = { total: pedidos.length, sem_responsavel: 0, em_analise: 0, concluida: 0, cancelada: 0 };
   const porMembro = {};
 
@@ -30,6 +36,7 @@ function apiPerformance(payload, usuario) {
     if (st === STATUS.CANCELADA) cnt.cancelada++;
 
     const em = String(p.responsavel || "").toLowerCase();
+    if (ehSuperEmail(em)) return;   /* SuperUsuário invisível no relatório */
     if (!porMembro[em]) {
       porMembro[em] = { email: em, nome: nomeExibicao(em), atribuidas: 0, em_analise: 0, concluida: 0, cancelada: 0, lead_soma: 0, lead_n: 0 };
     }
@@ -50,7 +57,8 @@ function apiPerformance(payload, usuario) {
     return m;
   }).sort((a, b) => b.atribuidas - a.atribuidas);
 
-  const membros = lerAba("Usuarios").filter((u) => isValido(u) && isEquipe(u))
+  const membros = lerAba("Usuarios")
+    .filter((u) => isValido(u) && isEquipe(u) && !isSuper(u))
     .map((u) => ({ email: String(u.email).toLowerCase(), nome: u.nome_completo }));
 
   return { ok: true, data: { indicadores: cnt, membros: tabela, opcoes_membros: membros } };
