@@ -82,13 +82,11 @@ a {
 
 .sidebar-logo {
     display: inline-flex;
-    background: #fff;
-    border-radius: var(--raio-sm);
-    padding: 0.55rem 0.9rem;
+    align-items: center;
 }
 
 .sidebar-logo img {
-    height: 36px;
+    height: 38px;
     width: auto;
     display: block;
 }

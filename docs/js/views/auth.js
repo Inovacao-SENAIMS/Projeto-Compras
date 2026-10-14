@@ -10,7 +10,7 @@
           <div id="mensagens-flutuantes" hidden></div>
           ${html}
         </main>
-        <footer class="rodape-marca"><img src="img/SENAI.png" alt="SENAI | Sistema FIEMS"></footer>
+        <footer class="rodape-marca"><img src="img/senai-fiems-logo.png" alt="SENAI | Sistema FIEMS"></footer>
       </div>`;
   }
 

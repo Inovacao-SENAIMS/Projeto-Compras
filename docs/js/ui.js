@@ -32,7 +32,7 @@ function montarLayout() {
     </aside>
     <main class="conteudo" id="conteudo"></main>
   </div>
-  <footer class="rodape-marca"><img src="img/SENAI.png" alt="SENAI | Sistema FIEMS"></footer>`;
+  <footer class="rodape-marca"><img src="img/senai-fiems-logo.png" alt="SENAI | Sistema FIEMS"></footer>`;
 
   qs("#btn-logout").addEventListener("click", async () => {
     const token = Sessao.ler() && Sessao.ler().token;
