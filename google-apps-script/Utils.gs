@@ -125,6 +125,23 @@ function abaOuCriar(nome, cabecalho) {
   return novo;
 }
 
+/** Repontar referências por e-mail em todas as abas que guardam o usuário. */
+function reapontarEmail(emailAntigo, emailNovo) {
+  const antigo = String(emailAntigo || "").trim().toLowerCase();
+  const novo = String(emailNovo || "").trim();
+  if (!antigo || !novo) return;
+  [["Pedidos", 9], ["Pedidos", 12], ["HistoricoStatus", 4], ["AnexosAudit", 6]]
+    .forEach(([nome, coluna]) => {
+      const sh = aba(nome);
+      const vals = sh.getDataRange().getValues();
+      for (let i = 1; i < vals.length; i++) {
+        if (String(vals[i][coluna - 1]).trim().toLowerCase() === antigo) {
+          sh.getRange(i + 1, coluna).setValue(novo);
+        }
+      }
+    });
+}
+
 /* --------------------------- ações de usuário --------------------------- */
 
 function buscarUsuario(email) {
@@ -138,7 +155,10 @@ function buscarUsuarioPorLinha(email) {
 }
 
 function isSuper(usuario) {
-  return usuario.grupo === GRUPOS.SUPER;
+  if (!usuario) return false;
+  /* A conta ADMIN do sistema tem acesso full e é tratada como SuperUsuário
+   * (e, portanto, é invisível em todas as listas e relatórios). */
+  return usuario.grupo === GRUPOS.SUPER || ehAdmin(usuario.email);
 }
 function isManager(usuario) {
   return usuario.grupo === GRUPOS.MANAGER || isSuper(usuario);

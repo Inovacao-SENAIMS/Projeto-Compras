@@ -29,8 +29,8 @@ function apiListarUsuarios(payload, usuario) {
     "Apenas a Gestão pode listar usuários.");
 
   let usuarios = lerAba("Usuarios");
-  /* Gestão não enxerga contas de SuperUsuário (não as administra) */
-  usuarios = usuarios.filter((u) => String(u.grupo) !== GRUPOS.SUPER);
+  /* Invisíveis para todos: SuperUsuários e a conta ADMIN do sistema */
+  usuarios = usuarios.filter((u) => !isSuper(u));
 
   const eu = String(usuario.email).toLowerCase();
   return {

@@ -45,6 +45,8 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
    (`admin@ms.senai.br` / `admin123`; troque a senha depois).
    Se já existia a conta antiga `gestor@ms.senai.br`, rode `migrarAdministrador()`
    (renomeia para `admin@ms.senai.br`, redefine a senha e atualiza as referências).
+6. Remova contas legadas: `removerUsuariosLegados()` (exclui `gestor@` e
+   `userteste@`, reapontando referências; não remove quem tem requisições).
 
 ### 2.2 Deploy do Web App
 
@@ -91,7 +93,7 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 | Documentos (equipe): lista de todos os anexos com filtros, pré-visualização (popup) e download | ✅ |
 | Performance da Gestão (filtros, indicadores, tabela, gráficos, CSV) | ✅ |
 | Configurações: dados + gestão de usuários (PROTECT na exclusão) | ✅ |
-| Conta ADMIN protegida (`admin@ms.senai.br`): não pode ser excluída, inativada nem ter perfil alterado | ✅ |
+| Conta ADMIN (`admin@ms.senai.br`): acesso **full**, **invisível** em todas as listas/relatórios e **impossível de excluir** por qualquer usuário | ✅ |
 | SuperUsuário invisível em todas as listas e relatórios (usuários, responsáveis, performance, documentos, instituto) | ✅ |
 | "Esqueci minha senha": e-mail com link de redefinição (validade 30 min, uso único) | ✅ |
 | Visual SENAI (azul #003876, laranja #E84910), sidebar por perfil | ✅ |

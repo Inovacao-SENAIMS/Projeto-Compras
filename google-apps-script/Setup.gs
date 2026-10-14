@@ -84,22 +84,39 @@ function migrarAdministrador() {
   sh.getRange(linha, 11).setValue(true);                           /* ativo */
 
   /* atualiza referências por e-mail em outras abas */
-  function trocarColuna(nomeAba, coluna) {
-    const abaAlvo = aba(nomeAba);
-    const vals = abaAlvo.getDataRange().getValues();
-    for (let i = 1; i < vals.length; i++) {
-      if (String(vals[i][coluna - 1]).toLowerCase() === emailAntigo) {
-        abaAlvo.getRange(i + 1, coluna).setValue(emailNovo);
-      }
-    }
-  }
-  trocarColuna("Pedidos", 9);                /* criado_por */
-  trocarColuna("Pedidos", 12);               /* responsavel */
-  trocarColuna("HistoricoStatus", 4);        /* usuario */
-  trocarColuna("AnexosAudit", 6);            /* enviado_por */
+  reapontarEmail(emailAntigo, emailNovo);
 
   PropertiesService.getScriptProperties().setProperty("ADMIN_EMAIL", emailNovo);
   Logger.log("Admin migrado para " + emailNovo + " (senha: " + ADMIN_SENHA_PADRAO + ").");
+}
+
+/**
+ * Remove contas legadas que não devem mais existir (ex.: gestor@ e userteste@).
+ * Seguro: reaponta referências do antigo admin para o novo e NÃO remove
+ * usuário com requisições vinculadas. Rode UMA vez.
+ */
+function removerUsuariosLegados() {
+  const admin = ADMIN_EMAIL_PADRAO;
+  const antigoAdmin = "gestor@ms.senai.br";
+
+  /* qualquer referência remanescente do admin antigo vai para o novo */
+  reapontarEmail(antigoAdmin, admin);
+
+  ["gestor@ms.senai.br", "userteste@ms.senai.br"].forEach((email) => {
+    const alvo = buscarUsuarioPorLinha(email);
+    if (!alvo) { Logger.log("(não existe, nada a fazer): " + email); return; }
+
+    const vinculado = lerAba("Pedidos").some((p) =>
+      String(p.criado_por).toLowerCase() === email ||
+      String(p.responsavel).toLowerCase() === email);
+
+    if (vinculado) {
+      Logger.log("NÃO removido (possui requisições vinculadas): " + email);
+      return;
+    }
+    removerLinha("Usuarios", alvo.__linha__);
+    Logger.log("Removido: " + email);
+  });
 }
 
 /* ------------------------------------------------------------------ */
