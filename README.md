@@ -16,7 +16,7 @@ docs/                    # SPA estática (servida pelo GitHub Pages)
 ├── index.html           # casca única + rotas (#/login, #/home, ...)
 ├── css/style.css        # visual SENAI (azul #003876, laranja #E84910)
 ├── js/                  # config, sessão, api, roteador, ui e as views
-└── README.md            # GUIA COMPLETO DE IMPLANTAÇÃO (planilha, deploy, migração)
+└── README.md            # GUIA COMPLETO DE IMPLANTAÇÃO (planilha, deploy, uso)
 
 google-apps-script/      # código da API (colar num projeto Apps Script
                          # vinculado à planilha "Compras_DB")
@@ -26,11 +26,11 @@ google-apps-script/      # código da API (colar num projeto Apps Script
 ├── Pedidos.gs           # criar/enviar/assumir/designar/tramitar/excluir
 ├── Anexos.gs            # valida e grava anexos no Drive (10 MB, whitelist)
 ├── Dashboard.gs · Performance.gs
-├── Setup.gs             # inicializar() + criarGestorInicial()
-└── migrarDados.gs       # importação one-time dos CSVs de migração
-
-migracao/                # CSVs exportados do banco anterior (ignorado pelo git)
+└── Setup.gs             # inicializar() + criarGestorInicial()
 ```
+
+O banco antigo (Django/SQLite) continha apenas **dados de teste** — nada foi
+migrado; o sistema parte **limpo** (usuários reais se auto-cadastram).
 
 ## 2. Fluxo de status
 
@@ -61,8 +61,8 @@ exclusão de usuário bloqueada se houver requisições vinculadas.
 ## 4. Implantação e uso
 
 Todas as etapas (criar a planilha, colar os `.gs`, `inicializar()`, executar
-`criarGestorInicial()`, subir o deploy do Web App, ativar o Pages para a pasta
-`docs/` e migrar os dados) estão no guia:
+`criarGestorInicial()`, subir o deploy do Web App e ativar o Pages para a
+pasta `docs/`) estão no guia:
 
 **[`docs/README.md`](docs/README.md)**
 

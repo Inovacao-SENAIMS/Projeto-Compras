@@ -33,8 +33,7 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 2. Extensões → **Apps Script** (projeto vinculado à planilha).
 3. Cole os arquivos de `google-apps-script/` (um por arquivo):
    `Code.gs`, `Utils.gs`, `Auth.gs`, `Usuarios.gs`, `Pedidos.gs`, `Anexos.gs`,
-   `Dashboard.gs`, `Performance.gs`, `Setup.gs` e, se for migrar dados,
-   `migrarDados.gs`.
+   `Dashboard.gs`, `Performance.gs` e `Setup.gs`.
 4. No editor, execute **uma** vez: `inicializar()` (cria as abas com cabeçalhos
    e a pasta de Drive "Compras Anexos").
 5. Execute uma vez: `criarGestorInicial()` (cria `gestor@ms.senai.br` /
@@ -57,19 +56,15 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
    ```
 4. Acesse `https://<usuario>.github.io/<repo>/` → tela de Entrar.
 
-## 3. Migração de dados do Django (opcional)
+## 3. Primeiros dados (fluxo de teste sugerido)
 
-1. No projeto Django, gere os CSVs:
-   ```bash
-   python exportar_migracao.py
-   # → pasta migracao/ com Usuarios.csv, Pedidos.csv, HistoricoStatus.csv, AnexosAudit.csv
-   ```
-2. Suba os CSVs para uma pasta do Drive e a pasta `media/anexos` (com subpastas
-   por pedido) para outra pasta.
-3. Em `migrarDados.gs`, preencha `PASTA_CSV` e `PASTA_ANEXOS` com os IDs.
-4. Rode, em ordem: `rodarMigracaoCompleta()` e depois `enviarAnexosAoDrive()`.
-5. **Primeira senha de cada usuário:** `troque-a-senha@2026` (solicite a troca
-   no 1º acesso ou via Gestão).
+1. Como Grupo/Super: confirme que os **grupos** dos usuários estão corretos na
+   aba `Usuarios` (auto-cadastro entra como `UserISI_IST`);
+2. Usuários dos times adicionais: cadastre normalmente e, na planilha, mude a
+   coluna `grupo` para `Time_Compras`/`Manager_Compras` (ou pelo /admin de
+   Configurações com a Gestão);
+3. Teste o fluxo completo: um solicitante registra uma requisição → a Gestão
+   designa → o Time assume e tramita até a Concluída.
 
 ## 4. Funcionalidades replicadas (paridade com o Django)
 

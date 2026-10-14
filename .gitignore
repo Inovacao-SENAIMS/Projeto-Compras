@@ -30,5 +30,5 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Migração Data/Sheets <-> Apps Script (dados pessoais; NÃO commitar)
+# Migração antiga/permanentes locais (NÃO commitar)
 migracao/
