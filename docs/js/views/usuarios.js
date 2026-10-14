@@ -41,9 +41,14 @@ ROTAS["#/usuarios"] = async function () {
         <td>${esc(u.nome_completo)}${u.sou_eu ? ' <span class="tag">você</span>' : ""}</td>
         <td>${esc(u.email)}</td>
         <td>
-          <select class="campo selecao-perfil" data-usuario="${esc(u.email)}" ${u.sou_eu ? "disabled" : ""}>
-            ${opcoes}
-          </select>
+          <span class="perfil-celula">
+            <select class="campo selecao-perfil" data-usuario="${esc(u.email)}" data-original="${esc(u.grupo)}" ${u.sou_eu ? "disabled" : ""}>
+              ${opcoes}
+            </select>
+            <button type="button" class="btn-icone btn-salvar-perfil" data-usuario="${esc(u.email)}"
+                    title="Salvar alteração de perfil" disabled>
+              <i class="bi bi-check-lg"></i></button>
+          </span>
         </td>
         <td>${u.ativo ? '<span class="tag status-concluida">Ativo</span>'
                       : '<span class="tag status-cancelada">Inativo</span>'}</td>
@@ -68,15 +73,37 @@ ROTAS["#/usuarios"] = async function () {
         </table>
       </div>`;
 
-    /* troca de perfil ao mudar o select */
-    qsa(".selecao-perfil").forEach((sel) => sel.addEventListener("change", async () => {
-      const email = sel.dataset.usuario;
-      const grupoNovo = sel.value;
-      const nome = GRUPOS_ROTULO[grupoNovo] || grupoNovo;
-      if (!confirm("Alterar o perfil de " + email + " para " + nome + "?")) { sel.value = grupoAtual(email); return; }
-      const r = await API.chamar("alterarGrupoUsuario", { email, grupo: grupoNovo });
-      if (mostrarSucessoOuErro(r)) await carregar();
-      else sel.value = grupoAtual(email);
+    /* perfil: o select só marca "alteração pendente"; salvar é pelo botão */
+    qsa(".selecao-perfil").forEach((sel) => {
+      const btn = qs('.btn-salvar-perfil[data-usuario="' + sel.dataset.usuario + '"]');
+      const marcar = () => {
+        const mudou = sel.value !== sel.dataset.original;
+        if (btn) btn.disabled = !mudou;
+        sel.classList.toggle("perfil-alterado", mudou);
+      };
+      sel.addEventListener("change", marcar);
+      marcar();
+    });
+
+    qsa(".btn-salvar-perfil").forEach((btn) => btn.addEventListener("click", async () => {
+      const email = btn.dataset.usuario;
+      const sel = qs('.selecao-perfil[data-usuario="' + email + '"]');
+      if (!sel || sel.value === sel.dataset.original) return;
+
+      const rotulo = GRUPOS_ROTULO[sel.value] || sel.value;
+      if (!confirm("Confirmar a alteração do perfil de " + email + " para " + rotulo + "?")) return;
+
+      btn.disabled = true;
+      const icone = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+      const r = await API.chamar("alterarGrupoUsuario", { email, grupo: sel.value });
+      if (mostrarSucessoOuErro(r)) {
+        await carregar();
+      } else {
+        btn.innerHTML = icone;
+        sel.value = sel.dataset.original;   /* volta ao valor gravado */
+        sel.classList.remove("perfil-alterado");
+      }
     }));
 
     /* ativar/inativar e excluir */
@@ -93,11 +120,6 @@ ROTAS["#/usuarios"] = async function () {
         if (mostrarSucessoOuErro(r)) await carregar();
       }
     }));
-  }
-
-  function grupoAtual(email) {
-    const u = USU_CACHE.find((x) => x.email === email);
-    return u ? u.grupo : "UserISI_IST";
   }
 
   async function carregar() {

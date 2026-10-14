@@ -1290,3 +1290,13 @@ button.link {
 
 /* Cabeçalhos ordenáveis da SPA */
 .th-ordenar { white-space: nowrap; user-select: none; }
+
+/* Célula de perfil na página Usuários (select + botão Salvar) */
+.perfil-celula { display: inline-flex; align-items: center; gap: 0.35rem; }
+.perfil-celula .selecao-perfil { min-width: 12rem; }
+.selecao-perfil.perfil-alterado {
+    border-color: #E84910;
+    box-shadow: 0 0 0 3px rgba(232, 73, 16, 0.15);
+}
+.btn-salvar-perfil:not(:disabled) { color: #1E8E5A; }
+.btn-salvar-perfil:not(:disabled):hover { background: #e7f5ee; }
