@@ -24,6 +24,7 @@ const CONFIG = {
     "IST Alimentos e Bebidas - Dourados",
     "ISI Biomassa - Três Lagoas",
     "IST Eficiência Operacional - Campo Grande",
+    "SENAI MS - Departamento Regional",
   ],
 
   /* Modalidades RCA (igual ao Django: pedidos.models.Modalidade) */

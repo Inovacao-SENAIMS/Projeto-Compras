@@ -77,6 +77,12 @@ function criarGrafico(idOuEl, config) {
   const el = typeof idOuEl === "string" ? qs(idOuEl) : idOuEl;
   if (!el || typeof Chart === "undefined") return null;
   try {
+    /* O wrapper (.grafico-wrap) já define a altura; sem isso o canvas cresce
+     * pela proporção e a legenda "escapa" para o fim da página. */
+    config.options = config.options || {};
+    if (config.options.maintainAspectRatio === undefined) {
+      config.options.maintainAspectRatio = false;
+    }
     return new Chart(el, config);
   } catch (e) {
     console.error("Falha ao criar gráfico:", e);

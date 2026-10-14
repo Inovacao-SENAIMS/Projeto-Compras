@@ -66,4 +66,5 @@ const CONFIG_INSTITUTOS = [
   "IST Alimentos e Bebidas - Dourados",
   "ISI Biomassa - Três Lagoas",
   "IST Eficiência Operacional - Campo Grande",
+  "SENAI MS - Departamento Regional",
 ];
