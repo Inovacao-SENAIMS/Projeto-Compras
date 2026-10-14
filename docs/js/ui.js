@@ -53,6 +53,9 @@ function atualizarNav(routeAtiva) {
     { hash: "#/home",             icone: "bi-house-door",  rotulo: "Home" },
     { hash: "#/requisicoes",      icone: "bi-inboxes",     rotulo: "Requisições" },
   ];
+  if (Sessao.isEquipe()) {
+    itens.push({ hash: "#/documentos", icone: "bi-folder2-open", rotulo: "Documentos" });
+  }
   if (Sessao.isGestor()) {
     itens.push({ hash: "#/performance", icone: "bi-graph-up-arrow", rotulo: "Performance" });
     itens.push({ hash: "#/usuarios", icone: "bi-people", rotulo: "Usuários" });

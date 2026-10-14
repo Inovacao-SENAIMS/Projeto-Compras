@@ -99,6 +99,7 @@ const ROTAS_API = {
   /* Anexos (Anexos.gs) */
   anexarArquivo: apiAnexarArquivo,
   listarAnexos: apiListarAnexos,
+  listarDocumentos: apiListarDocumentos,
   baixarArquivo: apiBaixarArquivo,
 
   /* Usuários (Usuarios.gs) */

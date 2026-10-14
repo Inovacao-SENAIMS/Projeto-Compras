@@ -83,6 +83,7 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 | Lead time (envio → encerramento/hoje) | ✅ |
 | Dashboard: cards, linha/mês, rosca/status, barras/instituto, ações rápidas | ✅ |
 | Painel de Requisições: 10 colunas, filtros, ordenação, CSV | ✅ |
+| Documentos (equipe): lista de todos os anexos com filtros, pré-visualização (popup) e download | ✅ |
 | Performance da Gestão (filtros, indicadores, tabela, gráficos, CSV) | ✅ |
 | Configurações: dados + gestão de usuários (PROTECT na exclusão) | ✅ |
 | Visual SENAI (azul #003876, laranja #E84910), sidebar por perfil | ✅ |

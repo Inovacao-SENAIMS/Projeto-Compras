@@ -76,6 +76,36 @@ function apiListarAnexos(payload, usuario) {
   return { ok: true, data: ls };
 }
 
+/** Lista TODOS os documentos (anexos) para a equipe, com o contexto da requisição.
+ *  Base da página "Documentos" (Time de Compras e Gestão). */
+function apiListarDocumentos(payload, usuario) {
+  exigir(isEquipe(usuario), "Apenas a equipe de compras pode consultar os documentos.");
+
+  const pedidos = {};
+  lerAba("Pedidos").forEach((p) => { pedidos[String(p.numero)] = p; });
+
+  const docs = lerAba("AnexosAudit").map((a) => {
+    const p = pedidos[String(a.numero_req)] || {};
+    return {
+      id: String(a.id),
+      numero_req: String(a.numero_req),
+      tipo: String(a.tipo || "documentacao"),
+      nome_original: String(a.nome_original || ""),
+      enviado_por: nomeExibicao(a.enviado_por),
+      enviado_por_email: String(a.enviado_por || "").toLowerCase(),
+      enviado_em: iso(a.enviado_em),
+      produto: p.produto || "",
+      solicitante_nome: p.solicitante_nome || "",
+      responsavel_nome: p.responsavel ? nomeExibicao(p.responsavel) : "",
+      status: String(p.status || ""),
+    };
+  });
+
+  /* mais recentes primeiro */
+  docs.sort((x, y) => String(y.enviado_em).localeCompare(String(x.enviado_em)));
+  return { ok: true, data: docs };
+}
+
 function apiBaixarArquivo(payload, usuario) {
   const id = String(payload.id || "");
   const a = lerAba("AnexosAudit").find((x) => String(x.id) === id);
