@@ -10,9 +10,10 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 
 ```
 [GitHub Pages — docs/]                        [Vocês (usuários)]
-        │  fetch JSON (POST text/plain → sem CORS preflight)
+        │  iframe oculto + postMessage → google.script.run
+        │  (o POST /exec não serve p/ browser: 302 converte POST em GET)
         ▼
-[Apps Script Web App — /google-apps-script/*]
+[Apps Script Web App — Code.gs (roteia) + Bridge.html (ponte)]
         ├── Planilha "Compras_DB" (privada)
         │     abas: Usuarios · Pedidos · HistoricoStatus · AnexosAudit · Sessoes
         └── Drive: pasta "Compras Anexos"/REQ-XXXXXX (pública NÃO; acesso só pela API)
@@ -33,7 +34,8 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 2. Extensões → **Apps Script** (projeto vinculado à planilha).
 3. Cole os arquivos de `google-apps-script/` (um por arquivo):
    `Code.gs`, `Utils.gs`, `Auth.gs`, `Usuarios.gs`, `Pedidos.gs`, `Anexos.gs`,
-   `Dashboard.gs`, `Performance.gs` e `Setup.gs`.
+   `Dashboard.gs`, `Performance.gs`, `Setup.gs` — **e o `Bridge.html` como
+   arquivo do tipo HTML** (Arquivo → + → HTML, com o nome exato `Bridge`).
 4. No editor, execute **uma** vez: `inicializar()` (cria as abas com cabeçalhos
    e a pasta de Drive "Compras Anexos").
 5. Execute uma vez: `criarGestorInicial()` (cria `gestor@ms.senai.br` /
@@ -90,6 +92,9 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 - Toda regra (perfil, transição de status, dono do pedido, domínio do e-mail,
   tamanho/tipo de arquivo) é validada **no server** (Apps Script), nunca no
   client.
+- **Transporte**: `google.script.run` via iframe (Bridge.html) — não há
+  fetch/cors; a planilha e o Drive ficam atingíveis apenas pela execução do
+  Apps Script (do dono do web app).
 - Sessões com token de 8h + logout (aba `Sessoes`, limpeza de expiradas).
 - Arquivos nunca expostos; download só via API (`baixarArquivo`), com verificação
   de permissão (403-equivalente).

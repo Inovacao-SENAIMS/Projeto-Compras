@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br"><head><meta charset="UTF-8"><title>API Bridge</title></head>
+<body>
+<!--
+  Bridge.html — ponte postMessage <-> google.script.run.
+
+  O SPA (GitHub Pages) incorpora esta página em um iframe oculto.
+  Protocolo:
+    parent → bridge : { type: "API_CALL",  id, action, token, payload }
+    bridge → parent : { type: "BRIDGE_READY" } no load;
+                       { type: "API_RESP", id, resp } para cada chamada.
+-->
+<script>
+  // Avisa ao SPA que a ponte está no ar.
+  window.parent.postMessage({ type: "BRIDGE_READY" }, "*");
+
+  window.addEventListener("message", function (ev) {
+    var msg = ev.data;
+    if (!msg || msg.type !== "API_CALL" || !msg.id) return;
+
+    google.script.run
+      .withSuccessHandler(function (resp) {
+        window.parent.postMessage({ type: "API_RESP", id: msg.id, resp: resp }, "*");
+      })
+      .withFailureHandler(function (err) {
+        window.parent.postMessage({
+          type: "API_RESP",
+          id: msg.id,
+          resp: { ok: false, erro: String(err && err.message || err) },
+        }, "*");
+      })
+      .rotearApi(msg.action || "", msg.token || "", JSON.stringify(msg.payload || {}));
+  });
+</script>
+</body></html>
