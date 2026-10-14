@@ -42,13 +42,22 @@
       const email = val("l-email");
       const senha = val("l-senha");
       if (!email || !senha) { mostrarMensagem("error", "Informe e-mail e senha."); return; }
+
+      const btn = qs("#form-login button[type=submit]");
+      const rotulo = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Entrando…';
+
       const r = await API.chamar("login", { email, senha }, "");
+
       if (r.ok && r.data && r.data.token) {
         Sessao.gravar(r.data);
         montarLayout();
         atualizarNav("#/home");
         location.hash = "#/home"; /* hashchange dispara o render */
       } else {
+        btn.disabled = false;
+        btn.innerHTML = rotulo;
         mostrarMensagem("error", (r.erro) || "Credenciais inválidas.");
       }
     });
@@ -126,6 +135,12 @@
         mostrarMensagem("error", "As senhas não coincidem.");
         return;
       }
+
+      const btn = qs("#form-cadastro button[type=submit]");
+      const rotulo = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Cadastrando…';
+
       const r = await API.chamar("cadastrarUsuario", {
         nome_completo: val("c-nome"),
         email,
@@ -139,6 +154,9 @@
       if (mostrarSucessoOuErro(r)) {
         mostrarMensagem("success", "Conta criada! Usuário ativo — faça login.");
         setTimeout(() => (location.hash = "#/login"), 1200);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = rotulo;
       }
     });
   };

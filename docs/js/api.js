@@ -23,6 +23,20 @@ const API = (() => {
   const pendentes = new Map(); // id -> { resolve, timer }
   let seq = 0;
 
+  /* Cache curto de LEITURAS: navegar entre telas deixa de repetir a ida ao
+   * Google (cada chamada custa 2–7 s). É invalidado a cada escrita. */
+  const CACHE_MS = 30000;
+  const CACHEAVEIS = {
+    listarPedidos: 1, detalharPedido: 1, dashboard: 1, performance: 1,
+    meusDados: 1, listarUsuarios: 1, listaResponsaveis: 1, listarAnexos: 1,
+  };
+  const cache = new Map();     // chave -> { t, resp }
+  const emVoo = new Map();     // chave -> Promise (deduplica chamadas simultâneas)
+
+  function chaveCache(acao, token, payload) {
+    return acao + "|" + (token || "") + "|" + JSON.stringify(payload || {});
+  }
+
   /* ------------------------- infraestrutura ------------------------- */
 
   function criarIframe() {
@@ -110,24 +124,48 @@ const API = (() => {
     }
 
     const tokenReal = token === null ? (Sessao.ler() || {}).token : token;
-    const item = {
-      id: "req-" + (++seq) + "-" + Date.now(),
-      acao,
-      token: tokenReal || "",
-      payload,
-    };
+    const chave = chaveCache(acao, tokenReal, payload);
 
-    const resp = await new Promise((resolve) => {
-      item.resolve = resolve;
-      if (pronto) enviarReal(item);
-      else fila.push(item);
-    });
-
-    if (resp.ok === false && /sess[iã]o expirada/i.test(resp.erro || "")) {
-      Sessao.limpar();
-      document.dispatchEvent(new CustomEvent(EV_SESSAO_EXPIRADA, { detail: resp.erro }));
+    /* 1) cache de leitura */
+    if (CACHEAVEIS[acao]) {
+      const c = cache.get(chave);
+      if (c && Date.now() - c.t < CACHE_MS) return c.resp;
+      /* 2) deduplica chamadas idênticas simultâneas */
+      if (emVoo.has(chave)) return emVoo.get(chave);
     }
-    return resp;
+
+    const execucao = (async () => {
+      const item = {
+        id: "req-" + (++seq) + "-" + Date.now(),
+        acao,
+        token: tokenReal || "",
+        payload,
+      };
+
+      const resp = await new Promise((resolve) => {
+        item.resolve = resolve;
+        if (pronto) enviarReal(item);
+        else fila.push(item);
+      });
+
+      if (resp.ok === false && /sess[iã]o expirada/i.test(resp.erro || "")) {
+        Sessao.limpar();
+        document.dispatchEvent(new CustomEvent(EV_SESSAO_EXPIRADA, { detail: resp.erro }));
+      }
+
+      if (resp.ok) {
+        if (CACHEAVEIS[acao]) cache.set(chave, { t: Date.now(), resp });
+        else cache.clear(); /* escrita: invalida leituras */
+      }
+      return resp;
+    })();
+
+    if (CACHEAVEIS[acao]) emVoo.set(chave, execucao);
+    try {
+      return await execucao;
+    } finally {
+      if (CACHEAVEIS[acao]) emVoo.delete(chave);
+    }
   }
 
   /* ------------------------- anexos ------------------------- */
