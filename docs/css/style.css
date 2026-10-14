@@ -1292,26 +1292,26 @@ button.link {
 .th-ordenar { white-space: nowrap; user-select: none; }
 
 /* Célula de perfil na página Usuários (select + botão Salvar) */
-.perfil-celula { display: inline-flex; align-items: center; gap: 0.35rem; }
+.perfil-celula { display: inline-flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
 .perfil-celula .selecao-perfil { min-width: 12rem; }
 .selecao-perfil.perfil-alterado {
     border-color: #E84910;
     box-shadow: 0 0 0 3px rgba(232, 73, 16, 0.15);
 }
-.btn-salvar-perfil:not(:disabled) { color: #1E8E5A; }
-.btn-salvar-perfil:not(:disabled):hover { background: #e7f5ee; }
 
-/* Botão compacto (usado nas linhas de tabela, ex.: "Salvar" do perfil) */
+/* Botão compacto (usado nas linhas de tabela, ex.: "Salvar" do perfil).
+ * Segue o MESMO padrão visual do .botao (azul SENAI / texto branco). */
 .botao-pequeno {
-    padding: 0.4rem 0.75rem;
+    padding: 0.45rem 0.8rem;
     font-size: 0.82rem;
-    border-radius: 10px;
+    border-radius: 6px;
     gap: 0.3rem;
     white-space: nowrap;
 }
 .botao-pequeno:disabled {
-    opacity: 0.45;
+    background-color: #c7d2e0;
+    color: #fff;
+    opacity: 1;
     cursor: not-allowed;
 }
-.btn-salvar-perfil:not(:disabled) { background: #1E8E5A; }
-.btn-salvar-perfil:not(:disabled):hover { background: #177048; }
+.botao-pequeno:disabled:hover { background-color: #c7d2e0; }
