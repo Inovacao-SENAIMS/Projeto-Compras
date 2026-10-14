@@ -1265,6 +1265,8 @@ button.link {
     font-weight: 600;
 }
 .carregando i { animation: girar 1s linear infinite; }
+/* o atributo hidden precisa vencer o display:flex acima */
+.carregando[hidden] { display: none; }
 @keyframes girar { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
 /* Histórico de status (tramitar/detalhes) */
