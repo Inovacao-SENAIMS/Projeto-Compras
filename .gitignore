@@ -32,3 +32,6 @@ Thumbs.db
 
 # MigraÃ§Ã£o antiga/permanentes locais (NÃƒO commitar)
 migracao/
+
+# Diagnóstico local (não commitar)
+docs/teste-*.html

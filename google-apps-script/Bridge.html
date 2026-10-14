@@ -11,8 +11,21 @@
                        { type: "API_RESP", id, resp } para cada chamada.
 -->
 <script>
+  // HtmlService renderiza este HTML DENTRO de iframes aninhados do Google
+  // (userCodeAppPanel). "window.parent" direto é um frame do Google, não o
+  // site. Portanto postamos para TODA a cadeia de ancestrais até o topo —
+  // o SPA (que tem listener) receberá mesmo assim.
+  function postar(dados) {
+    try { window.top.postMessage(dados, "*"); } catch (e) {}
+    var w = window;
+    while (w && w.parent && w.parent !== w) {
+      w = w.parent;
+      try { w.postMessage(dados, "*"); } catch (e) {}
+    }
+  }
+
   // Avisa ao SPA que a ponte está no ar.
-  window.parent.postMessage({ type: "BRIDGE_READY" }, "*");
+  postar({ type: "BRIDGE_READY" });
 
   window.addEventListener("message", function (ev) {
     var msg = ev.data;
@@ -20,14 +33,14 @@
 
     google.script.run
       .withSuccessHandler(function (resp) {
-        window.parent.postMessage({ type: "API_RESP", id: msg.id, resp: resp }, "*");
+        postar({ type: "API_RESP", id: msg.id, resp: resp });
       })
       .withFailureHandler(function (err) {
-        window.parent.postMessage({
+        postar({
           type: "API_RESP",
           id: msg.id,
           resp: { ok: false, erro: String(err && err.message || err) },
-        }, "*");
+        });
       })
       .rotearApi(msg.action || "", msg.token || "", JSON.stringify(msg.payload || {}));
   });

@@ -18,6 +18,7 @@ const API = (() => {
 
   let iframe = null;
   let pronto = false;
+  let fonte = null;            // window interna do painel (quem mandou BRIDGE_READY)
   let fila = [];               // chamadas aguardando o READY da bridge
   const pendentes = new Map(); // id -> { resolve, timer }
   let seq = 0;
@@ -53,11 +54,14 @@ const API = (() => {
         const m = ev.data;
         if (!m) return;
 
-        if (m.type === "BRIDGE_READY" && !pronto) {
-          pronto = true;
-          clearTimeout(watchdog);
-          fila.splice(0).forEach(enviarReal);
-          resolve();
+        if (m.type === "BRIDGE_READY") {
+          if (ev.source) fonte = ev.source; /* painel interno do HtmlService */
+          if (!pronto) {
+            pronto = true;
+            clearTimeout(watchdog);
+            fila.splice(0).forEach(enviarReal);
+            resolve();
+          }
           return;
         }
 
@@ -73,7 +77,12 @@ const API = (() => {
 
   function enviarReal(item) {
     pendentes.set(item.id, item);
-    iframe.contentWindow.postMessage(
+    const alvo = fonte || (iframe && iframe.contentWindow);
+    if (!alvo) {
+      item.resolve({ ok: false, erro: "Ponte da API indisponível. Recarregue a página." });
+      return;
+    }
+    alvo.postMessage(
       { type: "API_CALL", id: item.id, action: item.acao, token: item.token, payload: item.payload },
       "*"
     );
