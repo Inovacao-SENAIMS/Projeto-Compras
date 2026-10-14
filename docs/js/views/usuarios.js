@@ -45,9 +45,9 @@ ROTAS["#/usuarios"] = async function () {
             <select class="campo selecao-perfil" data-usuario="${esc(u.email)}" data-original="${esc(u.grupo)}" ${u.sou_eu ? "disabled" : ""}>
               ${opcoes}
             </select>
-            <button type="button" class="btn-icone btn-salvar-perfil" data-usuario="${esc(u.email)}"
+            <button type="button" class="botao botao-pequeno btn-salvar-perfil" data-usuario="${esc(u.email)}"
                     title="Salvar alteração de perfil" disabled>
-              <i class="bi bi-check-lg"></i></button>
+              <i class="bi bi-check-lg"></i> Salvar</button>
           </span>
         </td>
         <td>${u.ativo ? '<span class="tag status-concluida">Ativo</span>'
@@ -90,17 +90,17 @@ ROTAS["#/usuarios"] = async function () {
       const sel = qs('.selecao-perfil[data-usuario="' + email + '"]');
       if (!sel || sel.value === sel.dataset.original) return;
 
-      const rotulo = GRUPOS_ROTULO[sel.value] || sel.value;
-      if (!confirm("Confirmar a alteração do perfil de " + email + " para " + rotulo + "?")) return;
+      const nomePerfil = GRUPOS_ROTULO[sel.value] || sel.value;
+      if (!confirm("Confirmar a alteração do perfil de " + email + " para " + nomePerfil + "?")) return;
 
       btn.disabled = true;
-      const icone = btn.innerHTML;
-      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+      const htmlOriginal = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Salvando…';
       const r = await API.chamar("alterarGrupoUsuario", { email, grupo: sel.value });
       if (mostrarSucessoOuErro(r)) {
         await carregar();
       } else {
-        btn.innerHTML = icone;
+        btn.innerHTML = htmlOriginal;
         sel.value = sel.dataset.original;   /* volta ao valor gravado */
         sel.classList.remove("perfil-alterado");
       }
