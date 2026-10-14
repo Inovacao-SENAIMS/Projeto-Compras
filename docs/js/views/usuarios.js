@@ -91,7 +91,7 @@ ROTAS["#/usuarios"] = async function () {
       if (!sel || sel.value === sel.dataset.original) return;
 
       const nomePerfil = GRUPOS_ROTULO[sel.value] || sel.value;
-      if (!confirm("Confirmar a alteração do perfil de " + email + " para " + nomePerfil + "?")) return;
+      if (!await confirmarModal("Confirmar a alteração do perfil de " + email + " para " + nomePerfil + "?", "Alterar perfil")) return;
 
       btn.disabled = true;
       const htmlOriginal = btn.innerHTML;
@@ -116,7 +116,7 @@ ROTAS["#/usuarios"] = async function () {
         const r = await API.chamar("alterarStatusUsuario", { email, ativo: !(u && u.ativo) });
         if (mostrarSucessoOuErro(r)) await carregar();
       } else if (op === "excluir") {
-        if (!confirm("Excluir o usuário " + email + "? Esta ação não pode ser desfeita.")) return;
+        if (!await confirmarModal("Excluir o usuário " + email + "? Esta ação não pode ser desfeita.", "Excluir usuário")) return;
         const r = await API.chamar("excluirUsuario", { email });
         if (mostrarSucessoOuErro(r)) await carregar();
       }
@@ -179,7 +179,7 @@ function modalNovoUsuario() {
         </div>
         <div class="modal-acoes">
           <button type="submit" class="botao"><i class="bi bi-check-lg"></i> Cadastrar</button>
-          <button type="button" class="link-secundario" data-fechar>Cancelar</button>
+          <button type="button" class="botao botao-cancelar" data-fechar>Cancelar</button>
         </div>
       </form>
     </div>`);

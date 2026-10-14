@@ -54,6 +54,46 @@ function eMailInstitucionalOk(email) {
 }
 function rotulo(o, dicionario) { return dicionario[o] || o || ""; }
 function statusBadgeClasse(s) { return "badge badge-" + s; }
+function confirmarModal(mensagem, titulo) {
+  /* Confirmação própria, centralizada (substitui o confirm() nativo, que o
+   * navegador posiciona fora do centro). Resolve true/false. */
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay aberto";
+    overlay.innerHTML = `
+      <div class="modal modal-confirmacao" role="dialog" aria-modal="true">
+        <div class="modal-cabecalho">
+          <h3>${esc(titulo || "Confirmação")}</h3>
+          <button type="button" class="modal-fechar" data-fechar aria-label="Fechar">&times;</button>
+        </div>
+        <div class="modal-corpo">
+          <p class="modal-mensagem">${esc(mensagem)}</p>
+          <div class="modal-acoes">
+            <button type="button" class="botao" id="cm-confirmar"><i class="bi bi-check-lg"></i> Confirmar</button>
+            <button type="button" class="botao botao-cancelar" id="cm-cancelar">Cancelar</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    let resolvido = false;
+    const fechar = (valor) => {
+      if (resolvido) return;
+      resolvido = true;
+      overlay.remove();
+      resolve(valor);
+    };
+
+    overlay.querySelector("#cm-confirmar").addEventListener("click", () => fechar(true));
+    overlay.querySelector("#cm-cancelar").addEventListener("click", () => fechar(false));
+    overlay.querySelector("[data-fechar]").addEventListener("click", () => fechar(false));
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) fechar(false); });
+    document.addEventListener("keydown", function aoTeclar(ev) {
+      if (ev.key === "Escape") { document.removeEventListener("keydown", aoTeclar); fechar(false); }
+    });
+  });
+}
+
 function baixarCSV(nome, conteudo) {
   const blob = new Blob(["\ufeff" + conteudo], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
@@ -63,6 +103,7 @@ function baixarCSV(nome, conteudo) {
   a.click();
   a.remove();
 }
+
 function csvEsc(v) {
   const s = v == null ? "" : String(v);
   return /[",;\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;

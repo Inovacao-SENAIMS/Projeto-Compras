@@ -117,7 +117,7 @@ ROTAS["#/tramitar/<numero>"] = async function (numero) {
             </p>
             <div class="modal-acoes">
               <button type="submit" class="botao"><i class="bi bi-check-lg"></i> Salvar tramitação</button>
-              <button type="button" class="link-secundario" id="btn-cancelar">Cancelar</button>
+              <button type="button" class="botao botao-cancelar" id="btn-cancelar">Cancelar</button>
             </div>
           </form>
         </section>

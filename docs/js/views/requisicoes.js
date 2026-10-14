@@ -346,7 +346,7 @@ document.addEventListener("click", async (e) => {
     return;
   }
   if (acao === "excluir") {
-    if (!confirm("Excluir a requisição " + numero + "? Os anexos também serão removidos do disco.")) return;
+    if (!await confirmarModal("Excluir a requisição " + numero + "? Os anexos também serão removidos do disco.", "Excluir requisição")) return;
     const r = await API.chamar("excluirPedido", { numero });
     if (mostrarSucessoOuErro(r)) await recarregar();
     return;
@@ -390,7 +390,7 @@ function exportarCSV() {
 /* -------------------------------------------------- infra de modal */
 function abrirModalHTML(html) {
   const overlay = document.createElement("div");
-  overlay.className = "modal-overlay";
+  overlay.className = "modal-overlay aberto";   /* a CSS exige "aberto" p/ centralizar */
   overlay.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener("click", (e) => {
@@ -463,7 +463,7 @@ function modalNovaRequisicao() {
         ${camposRequisicao()}
         <div class="modal-acoes">
           <button type="submit" class="botao"><i class="bi bi-check-lg"></i> Registrar</button>
-          <button type="button" class="link-secundario" data-fechar>Cancelar</button>
+          <button type="button" class="botao botao-cancelar" data-fechar>Cancelar</button>
         </div>
       </form>
     </div>`);
@@ -530,7 +530,7 @@ function modalDesignar(numero) {
   overlay.querySelectorAll(".lista-responsavel-item").forEach((a) =>
     a.addEventListener("click", async (e) => {
       e.preventDefault();
-      if (!confirm("Designar " + a.textContent + " para a requisição " + numero + "?")) return;
+      if (!await confirmarModal("Designar " + a.textContent + " para a requisição " + numero + "?", "Designar responsável")) return;
       const r = await API.chamar("designarPedido", { numero, responsavel: a.dataset.email });
       if (mostrarSucessoOuErro(r)) { overlay.remove(); await recarregar(); }
     }));
