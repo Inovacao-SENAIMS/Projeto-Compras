@@ -1,9 +1,12 @@
 /* router.js — roteamento por hash (#/login, #/home, #/requisicoes, ...).
  * Decisões: sem library; cada rota é uma função `render()` que devolve o HTML
  * e liga os próprios eventos no #conteudo (padrão simples p/ SPA leve).
+ *
+ * IMPORTANTE: window.ROTAS é criado AQUI (este script carrega antes das views,
+ * que registram suas rotas nele). O app.js apenas usa.
  */
 
-const Rotas = (() => ({}))(); // preenchido por views/*.js (objeto global ROTAS)
+window.ROTAS = {};
 
 function rotaAtual() {
   const h = location.hash || "";
@@ -22,7 +25,16 @@ function renderizarRota() {
   const fn = (window.ROTAS || {})[rota]
     || (rota.startsWith("#/tramitar/") && (window.ROTAS || {})["#/tramitar/<numero>"])
     || null;
-  if (!fn) { location.hash = s ? "#/home" : "#/login"; return; }
+  if (!fn) {
+    /* Rota desconhecida: mensagem visível em vez de tela em branco. */
+    const alvo = qs("#app");
+    if (alvo) {
+      alvo.innerHTML = `<ul class="mensagens"><li class="msg msg-error">
+        <i class="bi bi-x-circle-fill"></i><span>Tela não encontrada (${esc(rota)}).
+        <a href="#/login">Voltar ao login</a></span></li></ul>`;
+    }
+    return;
+  }
 
   try {
     /* Passa o "sobrenome" da rota (ex.: nº da requisição) quando existir. */

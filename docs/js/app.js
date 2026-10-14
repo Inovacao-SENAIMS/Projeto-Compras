@@ -17,14 +17,11 @@ async function iniciarApp() {
   renderizarRota();
 }
 
-/* Se a sessão expirar no meio de uma chamada (API chama EV_SESSAO_EXPIRADA),
+/* Sessão expirada no meio de uma chamada (API dispara EV_SESSAO_EXPIRADA):
  * volta ao login com mensagem. */
 document.addEventListener(API.EV_SESSAO_EXPIRADA, (e) => {
   location.hash = "#/login";
   setTimeout(() => mostrarMensagem("error", e.detail || "Sessão expirada."), 50);
 });
-
-/* view auth está sempre disponível; garante que ROTAS exista */
-window.ROTAS = window.ROTAS || {};
 
 iniciarApp();
