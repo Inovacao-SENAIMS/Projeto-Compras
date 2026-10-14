@@ -52,10 +52,10 @@ ROTAS["#/requisicoes"] = async function () {
 
   qs("#req-conteudo").innerHTML = `
     <div class="filtros-barra">
-      <button type="button" class="botao botao-secundario" id="btn-toggle-filtros"></button>
-      <button type="button" class="botao botao-secundario" id="btn-fixar-filtros"
+      <button type="button" class="botao botao-secundario botao-compacto" id="btn-toggle-filtros"></button>
+      <button type="button" class="botao botao-secundario botao-compacto" id="btn-fixar-filtros"
               title="Manter a faixa de filtros sempre expandida"></button>
-      <button type="button" class="botao botao-exportar" id="btn-csv" title="Exportar a lista (respeita os filtros aplicados)">
+      <button type="button" class="botao botao-exportar botao-compacto" id="btn-csv" title="Exportar a lista (respeita os filtros aplicados)">
         <i class="bi bi-filetype-csv"></i> Exportar CSV
       </button>
     </div>

@@ -1314,10 +1314,19 @@ button.link {
 /* Barra de expandir/fixar/recolher a faixa de filtros */
 .filtros-barra {
     display: flex;
-    gap: 0.5rem;
+    justify-content: flex-end;   /* botões no canto direito */
+    gap: 0.4rem;
     flex-wrap: wrap;
     margin-bottom: 0.6rem;
 }
+/* Botões compactos da barra (menores que os botões de página) */
+.botao-compacto {
+    padding: 0.32rem 0.6rem;
+    font-size: 0.8rem;
+    gap: 0.3rem;
+    border-radius: 6px;
+}
+.botao-compacto i { font-size: 0.9rem; }
 .botao-secundario {
     background: #fff;
     color: var(--cor-primaria-clara);
