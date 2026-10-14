@@ -35,3 +35,4 @@ migracao/
 
 # Diagnóstico local (não commitar)
 docs/teste-*.html
+test-server.js

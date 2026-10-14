@@ -49,7 +49,8 @@ function mostrarSucessoOuErro(resp) {
 
 /* ---- vários ---- */
 function eMailInstitucionalOk(email) {
-  return new RegExp("^[^@\\s]+@[^@\\s]+" + CONFIG.DOMINIO_EMAIL.replace(".", "\\.") + "$", "i").test(email.trim());
+  const dominio = CONFIG.DOMINIO_EMAIL.replace(/\./g, "\\.");
+  return new RegExp("^[^@\\s]+" + dominio + "$", "i").test(String(email || "").trim());
 }
 function rotulo(o, dicionario) { return dicionario[o] || o || ""; }
 function statusBadgeClasse(s) { return "badge badge-" + s; }

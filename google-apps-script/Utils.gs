@@ -201,7 +201,7 @@ function exigir(cond, mensagem) {
 }
 
 function exigirEmailInstitucional(email) {
-  exigir(/^[^@\s]+@[^@\s]+\.ms\.senai\.br$/i.test(String(email || "").trim()),
+  exigir(/^[^@\s]+@ms\.senai\.br$/i.test(String(email || "").trim()),
     "Só é aceito e-mail institucional @ms.senai.br.");
 }
 
