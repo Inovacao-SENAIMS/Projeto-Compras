@@ -53,6 +53,7 @@ function atualizarNav(routeAtiva) {
   ];
   if (Sessao.isGestor()) {
     itens.push({ hash: "#/performance", icone: "bi-graph-up-arrow", rotulo: "Performance" });
+    itens.push({ hash: "#/usuarios", icone: "bi-people", rotulo: "Usuários" });
   }
   itens.push({ hash: "#/configuracoes", icone: "bi-gear", rotulo: "Configurações" });
 

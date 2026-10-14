@@ -29,16 +29,17 @@ function apiListarUsuarios(payload, usuario) {
     "Apenas a Gestão pode listar usuários.");
 
   let usuarios = lerAba("Usuarios");
-  if (usuario.grupo === GRUPOS.MANAGER) {
-    /* Gestão vê o Time + Solicitantes (para designar), mas só gerencia o Time */
-    usuarios = usuarios.filter(
-      (u) => u.grupo === GRUPOS.TIME || u.grupo === GRUPOS.MANAGER || u.grupo === GRUPOS.SOLICITANTE
-    );
-  }
+  /* Gestão não enxerga contas de SuperUsuário (não as administra) */
+  usuarios = usuarios.filter((u) => String(u.grupo) !== GRUPOS.SUPER);
 
+  const eu = String(usuario.email).toLowerCase();
   return {
     ok: true,
-    data: usuarios.map(levantarUsuarioPublico),
+    data: usuarios.map((u) => {
+      const pub = levantarUsuarioPublico(u);
+      pub.sou_eu = pub.email === eu;
+      return pub;
+    }),
   };
 }
 
@@ -64,11 +65,8 @@ function apiAlterarStatusUsuario(payload, usuario) {
 
   const alvo = buscarUsuarioPorLinha(email);
   exigir(alvo, "Usuário não encontrado.");
-
-  if (usuario.grupo === GRUPOS.MANAGER && !isSuper(usuario)) {
-    exigir(alvo.grupo === GRUPOS.TIME,
-      "A Gestão gerencia apenas membros do Time de Compras.");
-  }
+  exigir(String(alvo.grupo) !== GRUPOS.SUPER || isSuper(usuario),
+    "Não é possível gerenciar uma conta de SuperUsuário.");
 
   aba("Usuarios").getRange(alvo.__linha__, COLUNA_USUARIO_ATIVO).setValue(ativo);
   return { ok: true, data: { email, ativo } };
@@ -81,10 +79,8 @@ function apiExcluirUsuario(payload, usuario) {
 
   const alvo = buscarUsuarioPorLinha(email);
   exigir(alvo, "Usuário não encontrado.");
-
-  if (usuario.grupo === GRUPOS.MANAGER && !isSuper(usuario)) {
-    exigir(alvo.grupo === GRUPOS.TIME, "A Gestão exclui apenas membros do Time de Compras.");
-  }
+  exigir(String(alvo.grupo) !== GRUPOS.SUPER || isSuper(usuario),
+    "Não é possível excluir uma conta de SuperUsuário.");
 
   const temPedidos = lerAba("Pedidos").some(
     (p) => String(p.criado_por).toLowerCase() === email || String(p.responsavel).toLowerCase() === email
@@ -94,6 +90,59 @@ function apiExcluirUsuario(payload, usuario) {
 
   removerLinha("Usuarios", alvo.__linha__);
   return { ok: true, data: { email } };
+}
+
+/* ------------------------------------------------------------------ */
+/* Administração de usuários (página exclusiva da Gestão)             */
+/* ------------------------------------------------------------------ */
+
+const COLUNA_USUARIO_GRUPO = 3;
+
+/** Cria um usuário com perfil escolhido pela Gestão (já ativo). */
+function apiCriarUsuarioAdmin(payload, usuario) {
+  exigir(isManager(usuario) || isSuper(usuario), "Apenas a Gestão pode cadastrar usuários.");
+
+  const email = String(payload.email || "").trim().toLowerCase();
+  const nome = String(payload.nome_completo || "").trim();
+  const senha = String(payload.senha || "");
+  const grupo = String(payload.grupo || GRUPOS.SOLICITANTE);
+
+  exigirEmailInstitucional(email);
+  exigir(nome, "Informe o nome completo.");
+  exigir(senha.length >= 6, "A senha deve ter ao menos 6 caracteres.");
+  exigir(!buscarUsuario(email), "Já existe uma conta para este e-mail.");
+  exigir([GRUPOS.SOLICITANTE, GRUPOS.TIME, GRUPOS.MANAGER].indexOf(grupo) >= 0,
+    "Perfil inválido. Use UserISI_IST, Time_Compras ou Manager_Compras.");
+
+  const salt = Utilities.getUuid();
+  inserirLinha("Usuarios", [
+    nome, email, grupo, hashSenha(senha, salt), salt,
+    String(payload.area_atuacao || ""), String(payload.cargo || ""),
+    String(payload.instituto || ""), String(payload.telefone || ""),
+    String(payload.ramal || ""), true,
+  ]);
+
+  return { ok: true, data: { email, grupo } };
+}
+
+/** Altera o perfil (grupo) de um usuário — nunca de si mesmo nem de SuperUsuário. */
+function apiAlterarGrupoUsuario(payload, usuario) {
+  exigir(isManager(usuario) || isSuper(usuario), "Sem permissão para alterar perfis.");
+
+  const email = String(payload.email || "").trim().toLowerCase();
+  const grupo = String(payload.grupo || "");
+
+  exigir(email !== String(usuario.email).toLowerCase(), "Você não pode alterar o próprio perfil.");
+  exigir([GRUPOS.SOLICITANTE, GRUPOS.TIME, GRUPOS.MANAGER].indexOf(grupo) >= 0,
+    "Perfil inválido. Use UserISI_IST, Time_Compras ou Manager_Compras.");
+
+  const alvo = buscarUsuarioPorLinha(email);
+  exigir(alvo, "Usuário não encontrado.");
+  exigir(String(alvo.grupo) !== GRUPOS.SUPER || isSuper(usuario),
+    "Não é possível alterar o perfil de um SuperUsuário.");
+
+  aba("Usuarios").getRange(alvo.__linha__, COLUNA_USUARIO_GRUPO).setValue(grupo);
+  return { ok: true, data: { email, grupo } };
 }
 
 /* índices: 1 = nome_completo ... 11 = ativo (excel 1-based) */
