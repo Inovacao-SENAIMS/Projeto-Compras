@@ -9,7 +9,7 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 ## 1. Arquitetura
 
 ```
-[GitHub Pages — site/]                        [Vocês (usuários)]
+[GitHub Pages — docs/]                        [Vocês (usuários)]
         │  fetch JSON (POST text/plain → sem CORS preflight)
         ▼
 [Apps Script Web App — /google-apps-script/*]
@@ -49,9 +49,9 @@ implementada em **Google Apps Script Web App**, com dados na **Planilha
 
 ### 2.3 GitHub Pages
 
-1. Suba este repositório no GitHub (pasta `site/` incluída).
-2. **Settings → Pages → Deploy from a branch → `main` / root** (ou rota para `/site`).
-3. Em `site/js/config.js`, preencha:
+1. Suba este repositório no GitHub (a pasta `docs/` incluída).
+2. **Settings → Pages → Deploy from a branch → branch `main` / pasta `docs`** → Save.
+3. Em `docs/js/config.js`, preencha:
    ```js
    CONFIG.API_URL = "https://script.google.com/macros/s/<DEPLOY_ID>/exec";
    ```

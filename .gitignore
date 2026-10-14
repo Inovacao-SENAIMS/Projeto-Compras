@@ -35,5 +35,12 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Migração Excel/Sheets <-> Apps Script (dados pessoais; NÃO commitar)
+# Migração Data/Sheets <-> Apps Script (dados pessoais; NÃO commitar)
 migracao/
+
+# ---- Legado (Django), mantido APENAS local (não publicado no GitHub) ----
+backend/
+frontend/
+.design/
+requirements.txt
+exportar_migracao.py

@@ -3,12 +3,12 @@
 Aplicação Django para registrar e tramitar pedidos de compra, com duas áreas
 autenticadas: **solicitante** e **equipe de compras**.
 
-> **Migração em andamento:** o projeto está sendo migrado para hospedagem em
-> **GitHub Pages** com dados no **Google Planilhas** (Apps Script Web App como
-> API) e anexos no **Google Drive**. O Django continua funcionando como
-> referência/implantação local (pastas `backend/` e `frontend/`), enquanto a
-> nova versão está em `site/` (SPA estática) e `google-apps-script/` (API).
-> Veja o guia de implantação em [`site/README.md`](site/README.md).
+> **Migrou:** o projeto foi migrado para hospedagem em **GitHub Pages** com
+> dados no **Google Planilhas** (Apps Script Web App como API) e anexos no
+> **Google Drive**. O Django anterior permanece apenas na sua máquina local
+> (não versionado). A nova versão está em `docs/` (SPA estática) e
+> `google-apps-script/` (API). Guia de implantação:
+> [`docs/README.md`](docs/README.md).
 
 
 - **Solicitante:** cria pedidos (produto, nome do solicitante, urgência) com
