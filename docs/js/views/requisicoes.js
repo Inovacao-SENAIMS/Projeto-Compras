@@ -266,13 +266,26 @@ function acoesHTML(p, equipe) {
   const btn = (acao, icone, titulo, perigo) =>
     `<button type="button" class="btn-icone ${perigo ? "btn-icone-perigo" : ""}" data-acao="${acao}" data-numero="${esc(p.numero)}" title="${titulo}"><i class="bi ${icone}"></i></button>`;
   const out = [];
+  const dono = p.criado_por === s.email;
+  const terminal = p.status === "concluida" || p.status === "cancelada";
 
-  if (!equipe && p.criado_por === s.email && p.status === "aberta") {
+  /* Ações do DONO da requisição (valem para qualquer perfil, inclusive Gestão):
+   * Enviar e Excluir enquanto o status for "Aberta". */
+  if (dono && p.status === "aberta") {
     out.push(btn("enviar", "bi-send", "Enviar"));
     out.push(btn("excluir", "bi-trash", "Excluir", true));
   }
-  if (equipe && p.status === "enviada") out.push(btn("assumir", "bi-hand-index-thumb", "Assumir"));
-  if (equipe && p.status === "em_analise") out.push(btn("tramitar", "bi-arrow-repeat", "Tramitar"));
+
+  /* Ações da EQUIPE (Time de Compras e Gestão). */
+  if (equipe) {
+    if (p.status === "enviada") out.push(btn("assumir", "bi-hand-index-thumb", "Assumir"));
+    if (p.status === "em_analise") out.push(btn("tramitar", "bi-arrow-repeat", "Tramitar"));
+    if (Sessao.isGestor() && !terminal && p.status !== "aberta") {
+      out.push(btn("designar", "bi-person-plus",
+        p.responsavel ? "Alterar responsável" : "Designar responsável"));
+    }
+  }
+
   out.push(btn("anexos", "bi-paperclip", "Anexos"));
   out.push(btn("detalhes", "bi-eye", "Ver Detalhes"));
   return out.join("");
@@ -298,6 +311,7 @@ document.addEventListener("click", async (e) => {
   if (acao === "detalhes") { modalDetalhes(numero); return; }
   if (acao === "anexos") { modalAnexos(numero); return; }
   if (acao === "tramitar") { location.hash = "#/tramitar/" + encodeURIComponent(numero); return; }
+  if (acao === "designar") { modalDesignar(numero); return; }
 
   if (acao === "enviar") {
     const r = await API.chamar("enviarPedido", { numero });

@@ -39,7 +39,7 @@ function mostrarMensagem(tipo, texto) {
     <li class="msg msg-${tipo}"><i class="bi bi-${tipo === "success" ? "check-circle-fill" : tipo === "error" ? "x-circle-fill" : "exclamation-triangle-fill"}"></i><span>${esc(texto)}</span></li>
   </ul>`;
   area.hidden = false;
-  setTimeout(() => { area.hidden = true; }, 5000);
+  setTimeout(() => { area.hidden = true; }, 4000);
 }
 function mostrarSucessoOuErro(resp) {
   if (resp.ok) mostrarMensagem("success", "Operação realizada com sucesso.");
