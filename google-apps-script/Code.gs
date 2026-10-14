@@ -16,8 +16,11 @@
  */
 
 function doGet(e) {
+  /* allowAll: permite que o SPA no GitHub Pages incorpore a Bridge em um
+   * iframe (o padrão SAMEORIGIN bloqueia o embed cross-origin). */
   return HtmlService.createHtmlOutputFromFile("Bridge")
-    .setTitle("API Bridge — Projeto Compras");
+    .setTitle("API Bridge — Projeto Compras")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function doPost(e) {
