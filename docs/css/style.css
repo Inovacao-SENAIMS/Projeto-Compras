@@ -1528,3 +1528,4 @@ button.botao.botao-cancelar:hover {
 
 /* evita sobreposicao com o sino de notificacoes fixo no topo */
 .cabecalho-pagina .botao { margin-right: 3.6rem; }
+\n.dash-cabecalho .botao { margin-right: 3.6rem; }\n

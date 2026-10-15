@@ -15,6 +15,8 @@ function apiDashboard(payload, usuario) {
     aberta: 0, enviada: 0, em_analise: 0, concluida: 0, cancelada: 0,
   };
   const porMes_ = {};   // "YYYY-MM" -> total aberto no mês
+  const porDia_ = {};     // "YYYY-MM-DD" -> total
+  const porSemana_ = [0,0,0,0,0,0,0]; // por dia da semana (0=Dom)
   const porInstituto = {};
   CONFIG_INSTITUTOS.forEach((inst) => { porInstituto[inst] = 0; });
 
@@ -26,11 +28,14 @@ function apiDashboard(payload, usuario) {
       const chave = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
       porMes_[chave] = (porMes_[chave] || 0) + 1;
     }
+    const chaveDia = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0"+d.getDate()).slice(-2);
+    porDia_[chaveDia] = (porDia_[chaveDia] || 0) + 1;
+    porSemana_[d.getDay()] = (porSemana_[d.getDay()] || 0) + 1;
 
     const u = buscarUsuario(p.criado_por);
     /* SuperUsuário é invisível nos relatórios (não conta no gráfico por instituto) */
     if (!(u && isSuper(u))) {
-      const inst = u ? String(u.instituto || "—") : "—";
+      const inst = String((p.instituto || (u ? u.instituto : "")) || "?").trim();
       porInstituto[inst] = (porInstituto[inst] || 0) + 1;
     }
   });
@@ -41,12 +46,22 @@ function apiDashboard(payload, usuario) {
   for (let i = 11; i >= 0; i--) {
     const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
     const chave = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
-    meses.push({
-      chave,
-      rotulo: ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(),
-      total: porMes_[chave] || 0,
-    });
+    const total = porMes_[chave] || 0;
+    if (total > 0) {
+      meses.push({
+        chave,
+        rotulo: ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(),
+        total,
+      });
+    }
   }
+  const dias = Object.keys(porDia_).sort().map((k) => {
+    const p = k.split("-");
+    return { chave: k, rotulo: p[2] + "/" + p[1], total: porDia_[k] };
+  });
+  const nomesSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  const semana = nomesSemana.map((n, i) => ({ chave: String(i), rotulo: n, total: porSemana_[i] || 0 }))
+    .filter((x) => x.total > 0);
 
   const size = Object.keys(porMes_).length; // (para debug futuro, se necessário)
 
@@ -59,6 +74,8 @@ function apiDashboard(payload, usuario) {
       canceladas: contPorStatus.cancelada,
       por_status: contPorStatus,
       por_mes: meses,
+      por_dia: dias,
+      por_semana: semana,
       por_instituto: Object.keys(porInstituto).map((k) => ({ instituto: k, total: porInstituto[k] })),
     },
   };

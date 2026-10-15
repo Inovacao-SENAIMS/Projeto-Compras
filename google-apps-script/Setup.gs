@@ -9,7 +9,7 @@ const ABAS = {
   Pedidos: ["numero", "produto", "descricao_objeto", "quantidade", "modalidade",
             "urgencia", "possui_cotacao", "solicitante_nome", "criado_por",
             "data_envio", "status", "responsavel", "retorno_final",
-            "criado_em", "atualizado_em", "assumido_em", "concluido_em"],
+            "criado_em", "atualizado_em", "assumido_em", "concluido_em", "instituto"],
   HistoricoStatus: ["numero_req", "de", "para", "usuario", "observacao", "criado_em"],
   AnexosAudit: ["id", "numero_req", "tipo", "nome_original", "drive_file_id",
                 "enviado_por", "enviado_em"],
@@ -149,6 +149,31 @@ function migrarStatusRequisicoes() {
     }
   }
   Logger.log("Status migrados: " + alterados);
+}
+
+/* Garante a coluna 'instituto' nas requisoes existentes. */
+function migrarInstitutoPedidos() {
+  const cab = ["numero", "produto", "descricao_objeto", "quantidade", "modalidade",
+    "urgencia", "possui_cotacao", "solicitante_nome", "criado_por",
+    "data_envio", "status", "responsavel", "retorno_final",
+    "criado_em", "atualizado_em", "assumido_em", "concluido_em", "instituto"];
+  const sh = aba("Pedidos");
+  const headers = sh.getRange(1, 1, 1, Math.max(sh.getLastColumn(), cab.length)).getValues()[0];
+  for (let i = 0; i < cab.length; i++) {
+    if (String(headers[i] || "").trim() !== cab[i]) {
+      sh.getRange(1, i + 1).setValue(cab[i]);
+    }
+  }
+  const vals = sh.getDataRange().getValues();
+  let alterados = 0;
+  for (let i = 1; i < vals.length; i++) {
+    const linha = i + 1;
+    if (String(vals[i][17] || "").trim() === "") {
+      sh.getRange(linha, 18).setValue("SENAI MS - Departamento Regional");
+      alterados++;
+    }
+  }
+  Logger.log("Institutos preenchidos: " + alterados);
 }
 
 /* ------------------------------------------------------------------ */

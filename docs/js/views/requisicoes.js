@@ -382,6 +382,8 @@ function abrirModalHTML(html, classeExtra) {
 function camposRequisicao() {
   const modalidades = Object.entries(CONFIG.MODALIDADES)
     .map(([v, n]) => `<option value="${v}">${n}</option>`).join("");
+  const institutos = CONFIG.INSTITUTOS
+    .map((v) => `<option value="${v}" ${v === CONFIG.INSTITUTOS[CONFIG.INSTITUTOS.length - 1] ? "selected" : ""}>${v}</option>`).join("");
   const urgencias = Object.entries(CONFIG.URGENCIAS)
     .map(([v, n]) => `<option value="${v}">${n}</option>`).join("");
   const s = Sessao.ler();
@@ -414,6 +416,10 @@ function camposRequisicao() {
         <input value="${esc(s.nome)}" class="campo" disabled>
       </p>
     </div>
+    <p>
+      <label for="r-instituto">Instituto referente</label>
+      <select id="r-instituto" class="campo" required>${institutos}</select>
+    </p>
     <div class="campo-duplo">
       <p>
         <label for="r-cotacao-sim">Possui cotação?</label>
@@ -483,6 +489,7 @@ function modalNovaRequisicao() {
       modalidade: overlay.querySelector("#r-modalidade").value,
       urgencia: overlay.querySelector("#r-urgencia").value,
       possui_cotacao: sim.value === "1",
+      instituto: overlay.querySelector("#r-instituto").value,
       anexos,
     };
     if (!payload.produto) { mostrarMensagem("error", "Informe o nome do produto."); return; }
