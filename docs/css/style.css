@@ -1525,3 +1525,6 @@ button.botao.botao-cancelar:hover {
     color: #fff;
     font-weight: 700;
 }
+
+/* evita sobreposicao com o sino de notificacoes fixo no topo */
+.cabecalho-pagina .botao { margin-right: 3.6rem; }

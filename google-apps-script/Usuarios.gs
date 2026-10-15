@@ -85,6 +85,12 @@ function apiExcluirUsuario(payload, usuario) {
   exigir(String(alvo.grupo) !== GRUPOS.SUPER || isSuper(usuario),
     "Não é possível excluir uma conta de SuperUsuário.");
 
+  /* Admin pode excluir qualquer usuário, removendo também vínculos/requisições. */
+  if (ehAdmin(usuario.email)) {
+    removerUsuarioCompleto(email);
+    return { ok: true, data: { email } };
+  }
+
   const temPedidos = lerAba("Pedidos").some(
     (p) => String(p.criado_por).toLowerCase() === email || String(p.responsavel).toLowerCase() === email
   );

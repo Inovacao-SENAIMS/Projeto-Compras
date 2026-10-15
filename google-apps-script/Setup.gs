@@ -121,6 +121,37 @@ function removerUsuariosLegados() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Migração de status para a nova regra (Em Análise -> Aberto)          */
+/* ------------------------------------------------------------------ */
+function migrarStatusRequisicoes() {
+  const sh = aba("Pedidos");
+  const vals = sh.getDataRange().getValues();
+  let alterados = 0;
+  for (let i = 1; i < vals.length; i++) {
+    const linha = i + 1;
+    const status = String(vals[i][P_COL.status - 1]);
+    const responsavel = String(vals[i][P_COL.responsavel - 1] || "").trim();
+
+    if (status === "concluida" || status === "cancelada" || status === "aberto") continue;
+
+    let novo = status;
+    if (status === "aberta" || status === "enviada") novo = "em_analise";
+    else if (status === "em_analise" && responsavel) novo = "aberto";
+
+    if (novo !== status) {
+      sh.getRange(linha, P_COL.status).setValue(novo);
+      alterados++;
+    }
+
+    /* garante data_envio preenchida para o lead time */
+    if (!vals[i][P_COL.data_envio - 1]) {
+      sh.getRange(linha, P_COL.data_envio).setValue(vals[i][P_COL.criado_em - 1] || new Date());
+    }
+  }
+  Logger.log("Status migrados: " + alterados);
+}
+
+/* ------------------------------------------------------------------ */
 /* Remoção completa de usuário + requisições (uso administrativo)       */
 /* ------------------------------------------------------------------ */
 function removerUsuarioCompleto(emailAlvo) {
