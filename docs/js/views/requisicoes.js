@@ -269,17 +269,18 @@ function acoesHTML(p, equipe) {
   const dono = p.criado_por === s.email;
   const terminal = p.status === "concluida" || p.status === "cancelada";
 
-  /* Ações do DONO da requisição (valem para qualquer perfil, inclusive Gestão):
-   * Enviar e Excluir enquanto o status for "Aberta". */
-  if (dono && p.status === "aberta") {
-    out.push(btn("enviar", "bi-send", "Enviar"));
+  /* Exclusão: gestores/admin podem excluir qualquer requisição; solicitante apenas
+   * a própria enquanto não houver responsável. */
+  if (Sessao.isGestor()) {
+    out.push(btn("excluir", "bi-trash", "Excluir", true));
+  } else if (dono && !p.responsavel && (p.status === "em_analise" || p.status === "aberta" || p.status === "enviada")) {
     out.push(btn("excluir", "bi-trash", "Excluir", true));
   }
 
   /* Ações da EQUIPE (Time de Compras e Gestão). */
   if (equipe) {
-    if (p.status === "enviada") out.push(btn("assumir", "bi-hand-index-thumb", "Assumir"));
-    if (p.status === "em_analise") out.push(btn("tramitar", "bi-arrow-repeat", "Tramitar"));
+    if (p.status === "em_analise" && !p.responsavel) out.push(btn("assumir", "bi-hand-index-thumb", "Assumir"));
+    if (p.status === "aberto" || p.status === "em_analise") out.push(btn("tramitar", "bi-arrow-repeat", "Tramitar"));
     if (Sessao.isGestor() && !terminal && p.status !== "aberta") {
       out.push(btn("designar", "bi-person-plus",
         p.responsavel ? "Alterar responsável" : "Designar responsável"));
@@ -319,6 +320,11 @@ document.addEventListener("click", async (e) => {
     return;
   }
   if (acao === "excluir") {
+    const p = (REQ_CACHE || []).find((x) => x.numero === numero);
+    const terminal = p && (p.status === "concluida" || p.status === "cancelada");
+    if (terminal) {
+      if (!await confirmarModal("Esta requisição está finalizada. Deseja realmente excluí-la?", "Exclusão de finalizada")) return;
+    }
     if (!await confirmarModal("Excluir a requisição " + numero + "? Os anexos também serão removidos do disco.", "Excluir requisição")) return;
     const r = await API.chamar("excluirPedido", { numero });
     if (mostrarSucessoOuErro(r)) await recarregar();

@@ -52,6 +52,7 @@ const CONFIG = {
     aberta: "Aberta",
     enviada: "Enviada",
     em_analise: "Em Análise",
+    aberto: "Aberto",
     concluida: "Concluída",
     cancelada: "Cancelada",
   },

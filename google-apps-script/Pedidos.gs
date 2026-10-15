@@ -129,7 +129,7 @@ function apiCriarPedido(payload, usuario) {
     possui_cotacao: !!payload.possui_cotacao,
     solicitante_nome: String(payload.solicitante_nome || "").trim() || nomeExibicao(usuario.email, usuario.nome_completo),
     criado_por: String(usuario.email).toLowerCase(),
-    data_envio: null, status: STATUS.ABERTA, responsavel: "", retorno_final: "",
+    data_envio: new Date(), status: STATUS.EM_ANALISE, responsavel: "", retorno_final: "",
     criado_em: new Date(), atualizado_em: new Date(), assumido_em: null, concluido_em: null,
   };
 
@@ -150,10 +150,16 @@ function apiCriarPedido(payload, usuario) {
     p.data_envio, p.status, p.responsavel, p.retorno_final,
     p.criado_em, p.atualizado_em, p.assumido_em, p.concluido_em,
   ]);
-  _registrarHistorico(p, "", STATUS.ABERTA, usuario, "Requisição criada pelo solicitante.");
+  _registrarHistorico(p, "", STATUS.EM_ANALISE, usuario, "Requisição criada pelo solicitante (lançada em análise).");
 
   /* Anexos (opcional na criação; obrigatórios validados no client/server) */
   (payload.anexos || []).forEach((a) => _salvarAnexo(p.numero, a, usuario));
+
+  /* Notifica os gestores sobre a nova requisição */
+  try {
+    notificarManagers("nova_requisicao",
+      "Nova requisição lançada: " + p.numero + " (" + p.produto + ").", p.numero);
+  } catch (e) { /* best-effort */ }
 
   return { ok: true, data: _serealizarPedido(p) };
 }
@@ -188,16 +194,19 @@ function apiAssumirPedido(payload, usuario) {
     const p = reg.p;
 
     /* Recheck sob lock — equivale ao UPDATE condicional do Django. */
-    if (!(String(p.status) === STATUS.ENVIADA && !p.responsavel)) {
+    const assumivel = (String(p.status) === STATUS.ENVIADA || String(p.status) === STATUS.EM_ANALISE)
+      && !p.responsavel;
+    if (!assumivel) {
       throw new Error("Esta requisição já foi assumida por outro membro da equipe.");
     }
 
+    const de = String(p.status);
     _editarPedido(reg.linha, {
-      status: STATUS.EM_ANALISE,
+      status: STATUS.ABERTO,
       responsavel: String(usuario.email).toLowerCase(),
       assumido_em: new Date(),
     });
-    _registrarHistorico(p, STATUS.ENVIADA, STATUS.EM_ANALISE, usuario,
+    _registrarHistorico(p, de, STATUS.ABERTO, usuario,
       "Requisição assumida por " + nomeExibicao(usuario.email, usuario.nome_completo) + ".");
     return { ok: true, data: { numero: p.numero, status: STATUS.EM_ANALISE } };
   } finally {
@@ -224,26 +233,33 @@ function apiDesignarPedido(payload, usuario) {
     const p = reg.p;
 
     exigir(!STATUS_TERMINAIS.includes(String(p.status)), "Requisição já finalizada não pode ser designada.");
-    exigir(String(p.status) !== STATUS.ABERTA, "A requisição ainda não foi enviada pelo solicitante.");
+    exigir(String(p.status) !== STATUS.ABERTA, "A requisição ainda não está disponível para designação.");
 
-    let de, observacao;
-    if (String(p.status) === STATUS.ENVIADA) {
-      de = STATUS.ENVIADA;
+    let de, observacao, novoStatus;
+    if (String(p.status) === STATUS.ENVIADA || String(p.status) === STATUS.EM_ANALISE) {
+      de = String(p.status);
+      novoStatus = STATUS.ABERTO;
       observacao = "Designado para " + nomeExibicao(emailResp, alvo.nome_completo)
         + " por " + nomeExibicao(usuario.email, usuario.nome_completo) + ".";
       _editarPedido(reg.linha, {
-        responsavel: emailResp, status: STATUS.EM_ANALISE, assumido_em: new Date(),
+        responsavel: emailResp, status: STATUS.ABERTO, assumido_em: new Date(),
       });
     } else {
       de = String(p.status);
+      novoStatus = String(p.status) === STATUS.ABERTO ? STATUS.ABERTO : String(p.status);
       observacao = "Redesignado de " + (p.responsavel ? nomeExibicao(p.responsavel) : "—")
         + " para " + nomeExibicao(emailResp, alvo.nome_completo)
         + " por " + nomeExibicao(usuario.email, usuario.nome_completo) + ".";
-      _editarPedido(reg.linha, { responsavel: emailResp });
+      _editarPedido(reg.linha, { responsavel: emailResp, status: STATUS.ABERTO });
     }
 
-    _registrarHistorico(p, de, STATUS.EM_ANALISE, usuario, observacao);
-    return { ok: true, data: { numero: p.numero, responsavel: emailResp } };
+    _registrarHistorico(p, de, STATUS.ABERTO, usuario, observacao);
+    /* Notifica o responsável designado */
+    try {
+      criarNotificacao(emailResp, "designacao",
+        "A requisição " + String(p.numero) + " foi designada para você.", String(p.numero));
+    } catch (e) { /* best-effort */ }
+    return { ok: true, data: { numero: p.numero, responsavel: emailResp, status: STATUS.ABERTO } };
   } finally {
     lock.releaseLock();
   }
@@ -297,10 +313,18 @@ function apiExcluirPedido(payload, usuario) {
     exigir(reg, "Requisição não encontrada: " + payload.numero);
     const p = reg.p;
 
-    exigir(String(p.criado_por).toLowerCase() === String(usuario.email).toLowerCase(),
-      "Apenas o solicitante pode excluir a requisição.");
-    exigir(String(p.status) === STATUS.ABERTA && !p.responsavel,
-      "Requisição já assumida — exclusão bloqueada para preservar o histórico.");
+    /* Managers/Admin podem excluir qualquer requisição; solicitante apenas a própria,
+       ainda Aberta/Em Análise e sem responsável. */
+    if (isManager(usuario)) {
+      /* permitido */ 
+    } else {
+      exigir(String(p.criado_por).toLowerCase() === String(usuario.email).toLowerCase(),
+        "Apenas o solicitante pode excluir a requisição.");
+      const podeExcluir = (!STATUS_TERMINAIS.includes(String(p.status)) && !p.responsavel)
+        && (String(p.status) === STATUS.EM_ANALISE || String(p.status) === STATUS.ABERTA || String(p.status) === STATUS.ENVIADA);
+      exigir(podeExcluir,
+        "Requisição já assumida — exclusão bloqueada para preservar o histórico.");
+    }
 
     /* anexos do Drive + linhas de auditoria */
     const anexos = lerAbaComLinha("AnexosAudit")

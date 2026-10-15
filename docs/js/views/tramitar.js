@@ -72,16 +72,28 @@ ROTAS["#/tramitar/<numero>"] = async function (numero) {
           ${d.transicoes.length ? `
             <div class="modal-acoes">
               <button type="button" class="botao" id="btn-editar"><i class="bi bi-pencil"></i> Editar</button>
+              ${Sessao.isGestor() ? `<button type="button" class="botao" id="btn-excluir-tramitar"><i class="bi bi-trash"></i> Excluir</button>` : ``}
               <a class="link-secundario" href="#/requisicoes"><i class="bi bi-arrow-left"></i> Voltar</a>
             </div>` : `
             <p class="meta">Requisição em status ${CONFIG.STATUS[p.status]} — sem tramitação disponível.</p>
             <div class="modal-acoes">
+              ${Sessao.isGestor() ? `<button type="button" class="botao" id="btn-excluir-tramitar"><i class="bi bi-trash"></i> Excluir</button>` : ``}
               <a class="link-secundario" href="#/requisicoes"><i class="bi bi-arrow-left"></i> Voltar</a>
             </div>`}
         </section>
       </div>`;
 
     qs("#btn-editar").addEventListener("click", modoEdicao);
+    const btnExcluirTramitar = qs("#btn-excluir-tramitar");
+    if (btnExcluirTramitar) btnExcluirTramitar.addEventListener("click", async () => {
+      const terminal = p.status === "concluida" || p.status === "cancelada";
+      if (terminal) {
+        if (!await confirmarModal("Esta requisição está finalizada. Deseja realmente excluí-la?", "Exclusão de finalizada")) return;
+      }
+      if (!await confirmarModal("Excluir a requisição " + numero + "? Os anexos também serão removidos do disco.", "Excluir requisição")) return;
+      const r3 = await API.chamar("excluirPedido", { numero });
+      if (mostrarSucessoOuErro(r3)) location.hash = "#/requisicoes";
+    });
     ligarDownloads();
   }
 

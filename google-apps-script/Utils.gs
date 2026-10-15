@@ -19,6 +19,7 @@ const STATUS = {
   ABERTA: "aberta",
   ENVIADA: "enviada",
   EM_ANALISE: "em_analise",
+  ABERTO: "aberto",
   CONCLUIDA: "concluida",
   CANCELADA: "cancelada",
 };
@@ -30,6 +31,7 @@ const TRANSICOES = {
   [STATUS.ABERTA]: [],
   [STATUS.ENVIADA]: [],
   [STATUS.EM_ANALISE]: [STATUS.CONCLUIDA, STATUS.CANCELADA],
+  [STATUS.ABERTO]: [STATUS.CONCLUIDA, STATUS.CANCELADA],
   [STATUS.CONCLUIDA]: [],
   [STATUS.CANCELADA]: [],
 };
@@ -275,4 +277,73 @@ function pastaPedido(numeroReq) {
   const raiz = pastaRaizAnexos();
   const it = raiz.getFoldersByName(numeroReq);
   return it.hasNext() ? it.next() : raiz.createFolder(numeroReq);
+}
+
+/* --------------------------- notificações --------------------------- */
+const ABA_NOTIFICACOES = "Notificacoes";
+const CAB_NOTIFICACOES = ["id", "usuario_email", "tipo", "mensagem", "numero_req", "lida", "criado_em"];
+
+function _notificacaoId() {
+  return "NOTIF-" + Utilities.getUuid().slice(0, 8).toUpperCase();
+}
+
+function criarNotificacao(emailDestino, tipo, mensagem, numeroReq) {
+  const em = String(emailDestino || "").trim().toLowerCase();
+  if (!em) return;
+  const sh = abaOuCriar(ABA_NOTIFICACOES, CAB_NOTIFICACOES);
+  sh.appendRow([_notificacaoId(), em, String(tipo || ""), String(mensagem || ""),
+    String(numeroReq || ""), false, new Date()]);
+}
+
+function notificarManagers(tipo, mensagem, numeroReq) {
+  lerAba("Usuarios").forEach((u) => {
+    const grupo = String(u.grupo || "").trim();
+    if ((grupo === GRUPOS.MANAGER || grupo === GRUPOS.SUPER) && isValido(u)) {
+      criarNotificacao(u.email, tipo, mensagem, numeroReq);
+    }
+  });
+}
+
+function apiListarNotificacoes(payload, usuario) {
+  const email = String(usuario.email).toLowerCase();
+  const somenteNaoLidas = payload && payload.somente_nao_lidas ? true : false;
+  let itens = lerAba(ABA_NOTIFICACOES)
+    .filter((n) => String(n.usuario_email).toLowerCase() === email)
+    .map((n) => ({
+      id: String(n.id),
+      tipo: String(n.tipo || ""),
+      mensagem: String(n.mensagem || ""),
+      numero_req: String(n.numero_req || ""),
+      lida: String(n.lida).toUpperCase() === "TRUE",
+      criado_em: iso(n.criado_em),
+    }));
+  if (somenteNaoLidas) itens = itens.filter((n) => !n.lida);
+  itens.sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)));
+  return { ok: true, data: itens };
+}
+
+function apiMarcarNotificacaoLida(payload, usuario) {
+  const id = String(payload.id || "").trim();
+  exigir(id, "Informe o id da notificação.");
+  const sh = abaOuCriar(ABA_NOTIFICACOES, CAB_NOTIFICACOES);
+  const linhas = sh.getDataRange().getValues();
+  for (let i = 1; i < linhas.length; i++) {
+    if (String(linhas[i][0]) === id && String(linhas[i][1]).toLowerCase() === String(usuario.email).toLowerCase()) {
+      sh.getRange(i + 1, 6).setValue(true);
+      return { ok: true, data: { id } };
+    }
+  }
+  throw new Error("Notificação não encontrada.");
+}
+
+function apiMarcarTodasNotificacoesLidas(payload, usuario) {
+  const email = String(usuario.email).toLowerCase();
+  const sh = abaOuCriar(ABA_NOTIFICACOES, CAB_NOTIFICACOES);
+  const linhas = sh.getDataRange().getValues();
+  for (let i = 1; i < linhas.length; i++) {
+    if (String(linhas[i][1]).toLowerCase() === email && String(linhas[i][5]).toUpperCase() !== "TRUE") {
+      sh.getRange(i + 1, 6).setValue(true);
+    }
+  }
+  return { ok: true, data: { ok: true } };
 }

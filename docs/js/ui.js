@@ -36,6 +36,21 @@ function montarLayout() {
     <main class="conteudo" id="conteudo"></main>
   </div>`;
 
+  const kell = document.createElement("button");
+  kell.id = "btn-notif";
+  kell.type = "button";
+  kell.style.cssText = "position:fixed;top:.8rem;right:.8rem;z-index:10001;border:none;border-radius:50%;width:42px;height:42px;background:#003876;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;";
+  kell.innerHTML = '<i class="bi bi-bell"></i><span id="notif-badge" style="position:absolute;top:-4px;right:-4px;background:#E84910;color:#fff;border-radius:50%;font-size:.65rem;min-width:16px;height:16px;display:none;align-items:center;justify-content:center;padding:0 3px;"></span>';
+  document.body.appendChild(kell);
+  const painel = document.createElement("div");
+  painel.id = "painel-notif";
+  painel.style.cssText = "position:fixed;top:3.4rem;right:.8rem;width:320px;max-height:420px;overflow:auto;background:#fff;border:1px solid #ddd;border-radius:.6rem;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:10000;display:none;padding:.5rem;";
+  document.body.appendChild(painel);
+  kell.addEventListener("click", async () => {
+    painel.style.display = painel.style.display === "none" ? "block" : "none";
+    if (painel.style.display === "block") await atualizarNotificacoes();
+  });
+
   qs("#btn-logout").addEventListener("click", async () => {
     const token = Sessao.ler() && Sessao.ler().token;
     Sessao.limpar();
@@ -146,4 +161,78 @@ function inicializarBarraFiltros(opts) {
 
   atualizar();
   return { atualizar, estaVisivel: () => visivel };
+}
+
+
+async function atualizarNotificacoes() {
+  const badge = document.querySelector('#notif-badge');
+  const painel = document.querySelector('#painel-notif');
+  if (!painel) return;
+  const r = await API.chamar('listarNotificacoes');
+  if (!r.ok) return;
+  const itens = r.data || [];
+  try {
+    const conhecidos = window._notifConhecidos || new Set();
+    const novos = itens.filter(function(n){ return !n.lida && !conhecidos.has(n.id); });
+    novos.forEach(function(n){ if (typeof mostrarMensagem === 'function') mostrarMensagem('success', n.mensagem); });
+    window._notifConhecidos = new Set(itens.map(function(n){return n.id;}));
+  } catch (e) { /* ignore */ }
+  const naoLidas = itens.filter(function(n){return !n.lida;}).length;
+  if (badge) {
+    badge.style.display = naoLidas ? 'flex' : 'none';
+    badge.textContent = naoLidas > 9 ? '9+' : String(naoLidas);
+  }
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"><strong>Notificacoes</strong><button class="botao botao-secundario botao-compacto" id="btn-limpar-notif">Marcar todas</button></div>';
+  if (itens.length) {
+    html += itens.map(function(n){
+      return '<div data-id="' + n.id + '" style="padding:.5rem;border-bottom:1px solid #eee;opacity:' + (n.lida ? .6 : 1) + ';cursor:pointer"><div style="font-size:.85rem;">' + n.mensagem + '</div><div style="font-size:.7rem;color:#666;">' + fmtDataHora(n.criado_em) + (n.numero_req ? ' · ' + n.numero_req : '') + '</div></div>';
+    }).join('');
+  } else {
+    html += '<p class="meta">Sem notificacoes.</p>';
+  }
+  painel.innerHTML = html;
+  const btn = document.querySelector('#btn-limpar-notif');
+  if (btn) btn.addEventListener('click', async function(){ await API.chamar('marcarTodasNotificacoesLidas'); await atualizarNotificacoes(); });
+  painel.querySelectorAll('[data-id]').forEach(function(el){
+    el.addEventListener('click', async function(){ await API.chamar('marcarNotificacaoLida', { id: el.getAttribute('data-id') }); await atualizarNotificacoes(); });
+  });
+}
+
+if (!window._notifInterval) {
+  window._notifInterval = setInterval(function(){ if (typeof Sessao !== 'undefined' && Sessao.ler()) atualizarNotificacoes(); }, 15000);
+  if (typeof Sessao !== 'undefined' && Sessao.ler()) setTimeout(atualizarNotificacoes, 1500);
+}
+
+
+async function atualizarNotificacoes() {
+  const badge = document.querySelector('#notif-badge');
+  const painel = document.querySelector('#painel-notif');
+  if (!painel) return;
+  const r = await API.chamar('listarNotificacoes');
+  if (!r.ok) return;
+  const itens = r.data || [];
+  const naoLidas = itens.filter(function(n){return !n.lida;}).length;
+  if (badge) {
+    badge.style.display = naoLidas ? 'flex' : 'none';
+    badge.textContent = naoLidas > 9 ? '9+' : String(naoLidas);
+  }
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"><strong>Notificacoes</strong><button class="botao botao-secundario botao-compacto" id="btn-limpar-notif">Marcar todas</button></div>';
+  if (itens.length) {
+    html += itens.map(function(n){
+      return '<div data-id="' + n.id + '" style="padding:.5rem;border-bottom:1px solid #eee;opacity:' + (n.lida ? .6 : 1) + ';cursor:pointer"><div style="font-size:.85rem;">' + n.mensagem + '</div><div style="font-size:.7rem;color:#666;">' + fmtDataHora(n.criado_em) + (n.numero_req ? ' · ' + n.numero_req : '') + '</div></div>';
+    }).join('');
+  } else {
+    html += '<p class="meta">Sem notificacoes.</p>';
+  }
+  painel.innerHTML = html;
+  const btn = document.querySelector('#btn-limpar-notif');
+  if (btn) btn.addEventListener('click', async function(){ await API.chamar('marcarTodasNotificacoesLidas'); await atualizarNotificacoes(); });
+  painel.querySelectorAll('[data-id]').forEach(function(el){
+    el.addEventListener('click', async function(){ await API.chamar('marcarNotificacaoLida', { id: el.getAttribute('data-id') }); await atualizarNotificacoes(); });
+  });
+}
+
+if (!window._notifInterval) {
+  window._notifInterval = setInterval(function(){ if (typeof Sessao !== 'undefined' && Sessao.ler()) atualizarNotificacoes(); }, 15000);
+  if (typeof Sessao !== 'undefined' && Sessao.ler()) setTimeout(atualizarNotificacoes, 1500);
 }

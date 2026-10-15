@@ -15,6 +15,7 @@ const ABAS = {
                 "enviado_por", "enviado_em"],
   Sessoes: ["token", "email", "expira_em"],
   ResetSenha: ["token", "email", "expira_em", "usado", "criado_em"],
+  Notificacoes: ["id", "usuario_email", "tipo", "mensagem", "numero_req", "lida", "criado_em"],
 };
 
 function inicializar() {

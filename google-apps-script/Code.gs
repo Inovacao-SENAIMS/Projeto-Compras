@@ -106,6 +106,11 @@ const ROTAS_API = {
   listarDocumentos: apiListarDocumentos,
   baixarArquivo: apiBaixarArquivo,
 
+  /* Notificações (Utils.gs) */
+  listarNotificacoes: apiListarNotificacoes,
+  marcarNotificacaoLida: apiMarcarNotificacaoLida,
+  marcarTodasNotificacoesLidas: apiMarcarTodasNotificacoesLidas,
+
   /* Usuários (Usuarios.gs) */
   meusDados: apiMeusDados,
   listarUsuarios: apiListarUsuarios,
