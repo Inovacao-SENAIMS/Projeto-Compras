@@ -22,7 +22,7 @@ ROTAS["#/home"] = async function () {
 
   const r = await API.chamar("dashboard");
   if (!r.ok) { qs("#dash-loading").hidden = true; mostrarMensagem("error", r.erro); return; }
-  const d = r.data;
+  const DD = r.data;
 
   const card = (titulo, valor, icone, rodape) => `
     <div class="card-stat">
@@ -33,10 +33,10 @@ ROTAS["#/home"] = async function () {
 
   qs("#dash-conteudo").innerHTML = `
     <div class="dash-grade">
-      ${card("Total de Requisições", d.total, "bi-collection", "no total")}
-      ${card("Pendentes", d.pendentes, "bi-hourglass-split", "abertas / enviadas / em análise")}
-      ${card("Concluídas", d.concluidas, "bi-check-circle", "finalizadas")}
-      ${card("Canceladas", d.canceladas, "bi-x-circle", "encerradas sem conclusão")}
+      ${card("Total de Requisições", DD.total, "bi-collection", "no total")}
+      ${card("Pendentes", DD.pendentes, "bi-hourglass-split", "abertas / enviadas / em análise")}
+      ${card("Concluídas", DD.concluidas, "bi-check-circle", "finalizadas")}
+      ${card("Canceladas", DD.canceladas, "bi-x-circle", "encerradas sem conclusão")}
     </div>
     <div class="dash-grade-2">
       <div class="card-grafico card-grafico-largo">
@@ -86,9 +86,9 @@ ROTAS["#/home"] = async function () {
 
   const chaves = Object.keys(CONFIG.STATUS);
   function rotulosTempo(modo) {
-    if (modo === "semana") return { labels: (d.por_semana||[]).map((x)=>x.rotulo), data: (d.por_semana||[]).map((x)=>x.total), titulo: "Requisicoes por Dia da Semana" };
-    if (modo === "mes") return { labels: d.por_mes.map((m)=>m.rotulo), data: d.por_mes.map((m)=>m.total), titulo: "Requisicoes por Mes" };
-    return { labels: (d.por_dia||[]).map((x)=>x.rotulo), data: (d.por_dia||[]).map((x)=>x.total), titulo: "Requisicoes por Dia" };
+    if (modo === "semana") return { labels: (DD.por_semana||[]).map((x)=>x.rotulo), data: (DD.por_semana||[]).map((x)=>x.total), titulo: "Requisicoes por Dia da Semana" };
+    if (modo === "mes") return { labels: DD.por_mes.map((m)=>m.rotulo), data: DD.por_mes.map((m)=>m.total), titulo: "Requisicoes por Mes" };
+    return { labels: (DD.por_dia||[]).map((x)=>x.rotulo), data: (DD.por_dia||[]).map((x)=>x.total), titulo: "Requisicoes por Dia" };
   }
 
   let graficoMesInstance = null;
@@ -106,14 +106,14 @@ ROTAS["#/home"] = async function () {
       b.classList.toggle("botao-secundario", !ativo);
     });
   }
-  renderGraficoTempo("dia");
-  qsa("[data-modo]").forEach((b) => b.addEventListener("click", () => renderGraficoTempo(b.dataset.modo)));
+  try { renderGraficoTempo("dia"); } catch (e) { console.error("grafico tempo:", e); mostrarMensagem("error", "Falha no gráfico por período: " + e.message); }
+  qsa("[data-modo]").forEach((b) => b.addEventListener("click", () => { try { renderGraficoTempo(b.dataset.modo); } catch (e) { console.error("grafico tempo click:", e); } }));
 
-  criarGrafico("#graficoStatus", {
+  try { criarGrafico("#graficoStatus", {
     type: "doughnut",
     data: {
       labels: chaves.map((k) => CONFIG.STATUS[k]),
-      datasets: [{ data: chaves.map((k) => d.por_status[k] || 0), backgroundColor: paleta }],
+      datasets: [{ data: chaves.map((k) => DD.por_status[k] || 0), backgroundColor: paleta }],
     },
     options: {
       cutout: "55%",
@@ -122,18 +122,18 @@ ROTAS["#/home"] = async function () {
         tooltip: { enabled: true },
       },
     },
-  });
+  }); } catch (e) { console.error("grafico status:", e); mostrarMensagem("error", "Falha no gráfico de status: " + e.message); }
 
-  criarGrafico("#graficoInstituto", {
+  try { criarGrafico("#graficoInstituto", {
     type: "bar",
     data: {
-      labels: d.por_instituto.map((x) => x.instituto),
-      datasets: [{ label: "Requisicoes", data: d.por_instituto.map((x) => x.total), backgroundColor: azul2 }],
+      labels: DD.por_instituto.map((x) => x.instituto),
+      datasets: [{ label: "Requisicoes", data: DD.por_instituto.map((x) => x.total), backgroundColor: azul2 }],
     },
     options: {
       indexAxis: "y",
       plugins: { legend: { display: false }, datalabels: { anchor: "end", align: "right" } },
       scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
     },
-  });
+  }); } catch (e) { console.error("grafico instituto:", e); mostrarMensagem("error", "Falha no gráfico por instituto: " + e.message); }
 };
