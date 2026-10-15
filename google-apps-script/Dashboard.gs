@@ -12,7 +12,7 @@ function apiDashboard(payload, usuario) {
   }
 
   const contPorStatus = {
-    aberta: 0, enviada: 0, em_analise: 0, concluida: 0, cancelada: 0,
+    aberta: 0, enviada: 0, em_analise: 0, aberto: 0, concluida: 0, cancelada: 0,
   };
   const porMes_ = {};   // "YYYY-MM" -> total aberto no mês
   const porDia_ = {};     // "YYYY-MM-DD" -> total
@@ -23,14 +23,12 @@ function apiDashboard(payload, usuario) {
   pedidos.forEach((p) => {
     const st = String(p.status);
     if (contPorStatus[st] != null) contPorStatus[st]++;
-    if (st !== STATUS.ABERTA || true) {
-      const d = new Date(p.criado_em);
-      const chave = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
-      porMes_[chave] = (porMes_[chave] || 0) + 1;
-    }
-    const chaveDia = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0"+d.getDate()).slice(-2);
+    const dataCriacao = new Date(p.criado_em);
+    const chave = dataCriacao.getFullYear() + "-" + ("0" + (dataCriacao.getMonth() + 1)).slice(-2);
+    porMes_[chave] = (porMes_[chave] || 0) + 1;
+    const chaveDia = dataCriacao.getFullYear() + "-" + ("0"+(dataCriacao.getMonth()+1)).slice(-2) + "-" + ("0"+dataCriacao.getDate()).slice(-2);
     porDia_[chaveDia] = (porDia_[chaveDia] || 0) + 1;
-    porSemana_[d.getDay()] = (porSemana_[d.getDay()] || 0) + 1;
+    porSemana_[dataCriacao.getDay()] = (porSemana_[dataCriacao.getDay()] || 0) + 1;
 
     const u = buscarUsuario(p.criado_por);
     /* SuperUsuário é invisível nos relatórios (não conta no gráfico por instituto) */
@@ -69,7 +67,7 @@ function apiDashboard(payload, usuario) {
     ok: true,
     data: {
       total: pedidos.length,
-      pendentes: contPorStatus.aberta + contPorStatus.enviada + contPorStatus.em_analise,
+      pendentes: contPorStatus.aberta + contPorStatus.enviada + contPorStatus.em_analise + contPorStatus.aberto,
       concluidas: contPorStatus.concluida,
       canceladas: contPorStatus.cancelada,
       por_status: contPorStatus,
