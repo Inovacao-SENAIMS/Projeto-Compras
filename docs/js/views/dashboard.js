@@ -1,8 +1,4 @@
-/* views/dashboard.js — Home (#/home), clone do core/dashboard.html.
- * Classes: .dash-cabecalho/.dash-grade/.card-stat/.dash-grade-2/.card-grafico...
- * Gráficos em Chart.js (mesmos IDs de canvas: graficoMes/graficoStatus/graficoInstituto).
- */
-
+/* views/dashboard.js — Home (#/home), clone do core/dashboard.html. */
 ROTAS["#/home"] = async function () {
   atualizarNav("#/home");
   const s = Sessao.ler();
@@ -14,7 +10,7 @@ ROTAS["#/home"] = async function () {
         <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
         <p class="meta">${Sessao.isEquipe() ? "Histórico geral" : "Minhas requisições"} — Visão Geral.</p>
       </div>
-      <a class="botao" href="#/requisicoes"><i class="bi bi-inboxes"></i> Ver requisições</a>
+      <a class="botao" href="#/requisicoes" style="margin-right:3.6rem;"><i class="bi bi-inboxes"></i> Ver requisições</a>
     </div>
 
     <div class="carregando" id="dash-loading"><i class="bi bi-arrow-repeat"></i> Carregando…</div>
@@ -40,14 +36,7 @@ ROTAS["#/home"] = async function () {
     </div>
     <div class="dash-grade-2">
       <div class="card-grafico card-grafico-largo">
-        <div class="card-grafico-cabecalho" style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;">
-          <h3 id="titulo-grafico-tempo">Requisições por Dia</h3>
-          <div>
-            <button type="button" class="botao botao-compacto" data-modo="dia">Por Dia</button>
-            <button type="button" class="botao botao-secundario botao-compacto" data-modo="semana">Por Dia da Semana</button>
-            <button type="button" class="botao botao-secundario botao-compacto" data-modo="mes">Por Mês</button>
-          </div>
-        </div>
+        <div class="card-grafico-cabecalho"><h3>Requisições por Mês</h3></div>
         <div class="grafico-wrap"><canvas id="graficoMes"></canvas></div>
       </div>
       <div class="card-grafico">
@@ -71,7 +60,6 @@ ROTAS["#/home"] = async function () {
             <span><span class="acao-titulo">Minhas requisições</span>
             <span class="acao-desc">Consultar e acompanhar o andamento</span></span>
           </a>
-
         </div>
       </div>
     </div>`;
@@ -80,60 +68,46 @@ ROTAS["#/home"] = async function () {
   qs("#dash-conteudo").hidden = false;
   atualizarNav("#/home");
 
-  /* paleta SENAI */
   const azul = "#003876", azul2 = "#00529B", laranja = "#E84910";
   const paleta = [azul, azul2, laranja, "#3b76b8", "#8aa9c9", "#f2917a", "#c24a24"];
 
   const chaves = Object.keys(CONFIG.STATUS);
-  function rotulosTempo(modo) {
-    if (modo === "semana") return { labels: (DD.por_semana||[]).map((x)=>x.rotulo), data: (DD.por_semana||[]).map((x)=>x.total), titulo: "Requisicoes por Dia da Semana" };
-    if (modo === "mes") return { labels: DD.por_mes.map((m)=>m.rotulo), data: DD.por_mes.map((m)=>m.total), titulo: "Requisicoes por Mes" };
-    return { labels: (DD.por_dia||[]).map((x)=>x.rotulo), data: (DD.por_dia||[]).map((x)=>x.total), titulo: "Requisicoes por Dia" };
-  }
 
-  let graficoMesInstance = null;
-  function renderGraficoTempo(modo) {
-    const info = rotulosTempo(modo);
-    qs("#titulo-grafico-tempo").textContent = info.titulo;
-    if (graficoMesInstance) { graficoMesInstance.destroy(); }
-    graficoMesInstance = criarGrafico("#graficoMes", {
-      type: "bar",
-      data: { labels: info.labels, datasets: [{ label: "Requisicoes", data: info.data, backgroundColor: azul }] },
-      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
-    });
-    qsa("[data-modo]").forEach((b) => {
-      const ativo = b.dataset.modo === modo;
-      b.classList.toggle("botao-secundario", !ativo);
-    });
-  }
-  try { renderGraficoTempo("dia"); } catch (e) { console.error("grafico tempo:", e); mostrarMensagem("error", "Falha no gráfico por período: " + e.message); }
-  qsa("[data-modo]").forEach((b) => b.addEventListener("click", () => { try { renderGraficoTempo(b.dataset.modo); } catch (e) { console.error("grafico tempo click:", e); } }));
+  criarGrafico("#graficoMes", {
+    type: "line",
+    data: {
+      labels: DD.por_mes.map((m) => m.rotulo),
+      datasets: [{
+        label: "Requisições",
+        data: DD.por_mes.map((m) => m.total),
+        borderColor: azul, backgroundColor: "rgba(0,56,118,.12)", tension: .35, fill: true,
+      }],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+    },
+  });
 
-  try { criarGrafico("#graficoStatus", {
+  criarGrafico("#graficoStatus", {
     type: "doughnut",
     data: {
       labels: chaves.map((k) => CONFIG.STATUS[k]),
       datasets: [{ data: chaves.map((k) => DD.por_status[k] || 0), backgroundColor: paleta }],
     },
-    options: {
-      cutout: "55%",
-      plugins: {
-        legend: { position: "bottom", labels: { boxWidth: 12, padding: 8 } },
-        tooltip: { enabled: true },
-      },
-    },
-  }); } catch (e) { console.error("grafico status:", e); mostrarMensagem("error", "Falha no gráfico de status: " + e.message); }
+    options: { plugins: { legend: { position: "bottom" } } },
+  });
 
-  try { criarGrafico("#graficoInstituto", {
+  criarGrafico("#graficoInstituto", {
     type: "bar",
     data: {
       labels: DD.por_instituto.map((x) => x.instituto),
-      datasets: [{ label: "Requisicoes", data: DD.por_instituto.map((x) => x.total), backgroundColor: azul2 }],
+      datasets: [{ label: "Requisições", data: DD.por_instituto.map((x) => x.total), backgroundColor: azul2 }],
     },
     options: {
       indexAxis: "y",
-      plugins: { legend: { display: false }, datalabels: { anchor: "end", align: "right" } },
+      plugins: { legend: { display: false } },
       scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
     },
-  }); } catch (e) { console.error("grafico instituto:", e); mostrarMensagem("error", "Falha no gráfico por instituto: " + e.message); }
+  });
 };
