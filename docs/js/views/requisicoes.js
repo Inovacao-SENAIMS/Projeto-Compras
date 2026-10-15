@@ -23,7 +23,7 @@ ROTAS["#/requisicoes"] = async function () {
     <div id="mensagens-flutuantes" hidden></div>
     <div class="cabecalho-pagina">
       <h2><i class="bi bi-inboxes"></i> ${equipe ? "Requisições — Equipe de Compras" : "Requisições — Solicitante"}</h2>
-      <button type="button" class="botao" id="btn-nova">
+      <button type="button" class="botao" id="btn-nova" style="margin-right:3.6rem;">
         <i class="bi bi-plus-lg"></i> Nova Requisição
       </button>
     </div>
@@ -271,11 +271,6 @@ function acoesHTML(p, equipe) {
 
   /* Exclusão: gestores/admin podem excluir qualquer requisição; solicitante apenas
    * a própria enquanto não houver responsável. */
-  if (Sessao.isGestor()) {
-    out.push(btn("excluir", "bi-trash", "Excluir", true));
-  } else if (dono && !p.responsavel && (p.status === "em_analise" || p.status === "aberta" || p.status === "enviada")) {
-    out.push(btn("excluir", "bi-trash", "Excluir", true));
-  }
 
   /* Ações da EQUIPE (Time de Compras e Gestão). */
   if (equipe) {
@@ -289,6 +284,11 @@ function acoesHTML(p, equipe) {
 
   out.push(btn("anexos", "bi-paperclip", "Anexos"));
   out.push(btn("detalhes", "bi-eye", "Ver Detalhes"));
+  if (Sessao.isGestor()) {
+    out.push(btn("excluir", "bi-trash", "Excluir", true));
+  } else if (dono && !p.responsavel && (p.status === "em_analise" || p.status === "aberta" || p.status === "enviada")) {
+    out.push(btn("excluir", "bi-trash", "Excluir", true));
+  }
   return out.join("");
 }
 

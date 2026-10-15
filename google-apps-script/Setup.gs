@@ -121,6 +121,60 @@ function removerUsuariosLegados() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Remoção completa de usuário + requisições (uso administrativo)       */
+/* ------------------------------------------------------------------ */
+function removerUsuarioCompleto(emailAlvo) {
+  const email = String(emailAlvo || "").trim().toLowerCase();
+  exigir(email, "Informe o e-mail do usuário a ser removido.");
+
+  /* 1) Remove sessões ativas do usuário. */
+  lerAbaComLinha("Sessoes")
+    .filter((s) => String(s.email).toLowerCase() === email)
+    .reverse()
+    .forEach((s) => removerLinha("Sessoes", s.__linha__));
+
+  /* 2) Limpa o usuário como responsável em requisições de terceiros. */
+  const shPedidos = aba("Pedidos");
+  const vals = shPedidos.getDataRange().getValues();
+  for (let i = 1; i < vals.length; i++) {
+    if (String(vals[i][P_COL.responsavel - 1]).toLowerCase() === email) {
+      shPedidos.getRange(i + 1, P_COL.responsavel).setValue("");
+    }
+  }
+
+  /* 3) Exclui requisições criadas pelo usuário (anexos + histórico + pedido). */
+  const pedidos = lerAbaComLinha("Pedidos")
+    .filter((p) => String(p.criado_por).toLowerCase() === email)
+    .sort((a, b) => b.__linha__ - a.__linha__);
+
+  pedidos.forEach((pr) => {
+    const numero = String(pr.numero);
+
+    lerAbaComLinha("AnexosAudit")
+      .filter((a) => String(a.numero_req) === numero)
+      .sort((a, b) => b.__linha__ - a.__linha__)
+      .forEach((a) => {
+        try { DriveApp.getFileById(a.drive_file_id).setTrashed(true); } catch (e) { /* gone */ }
+        removerLinha("AnexosAudit", a.__linha__);
+      });
+
+    lerAbaComLinha("HistoricoStatus")
+      .filter((h) => String(h.numero_req) === numero)
+      .sort((a, b) => b.__linha__ - a.__linha__)
+      .forEach((h) => removerLinha("HistoricoStatus", h.__linha__));
+
+    removerLinha("Pedidos", pr.__linha__);
+  });
+
+  /* 4) Remove a conta do usuário. */
+  const alvo = buscarUsuarioPorLinha(email);
+  if (alvo) removerLinha("Usuarios", alvo.__linha__);
+
+  Logger.log("Usuário removido completamente: " + email +
+    " (requisições excluídas: " + pedidos.length + ")");
+}
+
+/* ------------------------------------------------------------------ */
 /* Reset de senha por e-mail                                          */
 /* ------------------------------------------------------------------ */
 

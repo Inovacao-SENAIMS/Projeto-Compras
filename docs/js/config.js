@@ -14,7 +14,7 @@ const CONFIG = {
   DOMINIO_EMAIL: "@ms.senai.br",
 
   /* Tamanho máximo de anexo (bytes) — deve bater com a validação server-side */
-  ANEXO_MAX_BYTES: 10 * 1024 * 1024,
+  ANEXO_MAX_BYTES: 5 * 1024 * 1024,
 
   /* Extensões aceitas para anexos (validação client-side espelha a do server) */
   ANEXO_EXTENSOES: [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".png", ".jpg", ".jpeg", ".txt", ".zip"],

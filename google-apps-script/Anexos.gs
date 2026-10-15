@@ -5,7 +5,7 @@
  */
 
 const EXTENSOES_OK = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".png", ".jpg", ".jpeg", ".txt", ".zip"];
-const TAMANHO_MAX_BYTES = 10 * 1024 * 1024;
+const TAMANHO_MAX_BYTES = 5 * 1024 * 1024;
 
 /* Próximo id de anexo (sequência em ScriptProperties) */
 function proximoIdAnexo() {
@@ -32,7 +32,7 @@ function _salvarAnexo(numeroReq, anexo, usuario) {
   const dados = String(anexo.base64 || "");
   exigir(dados.length > 0, "Arquivo vazio.");
   const bytes = Utilities.base64Decode(dados);
-  exigir(bytes.length <= TAMANHO_MAX_BYTES, "Arquivo excede o tamanho máximo de 10 MB.");
+  exigir(bytes.length <= TAMANHO_MAX_BYTES, "Arquivo excede o tamanho máximo de 5 MB.");
 
   const arquivo = pastaPedido(numeroReq)
     .createFile(Utilities.newBlob(bytes, "application/octet-stream", numeroReq + "_" + Date.now() + "_" + nomeOriginal));

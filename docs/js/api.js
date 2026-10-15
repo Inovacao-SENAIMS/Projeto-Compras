@@ -273,7 +273,7 @@ const API = (() => {
       return "Extensão não permitida: " + (ext || "desconhecida");
     }
     if (file.size > CONFIG.ANEXO_MAX_BYTES) {
-      return "Arquivo excede o tamanho máximo de 10 MB.";
+      return "Arquivo excede o tamanho máximo de 5 MB.";
     }
     return "";
   }
