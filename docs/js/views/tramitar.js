@@ -148,12 +148,6 @@ ROTAS["#/tramitar/<numero>"] = async function (numero) {
     qs("#btn-voltar").addEventListener("click", modoLeitura);
     qs("#btn-cancelar").addEventListener("click", modoLeitura);
 
-    const selStatus = qs("#t-status");
-    const wrapRetorno = qs("#wrap-retorno-final");
-    selStatus.addEventListener("change", () => {
-      wrapRetorno.hidden = selStatus.value !== "concluida";
-    });
-
     qs("#form-tramitar").addEventListener("submit", async (e) => {
       e.preventDefault();
       const novoStatus = val("t-status");
