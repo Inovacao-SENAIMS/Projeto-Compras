@@ -134,6 +134,16 @@ ROTAS["#/tramitar/<numero>"] = async function (numero) {
           </form>
         </section>
       </div>`;
+      const selStatus = qs("#t-status");
+      const normaliza = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const chaveConcluida = Object.keys(CONFIG.STATUS)
+          .find((k) => normaliza(CONFIG.STATUS[k]).startsWith("conclui"));
+
+      const atualizaRetorno = () => {
+          qs("#wrap-retorno-final").hidden = selStatus.value !== chaveConcluida;
+      };
+      selStatus.addEventListener("change", atualizaRetorno);
+      atualizaRetorno();
 
     qs("#btn-voltar").addEventListener("click", modoLeitura);
     qs("#btn-cancelar").addEventListener("click", modoLeitura);
