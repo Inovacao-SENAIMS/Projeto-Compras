@@ -765,6 +765,31 @@ button.link {
 .status-concluida { background: #1E8E5A; color: #fff; }
 .status-cancelada { background: #64748B; color: #fff; }
 
+.status-em_andamento {
+    background: #e3edf7;
+    color: #003876;
+}
+
+.criticidade-critica {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.criticidade-alta {
+    background: #fde68a;
+    color: #92400e;
+}
+
+.criticidade-media {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.criticidade-baixa {
+    background: #e2e8f0;
+    color: #334155;
+}
+
 .sem-responsavel {
     color: var(--cor-aviso);
     font-weight: 600;

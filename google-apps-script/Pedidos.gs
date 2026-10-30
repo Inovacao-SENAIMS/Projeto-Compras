@@ -11,7 +11,7 @@ const P_COL = {
   urgencia: 6, possui_cotacao: 7, solicitante_nome: 8, criado_por: 9,
   data_envio: 10, status: 11, responsavel: 12, retorno_final: 13,
   criado_em: 14, atualizado_em: 15, assumido_em: 16, concluido_em: 17,
-  instituto: 18,
+  instituto: 18, criticidade: 19, prazo_dias: 20, gestor_projeto: 21,
 };
 
 function _pedidoObj(linha) {
@@ -65,6 +65,9 @@ function _serealizarPedido(p) {
     assumido_em: iso(p.assumido_em),
     concluido_em: iso(p.concluido_em),
     instituto: p.instituto ? String(p.instituto) : "",
+    criticidade: p.criticidade ? String(p.criticidade) : "",
+    prazo_dias: p.prazo_dias !== "" && p.prazo_dias != null ? Number(p.prazo_dias) : "",
+    gestor_projeto: p.gestor_projeto ? String(p.gestor_projeto) : "",
     lead_time_dias: leadTimeDias(p),
   };
 }
@@ -134,8 +137,11 @@ function apiCriarPedido(payload, usuario) {
     data_envio: new Date(), status: STATUS.EM_ANALISE, responsavel: "", retorno_final: "",
     criado_em: new Date(), atualizado_em: new Date(), assumido_em: null, concluido_em: null,
     instituto: String(payload.instituto || "SENAI MS - Departamento Regional").trim(),
+    criticidade: String(payload.criticidade || "").trim(),
+    prazo_dias: payload.prazo_dias !== undefined && payload.prazo_dias !== "" ? Number(payload.prazo_dias) : "",
+    gestor_projeto: String(payload.gestor_projeto || "").trim(),
   };
-
+  
   if (p.quantidade < 1) p.quantidade = 1;
 
   /* Documentação obrigatória; Cotação obrigatória quando possui_cotacao (spec). */
@@ -152,8 +158,8 @@ function apiCriarPedido(payload, usuario) {
     p.urgencia, p.possui_cotacao, p.solicitante_nome, p.criado_por,
     p.data_envio, p.status, p.responsavel, p.retorno_final,
     p.criado_em, p.atualizado_em, p.assumido_em, p.concluido_em,
-    p.instituto,
-  ]);
+    p.instituto, "", "", "",     
+    ]);
   _registrarHistorico(p, "", STATUS.EM_ANALISE, usuario, "Requisição criada pelo solicitante (lançada em análise).");
 
   /* Anexos (opcional na criação; obrigatórios validados no client/server) */
@@ -297,6 +303,9 @@ function apiTramitarPedido(payload, usuario) {
     const muda = { status: novo };
     if (payload.retorno_final != null) muda.retorno_final = String(payload.retorno_final);
     if (payload.modalidade) muda.modalidade = String(payload.modalidade);
+    if (payload.criticidade) muda.criticidade = String(payload.criticidade);
+    if (payload.prazo_dias !== undefined && payload.prazo_dias !== "") muda.prazo_dias = Number(payload.prazo_dias);
+    if (payload.gestor_projeto) muda.gestor_projeto = String(payload.gestor_projeto);
     if (STATUS_TERMINAIS.includes(novo)) muda.concluido_em = new Date();
 
     _editarPedido(reg.linha, muda);
@@ -347,4 +356,16 @@ function apiExcluirPedido(payload, usuario) {
   } finally {
     lock.releaseLock();
   }
+}
+function migrarStatusAberto() {
+  const sh = aba("Pedidos");
+  const dados = sh.getDataRange().getValues();
+  let mudados = 0;
+  for (let i = 1; i < dados.length; i++) {
+    if (String(dados[i][P_COL.status - 1]).toLowerCase() === "aberto") {
+      sh.getRange(i + 1, P_COL.status).setValue("em_andamento");
+      mudados++;
+    }
+  }
+  Logger.log("Registros migrados: " + mudados);
 }

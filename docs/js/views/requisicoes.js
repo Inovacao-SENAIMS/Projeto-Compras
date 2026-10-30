@@ -221,10 +221,12 @@ function listaVisivel() {
 
 /* -------------------------------------------------- tabela */
 const COLUNAS = [
-  ["numero", "Nº da Requisição"], ["responsavel", "Responsável"], ["item", "Item"],
-  ["modalidade", "Modalidade (RCA)"], ["abertura", "Data de Abertura"],
-  ["envio", "Data de Envio"], ["status", "Status"],
-  ["encerramento", "Data de Encerramento"], ["lead", "Lead Time"], [null, "Ações"],
+    ["numero", "Nº da Requisição"], ["responsavel", "Responsável"], ["item", "Item"],
+    ["modalidade", "Modalidade (RCA)"], ["abertura", "Data de Abertura"],
+    ["envio", "Data de Envio"], ["status", "Status"],
+    ["encerramento", "Data de Encerramento"], ["lead", "Lead Time"],
+    ["criticidade", "Criticidade"], ["prazo", "Prazo (dias corridos)"], ["gestor", "Gestor Projeto"],
+    [null, "Ações"],
 ];
 
 function renderTabela() {
