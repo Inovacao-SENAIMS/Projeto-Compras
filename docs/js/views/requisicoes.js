@@ -259,6 +259,9 @@ function renderTabela() {
       <td><span class="tag status-${p.status}">${CONFIG.STATUS[p.status] || p.status}</span></td>
       <td>${fmtDataHora(p.concluido_em)}</td>
       <td>${fmtLead(p.lead_time_dias)}</td>
+      <td>${p.criticidade ? esc(CONFIG.CRITICIDADE[p.criticidade] || p.criticidade) : "-"}</td>
+      <td>${p.prazo_dias == null ? "-" : p.prazo_dias + " dias"}</td>
+      <td>${esc(p.gestor_projeto || "-")}</td>
       <td class="acoes-tabela">${acoesHTML(p, equipe)}</td>
     </tr>`).join("");
 }
