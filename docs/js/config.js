@@ -49,12 +49,12 @@ const CONFIG = {
 
     /* Status (igual ao Django: pedidos.models.Status) */
     STATUS: {
+        aberto: "Aberto",
         em_andamento: "Em andamento",
         enviada: "Enviada",
         em_analise: "Em Análise",
         concluida: "Concluída",
         cancelada: "Cancelada",
-
     },
 
     CRITICIDADE: {

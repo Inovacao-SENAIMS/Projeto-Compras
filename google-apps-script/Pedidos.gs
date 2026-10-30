@@ -158,7 +158,7 @@ function apiCriarPedido(payload, usuario) {
     p.urgencia, p.possui_cotacao, p.solicitante_nome, p.criado_por,
     p.data_envio, p.status, p.responsavel, p.retorno_final,
     p.criado_em, p.atualizado_em, p.assumido_em, p.concluido_em,
-    p.instituto, "", "", "",     
+    p.instituto, p.criticidade, p.prazo_dias, p.gestor_projeto,     
     ]);
   _registrarHistorico(p, "", STATUS.EM_ANALISE, usuario, "Requisição criada pelo solicitante (lançada em análise).");
 
