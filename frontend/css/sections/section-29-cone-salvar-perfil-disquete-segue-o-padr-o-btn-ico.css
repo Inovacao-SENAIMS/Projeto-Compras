@@ -1,0 +1,10 @@
+/* Ícone "salvar perfil" (disquete) — segue o padrão .btn-icone.
+ * Indisponível: esmaecido. Disponível (alteração pendente): verde. */
+.btn-salvar-perfil:disabled {
+    color: #c2cbd8;
+    cursor: not-allowed;
+}
+.btn-salvar-perfil:disabled:hover { background: transparent; color: #c2cbd8; }
+.btn-salvar-perfil:not(:disabled) { color: #1E8E5A; }
+.btn-salvar-perfil:not(:disabled):hover { background: #e7f5ee; color: #177048; }
+

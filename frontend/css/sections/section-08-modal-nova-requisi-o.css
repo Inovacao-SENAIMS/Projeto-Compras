@@ -1,0 +1,85 @@
+/* Modal (Nova Requisição) */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1000;
+}
+
+.modal-overlay.aberto {
+    display: flex;
+}
+
+.modal {
+    background: #fff;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.modal-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.modal-cabecalho h3 {
+    margin: 0;
+}
+
+.modal-corpo {
+    padding: 1rem 1.25rem;
+}
+
+.modal-fechar {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.formulario-modal {
+    border: none;
+    border-radius: 0;
+    max-width: none;
+    margin: 0;
+}
+
+.modal-acoes {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.campo-radio {
+    margin-bottom: 1rem;
+}
+
+.campo-radio .rotulo {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+.opcao {
+    display: inline-block;
+    font-weight: 400;
+    margin-right: 1.25rem;
+}
+
+.oculto {
+    display: none !important;
+}
+

@@ -1,0 +1,50 @@
+/* Responsivo: sidebar vira barra superior em telas estreitas */
+@media (max-width: 720px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        padding: 1rem 0 0;
+    }
+
+    .sidebar-marca {
+        padding-bottom: 0.75rem;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .nav-item {
+        width: auto;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.5rem 0.85rem;
+    }
+
+    .nav-item.ativo {
+        border-left: none;
+        border-bottom-color: #7fb2e6;
+    }
+
+    .sidebar-rodape {
+        flex-direction: row;
+        align-items: baseline;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem 1rem;
+    }
+
+    .conteudo {
+        padding: 1.25rem;
+    }
+}
+
+h2 {
+    margin-top: 0.5rem;
+}
+

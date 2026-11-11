@@ -1,0 +1,23 @@
+/* Dentro de modais o formulário não precisa de moldura/limite próprios */
+.modal .formulario {
+    border: none;
+    padding: 0;
+    max-width: none;
+    background: transparent;
+}
+
+.modal-largo .formulario p { margin: 0 0 1rem; }
+.modal-largo .formulario label { margin-bottom: 0.4rem; }
+.modal-largo .campo-duplo { gap: 0 2rem; }
+
+.modal-largo .campo,
+.modal-largo .formulario input[type="text"],
+.modal-largo .formulario input[type="password"],
+.modal-largo .formulario input[type="file"],
+.modal-largo .formulario select,
+.modal-largo .formulario textarea {
+    padding: 0.62rem 0.7rem;
+}
+.modal-largo textarea { min-height: 5.5rem; }
+.modal-largo .modal-acoes { margin-top: 1.25rem; }
+

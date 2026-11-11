@@ -1,0 +1,13 @@
+/* Modal de confirmação (substitui o confirm() nativo) */
+.modal-confirmacao { max-width: 440px; }
+.modal-mensagem { margin: 0 0 0.6rem; font-size: 1rem; }
+/* botão neutro/cancelar: precisa vencer o seletor "button.botao" */
+button.botao.botao-cancelar {
+    background: #eef2f6;
+    color: #334155;
+}
+button.botao.botao-cancelar:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+

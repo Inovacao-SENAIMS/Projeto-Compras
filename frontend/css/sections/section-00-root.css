@@ -1,0 +1,28 @@
+:root {
+    /* Identidade SENAI (Sistema Indústria): azul institucional + detalhe laranja */
+    --cor-primaria: #003876;
+    --cor-primaria-clara: #00529B;
+    --cor-primaria-400: #3B7FC4;
+    --cor-accent: #E84910;
+    --cor-accent-dark: #B8380C;
+    --cor-accent-soft: #FCE9E0;
+
+    --cor-texto: #1E2A38;
+    --cor-muted: #64748B;
+    --cor-fundo: #F4F6F9;
+    --cor-superficie: #FFFFFF;
+    --cor-borda: #E2E8F0;
+
+    --cor-ok: #1E8E5A;
+    --cor-erro: #C0392B;
+    --cor-aviso: #C9930A;
+
+    --raio: 12px;
+    --raio-sm: 8px;
+    --sombra: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --sombra-lg: 0 8px 28px rgba(0, 0, 0, 0.10);
+
+    --fonte: "Neo Sans Pro", "Mulish", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --fonte-titulo: "Neo Sans Pro", "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+

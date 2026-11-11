@@ -1,0 +1,4 @@
+/* Link responsável -> designar (gestor clica no nome na tabela) */
+.link-designar { color: #003876; text-decoration: none; font-weight: 600; }
+.link-designar:hover { color: #E84910; }
+

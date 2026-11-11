@@ -1,0 +1,27 @@
+/* Mensagens */
+.mensagens {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+}
+
+.msg {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border: 1px solid transparent;
+}
+
+.msg i {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.msg-success { background: #e6f6ec; color: #166534; border-color: #b7e4c7; }
+.msg-error { background: #fdecea; color: #991b1b; border-color: #f5c2c0; }
+.msg-warning { background: #fdf6e3; color: #92400e; border-color: #f3dfa2; }
+.msg-info { background: #e8f0fe; color: #1e3a8a; border-color: #c3d6f5; }
+

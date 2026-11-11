@@ -1,0 +1,63 @@
+/* Ações na tabela do painel */
+.acoes-tabela {
+    white-space: nowrap;
+}
+
+.acoes-tabela a {
+    color: var(--cor-primaria-clara);
+}
+
+.btn-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: 0 2px;
+    border: none;
+    background: transparent;
+    color: var(--cor-primaria-clara);
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    padding: 0;
+    vertical-align: middle;
+    border-radius: 6px;
+}
+
+.btn-icone:hover {
+    background: #eef2f6;
+    color: var(--cor-primaria);
+}
+
+.btn-icone:focus {
+    outline: none;
+}
+
+.btn-icone-perigo {
+    color: var(--cor-erro);
+}
+
+.btn-icone-perigo:hover {
+    background: #fdecea;
+    color: var(--cor-erro);
+}
+
+.link-perigo {
+    background: none;
+    border: none;
+    color: var(--cor-erro);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.obrigatorio {
+    color: var(--cor-erro);
+}
+
+h3 {
+    margin-bottom: 0.5rem;
+}
+

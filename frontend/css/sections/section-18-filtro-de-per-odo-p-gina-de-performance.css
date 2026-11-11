@@ -1,0 +1,71 @@
+/* Filtro de período (página de performance) */
+.filtro-periodo {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--sombra);
+    margin-bottom: 1.25rem;
+}
+
+.filtro-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.filtro-periodo label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--cor-muted);
+}
+
+.filtro-periodo label i {
+    color: var(--cor-primaria-clara);
+}
+
+.filtro-periodo .campo {
+    width: auto;
+    min-width: 150px;
+    height: 42px;
+    padding: 0.55rem 0.75rem;
+}
+
+.filtro-periodo select.campo {
+    min-width: 220px;
+}
+
+.filtro-acoes {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-left: auto;
+}
+
+.filtro-acoes .botao {
+    height: 42px;
+    padding: 0 1.1rem;
+    white-space: nowrap;
+}
+
+.botao-exportar {
+    background: var(--cor-accent);
+    color: #fff;
+    border: 1px solid var(--cor-accent);
+}
+
+.botao-exportar:hover {
+    background: var(--cor-accent-dark);
+    border-color: var(--cor-accent-dark);
+    color: #fff;
+}
+

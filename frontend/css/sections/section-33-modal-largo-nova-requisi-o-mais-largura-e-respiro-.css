@@ -1,0 +1,5 @@
+/* Modal largo (Nova Requisição): mais largura e respiro entre campos */
+.modal-largo { max-width: 880px; }
+.modal-largo .modal-cabecalho { padding: 1.25rem 1.75rem; }
+.modal-largo .modal-corpo { padding: 1.35rem 1.75rem 1.5rem; }
+

@@ -1,0 +1,28 @@
+/* Mensagens flutuantes (toast): surgem no topo central, fora do fluxo,
+ * sem deslocar a sidebar/conteúdo. */
+#mensagens-flutuantes {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    width: min(520px, calc(100vw - 2rem));
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+}
+#mensagens-flutuantes .mensagens {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    animation: toast-desce 0.22s ease-out;
+}
+#mensagens-flutuantes .msg {
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+@keyframes toast-desce {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+

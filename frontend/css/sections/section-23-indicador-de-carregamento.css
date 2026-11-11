@@ -1,0 +1,14 @@
+/* Indicador de carregamento */
+.carregando {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: var(--cor-texto-suave, #64748b);
+    font-weight: 600;
+}
+.carregando i { animation: girar 1s linear infinite; }
+/* o atributo hidden precisa vencer o display:flex acima */
+.carregando[hidden] { display: none; }
+@keyframes girar { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+

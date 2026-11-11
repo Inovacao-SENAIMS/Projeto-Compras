@@ -1,0 +1,8 @@
+/* Célula de perfil na página Usuários (select + ícone de salvar na coluna Ações) */
+.perfil-celula { display: inline-flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.perfil-celula .selecao-perfil { min-width: 13rem; }
+.selecao-perfil.perfil-alterado {
+    border-color: #E84910;
+    box-shadow: 0 0 0 3px rgba(232, 73, 16, 0.15);
+}
+

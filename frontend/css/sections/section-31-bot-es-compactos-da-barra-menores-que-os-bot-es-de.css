@@ -1,0 +1,35 @@
+/* Botões compactos da barra (menores que os botões de página) */
+.botao-compacto {
+    padding: 0.32rem 0.6rem;
+    font-size: 0.8rem;
+    gap: 0.3rem;
+    border-radius: 6px;
+}
+.botao-compacto i { font-size: 0.9rem; }
+.botao-secundario {
+    background: #fff;
+    color: var(--cor-primaria-clara);
+    border: 1px solid #d5dee8;
+}
+.botao-secundario:hover {
+    background: #f1f5f9;
+    color: var(--cor-primaria);
+}
+.botao-ativo,
+.botao-ativo:hover {
+    background: var(--cor-primaria);
+    color: #fff;
+    border-color: var(--cor-primaria);
+}
+.badge-filtros {
+    display: inline-block;
+    min-width: 1.15rem;
+    text-align: center;
+    background: #E84910;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.05rem 0.4rem;
+}
+

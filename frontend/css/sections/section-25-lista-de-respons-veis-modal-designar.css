@@ -1,0 +1,9 @@
+/* Lista de responsáveis (modal Designar) */
+.lista-responsaveis { display: grid; gap: 0.4rem; }
+.lista-responsavel-item {
+    padding: 0.6rem 0.8rem; border-radius: 10px; background: #f1f5f9;
+    color: var(--cor-texto); text-decoration: none; font-weight: 600;
+    cursor: pointer;
+}
+.lista-responsavel-item:hover { background: var(--cor-primaria-clara, #e3edf7); color: #003876; }
+

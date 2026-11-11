@@ -1,0 +1,28 @@
+/* Cabeçalhos ordenáveis da tabela */
+.tabela th a.ordenar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--cor-texto);
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tabela th a.ordenar:hover {
+    color: var(--cor-primaria-clara);
+}
+
+.tabela th a.ordenar.ativo {
+    color: var(--cor-primaria-clara);
+}
+
+.tabela th a.ordenar i {
+    font-size: 0.8rem;
+    opacity: 0.55;
+}
+
+.tabela th a.ordenar.ativo i {
+    opacity: 1;
+}
+

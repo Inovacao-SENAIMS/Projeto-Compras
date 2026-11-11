@@ -1,0 +1,8 @@
+/* Barra de expandir/fixar/recolher a faixa de filtros */
+.filtros-barra {
+    display: flex;
+    justify-content: flex-end;   /* botões no canto direito */
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+}

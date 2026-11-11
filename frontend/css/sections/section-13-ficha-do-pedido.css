@@ -1,0 +1,21 @@
+/* Ficha do pedido */
+.dados {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0.35rem 1rem;
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 1rem 1.25rem;
+    max-width: 640px;
+}
+
+.dados dt {
+    font-weight: 600;
+    color: #475569;
+}
+
+.dados dd {
+    margin: 0;
+}
+

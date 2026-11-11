@@ -1,0 +1,135 @@
+/* Botões e links */
+.botao,
+button.botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: var(--cor-primaria-clara);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem 1rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.botao i {
+    font-size: 1.05rem;
+}
+
+.botao:hover {
+    background-color: var(--cor-primaria);
+}
+
+.link-voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--cor-primaria-clara);
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+}
+
+.link-voltar:hover {
+    color: var(--cor-primaria);
+    text-decoration: underline;
+}
+
+.link,
+button.link {
+    background: none;
+    border: none;
+    color: #e6eef7;
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+    padding: 0;
+}
+
+.link-secundario {
+    margin-left: 0.75rem;
+    color: var(--cor-primaria-clara);
+}
+
+.inline {
+    display: inline;
+}
+
+.cabecalho-pagina {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.acoes {
+    margin: 1rem 0;
+}
+
+.bloco-designar {
+    margin-top: 1rem;
+    max-width: 640px;
+}
+
+.pagina-central {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.pagina-central .dados,
+.pagina-central .formulario {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cartao-pedido {
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 1.25rem;
+    margin: 0 auto;
+    box-shadow: var(--sombra);
+}
+
+.cartao-pedido .dados {
+    border: none;
+    background: transparent;
+    padding: 0;
+    max-width: none;
+}
+
+.lista-designar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.opcao-usuario {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--cor-texto);
+    cursor: pointer;
+    font: inherit;
+}
+
+.opcao-usuario:hover {
+    background: #eef2f6;
+    border-color: var(--cor-primaria-clara);
+}
+
+.opcao-usuario.atual {
+    border-color: var(--cor-primaria-clara);
+    background: #eef2f6;
+}
+

@@ -1,0 +1,11 @@
+/* Rodapé da marca anexado à sidebar (logo branca sobre o azul) */
+.rodape-lateral {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1.25rem 0.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+.rodape-lateral img {
+    height: 26px;
+    opacity: 0.9;
+}
+

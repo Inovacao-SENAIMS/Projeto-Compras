@@ -1,0 +1,44 @@
+/* Tabelas */
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    overflow: hidden;
+}
+
+.tabela th,
+.tabela td {
+    text-align: center;
+    padding: 0.45rem 0.55rem;
+    border-bottom: 1px solid var(--cor-borda);
+    font-size: 0.83rem;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.tabela th {
+    background: #eef2f6;
+    text-align: center;
+    white-space: normal;
+}
+
+.tabela .vazio,
+.vazio {
+    color: #64748b;
+}
+
+.tabela-scroll {
+    width: 100%;
+}
+
+.celula-truncada {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+

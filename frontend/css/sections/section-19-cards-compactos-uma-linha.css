@@ -1,0 +1,37 @@
+/* Cards compactos (uma linha) */
+.dash-grade-cards {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.dash-grade-cards .card-stat {
+    padding: 0.8rem 0.9rem;
+}
+
+.dash-grade-cards .card-stat-topo {
+    font-size: 0.78rem;
+}
+
+.dash-grade-cards .card-stat-valor {
+    font-size: 1.5rem;
+    margin-top: 0.3rem;
+}
+
+.dash-espaco-topo {
+    margin-top: 1.25rem;
+}
+
+@media (max-width: 900px) {
+    .dash-grade-cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .dash-grade-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+

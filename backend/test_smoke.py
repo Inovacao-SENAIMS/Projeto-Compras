@@ -145,7 +145,8 @@ with TestClient(app, raise_server_exceptions=False) as c:
 
     print("— anexos/download —")
     dl = call("baixarArquivo", adm, id=docs["data"][0]["id"])
-    check("download", dl["ok"] and dl["data"]["base64"].startswith("%PDF"))
+    conteudo = base64.b64decode(dl.get("data", {}).get("base64", "")).decode("latin-1")
+    check("download", dl["ok"] and conteudo.startswith("%PDF"), conteudo[:14])
     dl_j = call("baixarArquivo", joao, id=docs["data"][0]["id"])
     check("dono baixa anexo próprio", dl_j["ok"])
 

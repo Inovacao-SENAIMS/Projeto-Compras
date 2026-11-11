@@ -1,0 +1,6 @@
+/* Selo de conta administrativa (protegida) na página Usuários */
+.tag-admin {
+    background: #E84910;
+    color: #fff;
+    font-weight: 700;
+}
