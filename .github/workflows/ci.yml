@@ -1,0 +1,73 @@
+# CI — Projeto Compras (stack Docker/FastAPI)
+#
+# Job 1 (backend): roda as 3 suítes de teste Python (actions, REST, import CSV).
+# Job 2 (docker-e2e): sobe o stack completo via docker compose e roda o
+#                     adapter Node (api.js real) contra o Caddy→nginx→FastAPI.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (FastAPI)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt httpx
+
+      - name: Fluxo completo via actions (test_smoke)
+        run: python test_smoke.py
+
+      - name: Fluxo completo via REST (test_rest)
+        run: python test_rest.py
+
+      - name: Migração CSV (test_import)
+        run: python test_import.py
+
+  docker-e2e:
+    name: E2E Docker (adapter do frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Subir o stack (Caddy → nginx → FastAPI)
+        run: docker compose up -d --build
+
+      - name: Aguardar API ficar saudável
+        run: |
+          for i in $(seq 1 30); do
+            if curl -skf https://localhost/api/health > /dev/null; then
+              echo "API no ar"; exit 0
+            fi
+            sleep 2
+          done
+          echo "API não respondeu em 60s"; docker compose logs api; exit 1
+
+      - name: Fluxo completo via adapter do frontend
+        run: node backend/test_frontend_adapter.mjs
+        env:
+          # localhost usa cert interno do Caddy em CI
+          NODE_TLS_REJECT_UNAUTHORIZED: "0"
