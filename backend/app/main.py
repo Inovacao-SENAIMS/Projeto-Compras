@@ -47,6 +47,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Superfície RESTful (Task 3) — REGISTRADA ANTES do catch-all de actions,
+# pois a ordem de registro define a prioridade de matching no FastAPI.
+from .rest import router as rest_router  # noqa: E402
+app.include_router(rest_router)
+
 # Ações sem sessão (igual ao ROTA_PUBLICA do Code.gs)
 PUBLICAS = {
     "login", "cadastrarUsuario", "solicitarResetSenha", "redefinirSenha", "config",

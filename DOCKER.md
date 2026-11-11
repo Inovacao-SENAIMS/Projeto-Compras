@@ -76,12 +76,44 @@ proxy/Caddyfile                TLS automático (Let's Encrypt ou interno)
 docs/ + google-apps-script/    versão Google — mantida como legado/referência
 ```
 
+## API — duas superfícies (Task 3)
+
+**RESTful** (recomendada para novos clientes/integrações): Bearer token no
+header `Authorization`, códigos HTTP corretos (400 regra, 401 sessão,
+404 não achado), dados diretos sem envelope:
+
+```
+POST /api/auth/login | /auth/cadastro | /auth/logout | /auth/senha
+POST /api/auth/reset/solicitar | /auth/reset/redefinir
+GET  /api/me · /api/config · /api/responsaveis · /api/documentos
+     /api/dashboard · /api/performance?de=&ate=&usuario=
+GET  /api/pedidos?status=&modalidade=   POST /api/pedidos
+GET  /api/pedidos/{numero}              DELETE /api/pedidos/{numero}
+POST /api/pedidos/{numero}/enviar | /assumir | /designar | /tramitar
+GET  /api/pedidos/{numero}/anexos       POST /api/pedidos/{numero}/anexos
+GET  /api/anexos/{id}/arquivo           (binário, Content-Disposition)
+GET  /api/usuarios    POST /api/usuarios
+PATCH /api/usuarios/{email} ({grupo}|{ativo})   DELETE /api/usuarios/{email}
+```
+
+**Actions legados** (compatibilidade): `POST /api/{acao}` com
+`{token, payload}` → envelope `{ok, data, erro}` — é o formato do Apps
+Script; as views do frontend usam-no transparentemente via `API.chamar()`
+(o `api.js` converte para REST por baixo). O Swagger do FastAPI documenta
+ambas: `http://<host>/api/docs` aponta ao container `api` (expor a porta
+8000 para acessar).
+
 ## Testes
 
 ```bash
-# teste de fumaça local (sem Docker):
+# testes locais (sem Docker):
 cd backend && python -m venv .venv && .venv/bin/pip install -r requirements.txt httpx
-DATA_DIR=$(mktemp -d) .venv/bin/python test_smoke.py
+DATA_DIR=$(mktemp -d) .venv/bin/python test_smoke.py      # fluxo via actions (36)
+DATA_DIR=$(mktemp -d) .venv/bin/python test_rest.py       # fluxo via REST (38)
+DATA_DIR=$(mktemp -d) .venv/bin/python test_import.py     # migração CSV (17)
+
+# teste do adapter do frontend contra o stack Docker rodando:
+node test_frontend_adapter.mjs                            # fluxo completo (20)
 ```
 
 ## Migração de dados da planilha (implementada)

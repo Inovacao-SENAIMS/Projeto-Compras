@@ -98,6 +98,146 @@ const API = (() => {
     return u ? u.replace(/\/+$/, "") : "/api";
   }
 
+  /* Mapa ação → REST (Task 3). As views continuam chamando API.chamar(acao,
+   * payload); este adaptador converte para endpoints RESTful com Bearer.
+   * Ações fora do mapa caem no endpoint legado POST /api/{acao}. */
+  function enc(v) { return encodeURIComponent(String(v ?? "")); }
+  function montarQuery(p) {
+    const partes = Object.entries(p || {})
+      .filter(([, v]) => v !== undefined && v !== null && v !== "")
+      .map(([k, v]) => k + "=" + encodeURIComponent(v));
+    return partes.length ? "?" + partes.join("&") : "";
+  }
+  const REST_MAP = {
+    login: (p) => ({ m: "POST", u: "/auth/login", b: { email: p.email, senha: p.senha } }),
+    cadastrarUsuario: (p) => ({ m: "POST", u: "/auth/cadastro", b: p }),
+    logout: () => ({ m: "POST", u: "/auth/logout" }),
+    solicitarResetSenha: (p) => ({ m: "POST", u: "/auth/reset/solicitar", b: { email: p.email, base_url: p.base_url } }),
+    redefinirSenha: (p) => ({ m: "POST", u: "/auth/reset/redefinir", b: { token: p.token, senha: p.senha, senha2: p.senha2 } }),
+    alterarSenha: (p) => ({ m: "POST", u: "/auth/senha", b: { senha_atual: p.senha_atual, senha_nova: p.senha_nova, senha_nova2: p.senha_nova2 } }),
+    config: () => ({ m: "GET", u: "/config" }),
+    meusDados: () => ({ m: "GET", u: "/me" }),
+    listarUsuarios: () => ({ m: "GET", u: "/usuarios" }),
+    criarUsuarioAdmin: (p) => ({ m: "POST", u: "/usuarios", b: p }),
+    alterarGrupoUsuario: (p) => ({ m: "PATCH", u: "/usuarios/" + enc(p.email), b: { grupo: p.grupo } }),
+    alterarStatusUsuario: (p) => ({ m: "PATCH", u: "/usuarios/" + enc(p.email), b: { ativo: p.ativo } }),
+    excluirUsuario: (p) => ({ m: "DELETE", u: "/usuarios/" + enc(p.email) }),
+    listaResponsaveis: () => ({ m: "GET", u: "/responsaveis" }),
+    listarPedidos: (p) => ({ m: "GET", u: "/pedidos" + montarQuery({ status: p.status, modalidade: p.modalidade }) }),
+    detalharPedido: (p) => ({ m: "GET", u: "/pedidos/" + enc(p.numero) }),
+    criarPedido: (p) => ({ m: "POST", u: "/pedidos", b: p }),
+    enviarPedido: (p) => ({ m: "POST", u: "/pedidos/" + enc(p.numero) + "/enviar" }),
+    assumirPedido: (p) => ({ m: "POST", u: "/pedidos/" + enc(p.numero) + "/assumir" }),
+    designarPedido: (p) => ({ m: "POST", u: "/pedidos/" + enc(p.numero) + "/designar", b: { responsavel: p.responsavel } }),
+    tramitarPedido: (p) => ({ m: "POST", u: "/pedidos/" + enc(p.numero) + "/tramitar", b: { status: p.status, retorno_final: p.retorno_final, observacao: p.observacao, modalidade: p.modalidade } }),
+    excluirPedido: (p) => ({ m: "DELETE", u: "/pedidos/" + enc(p.numero) }),
+    listarAnexos: (p) => ({ m: "GET", u: "/pedidos/" + enc(p.numero) + "/anexos" }),
+    anexarArquivo: (p) => ({ m: "POST", u: "/pedidos/" + enc(p.numero) + "/anexos", b: { tipo: p.tipo, nome_original: p.nome_original, base64: p.base64 } }),
+    listarDocumentos: () => ({ m: "GET", u: "/documentos" }),
+    dashboard: () => ({ m: "GET", u: "/dashboard" }),
+    performance: (p) => ({ m: "GET", u: "/performance" + montarQuery({ de: p.de, ate: p.ate, usuario: p.usuario }) }),
+  };
+
+  function cabecalhos(token) {
+    const h = { "Content-Type": "application/json" };
+    if (token) h["Authorization"] = "Bearer " + token;
+    return h;
+  }
+
+  async function fetchComTimeout(url, opcoes) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 60000);
+    try {
+      return await fetch(url, { ...opcoes, signal: ctrl.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /** baixarArquivo via REST binário → converte para o envelope base64
+   *  que as views esperam ({nome, mime, base64}). */
+  async function baixarArquivoRest(payload, token) {
+    try {
+      const r = await fetchComTimeout(
+        urlBase() + "/anexos/" + enc(payload.id) + "/arquivo",
+        { method: "GET", headers: cabecalhos(token) });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        return { ok: false, erro: err.detail || "HTTP " + r.status };
+      }
+      const blob = await r.blob();
+      const b64 = await new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => {
+          const s = String(fr.result || "");
+          const virg = s.indexOf(",");
+          resolve(virg >= 0 ? s.slice(virg + 1) : s);
+        };
+        fr.onerror = () => reject(new Error("Falha ao ler o arquivo."));
+        fr.readAsDataURL(blob);
+      });
+      /* nome do header Content-Disposition (filename* UTF-8 tem prioridade) */
+      let nome = payload.nome || "anexo";
+      const cd = r.headers.get("Content-Disposition") || "";
+      let m = /filename\*=UTF-8''([^;]+)/i.exec(cd);
+      if (m) nome = decodeURIComponent(m[1]);
+      else if ((m = /filename="([^"]+)"/i.exec(cd))) nome = m[1];
+      return { ok: true, data: { nome, mime: blob.type || "application/octet-stream", base64: b64 } };
+    } catch (e) {
+      return { ok: false, erro: e && e.name === "AbortError"
+        ? "A API não respondeu (tempo esgotado). Tente novamente."
+        : "Falha de conexão com a API. Verifique se o serviço está no ar." };
+    }
+  }
+
+  /** Fallback: endpoint legado POST /api/{acao} (envelope {ok,data,erro}). */
+  async function chamarLegado(acao, payload, token) {
+    try {
+      const r = await fetchComTimeout(urlBase() + "/" + encodeURIComponent(acao), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token || "", payload }),
+      });
+      return await r.json().catch(() => ({ ok: false, erro: "Resposta inválida da API." }));
+    } catch (e) {
+      return {
+        ok: false,
+        erro: e && e.name === "AbortError"
+          ? "A API não respondeu (tempo esgotado). Tente novamente."
+          : "Falha de conexão com a API. Verifique se o serviço está no ar.",
+      };
+    }
+  }
+
+  /** Chamada REST (Task 3): retorna o mesmo envelope {ok, data|erro}. */
+  async function chamarRest(acao, payload, token) {
+    if (acao === "baixarArquivo") return baixarArquivoRest(payload, token);
+    const map = REST_MAP[acao];
+    if (!map) return chamarLegado(acao, payload, token);
+
+    const { m, u, b } = map(payload);
+    try {
+      const r = await fetchComTimeout(urlBase() + u, {
+        method: m,
+        headers: cabecalhos(token),
+        body: b !== undefined ? JSON.stringify(b) : undefined,
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        return { ok: false, erro: err.detail || ("HTTP " + r.status) };
+      }
+      const data = r.status === 204 ? null : await r.json();
+      return { ok: true, data };
+    } catch (e) {
+      return {
+        ok: false,
+        erro: e && e.name === "AbortError"
+          ? "A API não respondeu (tempo esgotado). Tente novamente."
+          : "Falha de conexão com a API. Verifique se o serviço está no ar.",
+      };
+    }
+  }
+
   async function chamar(acao, payload = {}, token = null) {
     const tokenReal = token === null ? (Sessao.ler() || {}).token : token;
     const chave = chaveCache(acao, tokenReal, payload);
@@ -114,26 +254,7 @@ const API = (() => {
       const escrita = !!ACOES_ESCRITA[acao];
       iniciarCarga(escrita);
       try {
-        let resp;
-        try {
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), 60000);
-          const r = await fetch(urlBase() + "/" + encodeURIComponent(acao), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: tokenReal || "", payload }),
-            signal: ctrl.signal,
-          });
-          clearTimeout(timer);
-          resp = await r.json().catch(() => ({ ok: false, erro: "Resposta inválida da API." }));
-        } catch (e) {
-          resp = {
-            ok: false,
-            erro: e && e.name === "AbortError"
-              ? "A API não respondeu (tempo esgotado). Tente novamente."
-              : "Falha de conexão com a API. Verifique se o serviço está no ar.",
-          };
-        }
+        const resp = await chamarRest(acao, payload, tokenReal);
 
         if (resp.ok === false && /sess[iã]o expirada/i.test(resp.erro || "")) {
           Sessao.limpar();
