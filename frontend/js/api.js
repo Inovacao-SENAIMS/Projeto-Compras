@@ -1,30 +1,17 @@
-/* Camada de comunicação com a API (Apps Script Web App).
+/* Camada de comunicação com a API (FastAPI, container Docker).
  *
- * TRANSPORTE: iframe oculto + postMessage → google.script.run.
- * Por que não fetch? O /exec do Apps Script responde 302 para
- * script.googleusercontent.com e o navegador converte o POST em GET,
- * perdendo o corpo — a API nunca recebe o payload. A página Bridge.html
- * (no projeto Apps Script) resolve: rota na origem do server e usa
- * google.script.run (mecanismo oficial), sem CORS nem redirect.
+ * TRANSPORTE: fetch direto para /api/{acao} (mesma origem, via proxy do nginx).
+ * Substitui a Bridge (iframe + postMessage) do Apps Script — sem CORS,
+ * sem redirect e com latência de rede local.
  *
- * Protocolo (página Bridge.html do projeto Apps Script):
- *   parent → bridge : { type: "API_CALL",  id, action, token, payload }
- *   bridge → parent : { type: "BRIDGE_READY" } no load;
- *                     { type: "API_RESP", id, resp } para cada chamada.
+ * Protocolo: POST {token, payload} → envelope {ok, data|erro} (idêntico ao
+ * antigo Apps Script, então as views não mudaram).
  */
 const API = (() => {
   /** Evento para "sessão expirou" (o app ouve e volta ao login). */
   const EV_SESSAO_EXPIRADA = "api:sessao-expirada";
 
-  let iframe = null;
-  let pronto = false;
-  let fonte = null;            // window interna do painel (quem mandou BRIDGE_READY)
-  let fila = [];               // chamadas aguardando o READY da bridge
-  const pendentes = new Map(); // id -> { resolve, timer }
-  let seq = 0;
-
-  /* Cache curto de LEITURAS: navegar entre telas deixa de repetir a ida ao
-   * Google (cada chamada custa 2–7 s). É invalidado a cada escrita. */
+  /* Cache curto de LEITURAS: invalidado a cada escrita. */
   const CACHE_MS = 30000;
   const CACHEAVEIS = {
     listarPedidos: 1, detalharPedido: 1, dashboard: 1, performance: 1,
@@ -37,86 +24,8 @@ const API = (() => {
     return acao + "|" + (token || "") + "|" + JSON.stringify(payload || {});
   }
 
-  /* ------------------------- infraestrutura ------------------------- */
+  /* ------------------------- loader global ------------------------- */
 
-  function criarIframe() {
-    return new Promise((resolve, reject) => {
-      if (!CONFIG.API_URL) {
-        reject(new Error("API_URL não configurada (edite docs/js/config.js)."));
-        return;
-      }
-
-      iframe = document.createElement("iframe");
-      iframe.src = CONFIG.API_URL;
-      iframe.style.display = "none";
-      iframe.style.width = "0";
-      iframe.style.height = "0";
-      iframe.style.border = "0";
-      document.body.appendChild(iframe);
-
-      /* Watchdog: bridge não carregou (URL errada / deploy desatualizado) */
-      const watchdog = setTimeout(() => {
-        if (!pronto) {
-          reject(new Error(
-            "A ponte da API não carregou. Verifique: (1) CONFIG.API_URL terminando em /exec; " +
-            "(2) deploy atualizado (Executar como: Me, acesso: Anyone); " +
-            "(3) arquivo Bridge.html presente no projeto Apps Script."));
-        }
-      }, 30000);
-
-      window.addEventListener("message", (ev) => {
-        const m = ev.data;
-        if (!m) return;
-        /* Apenas origens oficiais do Apps Script podem responder pela bridge */
-        if (ev.origin &&
-            !/^https:\/\/script\.google(com|usercontent)\.com$/i.test(ev.origin)) {
-          return;
-        }
-
-        if (m.type === "BRIDGE_READY") {
-          if (ev.source) fonte = ev.source; /* painel interno do HtmlService */
-          if (!pronto) {
-            pronto = true;
-            clearTimeout(watchdog);
-            fila.splice(0).forEach(enviarReal);
-            resolve();
-          }
-          return;
-        }
-
-        if (m.type === "API_RESP" && pendentes.has(m.id)) {
-          const item = pendentes.get(m.id);
-          pendentes.delete(m.id);
-          clearTimeout(item.timer);
-          item.resolve(m.resp || { ok: false, erro: "Resposta vazia da API." });
-        }
-      });
-    });
-  }
-
-  function enviarReal(item) {
-    pendentes.set(item.id, item);
-    const alvo = fonte || (iframe && iframe.contentWindow);
-    if (!alvo) {
-      item.resolve({ ok: false, erro: "Ponte da API indisponível. Recarregue a página." });
-      return;
-    }
-    alvo.postMessage(
-      { type: "API_CALL", id: item.id, action: item.acao, token: item.token, payload: item.payload },
-      "*"
-    );
-    item.timer = setTimeout(() => {
-      if (pendentes.has(item.id)) {
-        pendentes.delete(item.id);
-        item.resolve({ ok: false, erro: "A API não respondeu (tempo esgotado). Tente novamente." });
-      }
-    }, 60000);
-  }
-
-  /* ------------------------- loader global -------------------------
-   * Feedback visual para o usuário durante as chamadas (o Apps Script leva
-   * alguns segundos). Barra no topo para qualquer chamada e overlay
-   * "Processando…" para gravações (evita duplo clique). */
   const ACOES_ESCRITA = {
     criarPedido: 1, enviarPedido: 1, assumirPedido: 1, designarPedido: 1,
     tramitarPedido: 1, excluirPedido: 1, anexarArquivo: 1,
@@ -182,19 +91,14 @@ const API = (() => {
 
   /* ------------------------- API pública ------------------------- */
 
-  async function chamar(acao, payload = {}, token = null) {
-    if (!CONFIG.API_URL) {
-      return { ok: false, erro: "API_URL não configurada (edite docs/js/config.js)." };
-    }
-    if (!iframe) {
-      try {
-        await criarIframe();
-      } catch (e) {
-        iframe = null;
-        return { ok: false, erro: e.message };
-      }
-    }
+  /** Base da API: vazio = mesma origem (/api, proxy do nginx);
+   *  para dev apontando ao uvicorn direto, use "http://localhost:8000/api". */
+  function urlBase() {
+    const u = String(CONFIG.API_URL || "").trim();
+    return u ? u.replace(/\/+$/, "") : "/api";
+  }
 
+  async function chamar(acao, payload = {}, token = null) {
     const tokenReal = token === null ? (Sessao.ler() || {}).token : token;
     const chave = chaveCache(acao, tokenReal, payload);
 
@@ -210,29 +114,30 @@ const API = (() => {
       const escrita = !!ACOES_ESCRITA[acao];
       iniciarCarga(escrita);
       try {
-        const item = {
-          id: "req-" + (++seq) + "-" + Date.now(),
-          acao,
-          token: tokenReal || "",
-          payload,
-        };
-
-        const resp = await new Promise((resolve) => {
-          item.resolve = resolve;
-          if (pronto) enviarReal(item);
-          else fila.push(item);
-        });
+        let resp;
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 60000);
+          const r = await fetch(urlBase() + "/" + encodeURIComponent(acao), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: tokenReal || "", payload }),
+            signal: ctrl.signal,
+          });
+          clearTimeout(timer);
+          resp = await r.json().catch(() => ({ ok: false, erro: "Resposta inválida da API." }));
+        } catch (e) {
+          resp = {
+            ok: false,
+            erro: e && e.name === "AbortError"
+              ? "A API não respondeu (tempo esgotado). Tente novamente."
+              : "Falha de conexão com a API. Verifique se o serviço está no ar.",
+          };
+        }
 
         if (resp.ok === false && /sess[iã]o expirada/i.test(resp.erro || "")) {
           Sessao.limpar();
           document.dispatchEvent(new CustomEvent(EV_SESSAO_EXPIRADA, { detail: resp.erro }));
-        }
-
-        /* Diagnóstico amigável: ação nova ainda não publicada no Apps Script */
-        if (resp.ok === false && /a[cç][aã]o desconhecida/i.test(resp.erro || "")) {
-          resp.erro = resp.erro +
-            " — o deploy do Apps Script parece desatualizado: atualize Code.gs e " +
-            "Usuarios.gs e publique uma NOVA VERSÃO (Implantar → Gerenciar implantações → ✏️ → Nova versão).";
         }
 
         if (resp.ok) {

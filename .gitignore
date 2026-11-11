@@ -36,3 +36,8 @@ migracao/
 # Diagnóstico local (não commitar)
 docs/teste-*.html
 test-server.js
+
+# Novo stack (Docker/FastAPI)
+backend/data/
+.venv-test/
+

@@ -1,11 +1,11 @@
 /* Configuração global da SPA.
  *
- * Preencha API_URL com a URL do Apps Script Web App (deploy "Executar como: eu"
- * / acesso "Qualquer pessoa"), terminando em /exec:
- *   https://script.google.com/macros/s/<DEPLOY_ID>/exec
+ * API_URL vazio = mesma origem (o nginx faz proxy de /api para o container
+ * FastAPI). Para desenvolvimento fora do Docker, aponte ao uvicorn direto:
+ *   API_URL: "http://localhost:8000/api"
  */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwl1ZifI-xmVLDoClu5Db5Aj5VomWZ7u52n9RW2SdH3brV4sYabQV1zg8oZe90Vcw2C/exec",
+  API_URL: "",
 
   /* Expiração da sessão (ms) — deve ser <= expiração definida no Apps Script */
   SESSAO_MS: 8 * 60 * 60 * 1000,
