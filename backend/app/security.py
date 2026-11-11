@@ -53,15 +53,16 @@ def novo_token_reset() -> str:
 
 
 def expiracao_sessao() -> datetime:
-    return datetime.now(timezone.utc) + timedelta(minutes=config.SESSAO_MINUTOS)
+    return agora() + timedelta(minutes=config.SESSAO_MINUTOS)
 
 
 def expiracao_reset() -> datetime:
-    return datetime.now(timezone.utc) + timedelta(minutes=config.RESET_VALIDADE_MIN)
+    return agora() + timedelta(minutes=config.RESET_VALIDADE_MIN)
 
 
 def agora() -> datetime:
-    return datetime.now(timezone.utc)
+    """Agora em UTC *naive* (convenção do banco: SQLite grava datetimes naive)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def iso(d: datetime | None) -> str:

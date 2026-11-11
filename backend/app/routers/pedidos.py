@@ -6,8 +6,6 @@ Regras preservadas:
   - retorno final obrigatório na conclusão;
   - histórico a cada mudança; exclusão em cascata (anexos + histórico).
 """
-from datetime import datetime, timedelta, timezone
-
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
@@ -27,8 +25,8 @@ from ..models import Anexo, HistoricoStatus, Pedido, Usuario
 from ..storage import salvar_anexo
 
 
-def agora() -> datetime:
-    return datetime.now(timezone.utc)
+def agora():
+    return security.agora()
 
 
 def get_pedido(db: Session, numero: str) -> Pedido | None:
@@ -39,10 +37,8 @@ def lead_time_dias(p: Pedido) -> int | None:
     """Igual ao Django: dias entre envio e encerramento (ou hoje)."""
     if not p.data_envio:
         return None
-    envio = p.data_envio.replace(tzinfo=timezone.utc, hour=0, minute=0, second=0, microsecond=0)
-    fim = (p.concluido_em or datetime.now(timezone.utc))
-    if fim.tzinfo is None:
-        fim = fim.replace(tzinfo=timezone.utc)
+    envio = p.data_envio.replace(hour=0, minute=0, second=0, microsecond=0)
+    fim = (p.concluido_em or agora())
     fim = fim.replace(hour=0, minute=0, second=0, microsecond=0)
     return (fim - envio).days
 

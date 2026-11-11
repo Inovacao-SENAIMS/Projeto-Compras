@@ -1,5 +1,5 @@
 """routers/agregacoes.py — port de Dashboard.gs, Performance.gs e Config.gs."""
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -46,8 +46,7 @@ def api_dashboard(db: Session, usuario: Usuario, payload: dict):
         if st in cont_por_status:
             cont_por_status[st] += 1
         if p.criado_em:
-            c = p.criado_em if p.criado_em.tzinfo else p.criado_em.replace(tzinfo=timezone.utc)
-            chave = f"{c.year}-{c.month:02d}"
+            chave = f"{p.criado_em.year}-{p.criado_em.month:02d}"
             por_mes[chave] = por_mes.get(chave, 0) + 1
 
         u = usuarios.get(str(p.criado_por).lower())
@@ -58,7 +57,7 @@ def api_dashboard(db: Session, usuario: Usuario, payload: dict):
 
     # últimos 12 meses (do mês corrente para trás)
     meses = []
-    hoje = datetime.now(timezone.utc)
+    hoje = security.agora()
     for i in range(11, -1, -1):
         ano, mes = hoje.year, hoje.month - i
         while mes <= 0:
@@ -155,11 +154,10 @@ def _parse_data(valor, fim_do_dia=False):
         d = datetime.fromisoformat(str(valor))
     except ValueError:
         return None
-    if d.tzinfo is None:
-        d = d.replace(tzinfo=timezone.utc)
     if fim_do_dia:
         d = d.replace(hour=23, minute=59, second=59, microsecond=999999)
-    return d
+    # comparações no banco são naive UTC
+    return d.replace(tzinfo=None) if d.tzinfo else d
 
 
 # --------------------------------- Config ---------------------------------

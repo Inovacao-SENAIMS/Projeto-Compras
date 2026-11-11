@@ -6,7 +6,6 @@ no log do container (útil para dev/homolog).
 import logging
 import smtplib
 from email.message import EmailMessage
-from datetime import datetime, timezone
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -37,7 +36,7 @@ def api_solicitar_reset_senha(db: Session, payload: dict):
 
     # limpeza de tokens expirados/usados
     db.execute(delete(ResetSenha).where(
-        (ResetSenha.expira_em <= datetime.now(timezone.utc)) | (ResetSenha.usado == True)
+        (ResetSenha.expira_em <= security.agora()) | (ResetSenha.usado == True)
     ))
     db.commit()
 
@@ -51,7 +50,7 @@ def api_solicitar_reset_senha(db: Session, payload: dict):
     token = security.novo_token_reset()
     db.add(ResetSenha(token=token, email=email,
                       expira_em=security.expiracao_reset(),
-                      usado=False, criado_em=datetime.now(timezone.utc)))
+                      usado=False, criado_em=security.agora()))
     db.commit()
 
     base = str(payload.get("base_url") or "").split("#")[0]
@@ -93,7 +92,7 @@ def api_redefinir_senha(db: Session, payload: dict):
     r = db.get(ResetSenha, token)
     exigir(r, "Link de redefinição inválido. Solicite uma nova redefinição.")
     exigir(not r.usado, "Este link de redefinição já foi utilizado.")
-    exigir(r.expira_em > datetime.now(timezone.utc),
+    exigir(r.expira_em > security.agora(),
            "Este link de redefinição expirou. Solicite outro.")
 
     email = str(r.email).lower()

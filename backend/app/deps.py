@@ -4,12 +4,12 @@ Substitui o roteamento com token do Code.gs + helpers do Utils.gs.
 Erros de regra são ErroNegocio → envelope {ok:false, erro:mensagem},
 igual ao comportamento do Apps Script (o client já trata esse formato).
 """
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from . import config
+from . import config, security
 from .models import Sessao, Usuario
 
 
@@ -31,7 +31,7 @@ def exigir(cond, mensagem: str) -> None:
 def limpar_sessoes_expiradas(db: Session) -> None:
     try:
         db.execute(
-            delete(Sessao).where(Sessao.expira_em <= datetime.now(timezone.utc))
+            delete(Sessao).where(Sessao.expira_em <= security.agora())
         )
         db.commit()
     except Exception:
@@ -46,7 +46,7 @@ def validar_sessao(db: Session, token: str | None) -> Usuario | None:
     if not token:
         return None
     sessao = db.get(Sessao, token)
-    if not sessao or sessao.expira_em <= datetime.now(timezone.utc):
+    if not sessao or sessao.expira_em <= security.agora():
         return None
     u = buscar_usuario(db, sessao.email)
     if not u or not is_valido(u):
