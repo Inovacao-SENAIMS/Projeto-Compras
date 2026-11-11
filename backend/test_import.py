@@ -113,8 +113,9 @@ from fastapi.testclient import TestClient  # noqa: E402
 from app.main import app  # noqa: E402
 
 with TestClient(app, raise_server_exceptions=False) as c:
-    r = c.post("/api/login", json={"token": "", "payload": {"email": "fernanda@ms.senai.br", "senha": senha}})
-    check("login legado ok", r.json().get("ok") is True, r.json().get("erro", ""))
+    r = c.post("/api/auth/login", json={"email": "fernanda@ms.senai.br", "senha": senha})
+    check("login legado ok", r.status_code == 200 and r.json().get("token"),
+          r.json().get("detail", ""))
 
     from app.database import SessionLocal as S2
     from app.models import Usuario as U2
@@ -123,14 +124,14 @@ with TestClient(app, raise_server_exceptions=False) as c:
     check("hash virou bcrypt", u2.senha_hash.startswith("$2"))
     d2.close()
 
-    tok = r.json()["data"]["token"]
-    dash = c.post("/api/dashboard", json={"token": tok, "payload": {}}).json()
+    tok = r.json()["token"]
+    dash = c.get("/api/dashboard", headers={"Authorization": f"Bearer {tok}"}).json()
     check("dashboard com dados importados",
-          dash["ok"] and dash["data"]["total"] == 2 and dash["data"]["concluidas"] == 1)
+          dash["total"] == 2 and dash["concluidas"] == 1)
 
-    dl = c.post("/api/baixarArquivo", json={"token": tok, "payload": {"id": "ANX-000001"}}).json()
+    dl = c.get("/api/anexos/ANX-000001/arquivo", headers={"Authorization": f"Bearer {tok}"})
     check("download do anexo importado",
-          dl["ok"] and base64.b64decode(dl["data"]["base64"]) == b"%PDF-1.4 cotacao3")
+          dl.status_code == 200 and dl.content == b"%PDF-1.4 cotacao3")
 
 print("— proteção contra reimport —")
 try:
