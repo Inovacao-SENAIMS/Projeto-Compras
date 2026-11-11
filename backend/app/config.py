@@ -27,6 +27,20 @@ ANEXO_EXTENSOES = [
     ".png", ".jpg", ".jpeg", ".txt", ".zip",
 ]
 
+# ---------------------------------------------------------------- SSO (Microsoft Entra ID / OIDC)
+OIDC_ENABLED = os.environ.get("OIDC_ENABLED", "false").lower() != "false"
+# Ex.: https://login.microsoftonline.com/<TENANT-ID>/v2.0
+OIDC_ISSUER = os.environ.get("OIDC_ISSUER", "")
+OIDC_CLIENT_ID = os.environ.get("OIDC_CLIENT_ID", "")
+OIDC_CLIENT_SECRET = os.environ.get("OIDC_CLIENT_SECRET", "")
+OIDC_REDIRECT_URI = os.environ.get("OIDC_REDIRECT_URI", "")
+# Base do SPA para o callback redirecionar (ex.: https://compras.suaempresa.com.br)
+OIDC_SPA_BASE = os.environ.get("OIDC_SPA_BASE", "")
+OIDC_SCOPES = os.environ.get("OIDC_SCOPES", "openid profile email")
+# Chave para assinar o `state` do OAuth (obrigatória com SSO; gera aleatória
+# por boot se ausente — estados pendentes são invalidados a cada restart)
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
+
 # ---------------------------------------------------------------- reset de senha
 RESET_VALIDADE_MIN = int(os.environ.get("RESET_VALIDADE_MIN", "30"))
 SMTP_HOST = os.environ.get("SMTP_HOST", "")

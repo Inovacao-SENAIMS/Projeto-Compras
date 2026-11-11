@@ -16,6 +16,14 @@ services:
       SMTP_USUARIO: ${SMTP_USUARIO:-}
       SMTP_SENHA: ${SMTP_SENHA:-}
       SMTP_DE: ${SMTP_DE:-projeto-compras@ms.senai.br}
+      # SSO corporativo (Microsoft Entra ID / OIDC) — híbrido
+      OIDC_ENABLED: ${OIDC_ENABLED:-false}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_REDIRECT_URI: ${OIDC_REDIRECT_URI:-}
+      OIDC_SPA_BASE: ${OIDC_SPA_BASE:-}
+      SECRET_KEY: ${SECRET_KEY:-}
     volumes:
       - compras-data:/data
     # Sem porta publicada: só o nginx acessa (rede interna do compose).

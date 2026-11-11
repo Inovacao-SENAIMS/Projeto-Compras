@@ -164,9 +164,12 @@ def _parse_data(valor, fim_do_dia=False):
 
 def api_config(db: Session, payload: dict):
     """Pública — fonte de verdade para o frontend (bootstrap do app.js)."""
+    from .. import oidc
+
     return {"ok": True, "data": {
         "institutos": config.INSTITUTOS,
         "modalidades": config.MODALIDADES,
         "urgencias": config.URGENCIAS,
         "status": config.STATUS,
+        "sso": oidc.ativado(),
     }}

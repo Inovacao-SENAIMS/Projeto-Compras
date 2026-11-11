@@ -112,6 +112,7 @@ const API = (() => {
     login: (p) => ({ m: "POST", u: "/auth/login", b: { email: p.email, senha: p.senha } }),
     cadastrarUsuario: (p) => ({ m: "POST", u: "/auth/cadastro", b: p }),
     logout: () => ({ m: "POST", u: "/auth/logout" }),
+    ssoUrl: () => ({ m: "GET", u: "/auth/sso/url" }),
     solicitarResetSenha: (p) => ({ m: "POST", u: "/auth/reset/solicitar", b: { email: p.email, base_url: p.base_url } }),
     redefinirSenha: (p) => ({ m: "POST", u: "/auth/reset/redefinir", b: { token: p.token, senha: p.senha, senha2: p.senha2 } }),
     alterarSenha: (p) => ({ m: "POST", u: "/auth/senha", b: { senha_atual: p.senha_atual, senha_nova: p.senha_nova, senha_nova2: p.senha_nova2 } }),

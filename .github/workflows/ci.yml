@@ -40,6 +40,9 @@ jobs:
       - name: Migração CSV (test_import)
         run: python test_import.py
 
+      - name: SSO Entra ID (test_sso)
+        run: python test_sso.py
+
   docker-e2e:
     name: E2E Docker (adapter do frontend)
     runs-on: ubuntu-latest

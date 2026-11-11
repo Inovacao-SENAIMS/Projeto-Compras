@@ -85,6 +85,23 @@
     color: var(--cor-muted);
 }
 
+/* Divisor "ou" entre o botão de SSO e o formulário de senha */
+.login-divisao {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.9rem 0 0;
+    color: var(--cor-muted);
+    font-size: 0.85rem;
+}
+.login-divisao::before,
+.login-divisao::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #d5dee8;
+}
+
 .campo-duplo {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

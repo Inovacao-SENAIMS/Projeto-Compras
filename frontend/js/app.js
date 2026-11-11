@@ -2,7 +2,8 @@
 async function iniciarApp() {
   const rota = rotaAtual();
   const s = Sessao.ler();
-  const publica = rota === "#/login" || rota === "#/cadastro" || rota.startsWith("#/redefinir/");
+  const publica = rota === "#/login" || rota === "#/cadastro"
+    || rota.startsWith("#/redefinir/") || rota.startsWith("#/sso/");
 
   if (!s) {
     /* Telas públicas montam seu próprio interior em #app (via view). */

@@ -20,6 +20,8 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from .deps import ErroNegocio, usuario_autenticado
 from .routers import agregacoes, anexos, auth, pedidos, reset, usuarios
+from . import oidc
+from fastapi.responses import RedirectResponse
 
 router = APIRouter(prefix="/api")
 
@@ -85,6 +87,32 @@ def rest_reset_solicitar(body: dict, db: Session = Depends(get_db)):
 @router.post("/auth/reset/redefinir")
 def rest_reset_redefinir(body: dict, db: Session = Depends(get_db)):
     return _rodar(reset.api_redefinir_senha, db, body)
+
+
+# ---------------------------------- SSO (Entra ID) --------------------------
+
+@router.get("/auth/sso/url")
+def rest_sso_url():
+    if not oidc.ativado():
+        raise HTTPException(400, "SSO não configurado neste servidor.")
+    try:
+        return {"url": oidc.autorizacao_url()}
+    except Exception:
+        raise HTTPException(502, "Provedor de identidade inacessível.")
+
+
+@router.get("/auth/sso/callback")
+def rest_sso_callback(code: str = "", state: str = "",
+                      db: Session = Depends(get_db)):
+    """Entra ID volta aqui; trocamos code → sessão e 302 para a SPA."""
+    try:
+        oidc.estado_verificar(state)
+        tokens = oidc.trocar_code(code)
+        claims = oidc.validar_id_token(tokens.get("id_token", ""))
+        token = oidc.provisionar(db, claims)
+        return RedirectResponse(oidc.base_spa() + "#/sso/" + token, status_code=302)
+    except Exception:
+        return RedirectResponse(oidc.base_spa() + "#/sso/erro", status_code=302)
 
 
 # ---------------------------------- me/usuários -----------------------------

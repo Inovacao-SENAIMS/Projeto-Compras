@@ -20,6 +20,10 @@
       <div class="login-card">
         <h2>Entrar</h2>
         <p class="meta">Acesse com seu e-mail institucional.</p>
+        <button type="button" id="btn-sso-ms" class="botao botao-secundario" hidden>
+          <i class="bi bi-microsoft"></i> Entrar com Microsoft
+        </button>
+        <div id="sso-ou" class="login-divisao" hidden><span>ou</span></div>
         <form id="form-login" class="formulario">
           <p>
             <label for="l-email">Usuário ou e-mail</label>
@@ -41,6 +45,22 @@
       </div>`);
 
     qs("#lnk-esqueci").addEventListener("click", (ev) => { ev.preventDefault(); modalEsqueciSenha(); });
+
+    /* SSO (Microsoft Entra): mostra o botão se o servidor tiver OIDC ativado */
+    API.chamar("config").then((r) => {
+      if (r.ok && r.data && r.data.sso) {
+        const btn = qs("#btn-sso-ms");
+        const ou = qs("#sso-ou");
+        if (btn) btn.hidden = false;
+        if (ou) ou.hidden = false;
+        btn.addEventListener("click", async () => {
+          btn.disabled = true;
+          const u = await API.chamar("ssoUrl", {}, "");
+          if (u.ok && u.data && u.data.url) location.href = u.data.url;
+          else { btn.disabled = false; mostrarMensagem("error", u.erro || "SSO indisponível."); }
+        });
+      }
+    });
 
     qs("#form-login").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -69,6 +89,38 @@
         mostrarMensagem("error", (r.erro) || "Credenciais inválidas.");
       }
     });
+  };
+
+  /* ------------------------------ SSO callback ------------------------------
+   * O backend Entra ID redireciona para #/sso/{token}; gravamos a sessão
+   * buscando os dados do usuário e entramos no app. #/sso/erro = falha. */
+  ROTAS["#/sso/<token>"] = async function (token) {
+    if (token === "erro") {
+      cascaAuth(`
+        <div class="login-card">
+          <h2>Entrar</h2>
+          <ul class="mensagens"><li class="msg msg-error">
+            <i class="bi bi-x-circle-fill"></i>
+            <span>Não foi possível concluir o login corporativo. Tente novamente.</span>
+          </li></ul>
+          <p class="login-rodape"><a href="#/login"><i class="bi bi-arrow-left"></i> Voltar ao login</a></p>
+        </div>`);
+      return;
+    }
+
+    const base = CONFIG.API_URL ? CONFIG.API_URL.replace(/\/+$/, "") : "/api";
+    try {
+      const r = await fetch(base + "/me", { headers: { Authorization: "Bearer " + token } });
+      if (!r.ok) throw new Error("Sessão do login corporativo inválida.");
+      const eu = await r.json();
+      Sessao.gravar({ token, email: eu.email, nome: eu.nome_completo, grupo: eu.grupo });
+      montarLayout();
+      atualizarNav("#/home");
+      location.hash = "#/home"; /* hashchange dispara o render */
+    } catch (e) {
+      location.hash = "#/login";
+      setTimeout(() => mostrarMensagem("error", e.message || "Falha no login corporativo."), 50);
+    }
   };
 
   /* ------------------------------ CADASTRO ------------------------------ */

@@ -58,6 +58,7 @@ backend/
     ├── deps.py                permissões/grupos/histórico (≈ Utils.gs)
     ├── storage.py             anexos no volume (≈ Anexos.gs/Drive)
     ├── seed.py                conta ADMIN idempotente (≈ criarGestorInicial)
+    ├── oidc.py                SSO Microsoft Entra (OIDC híbrido)
     ├── import_csv.py          migração CSV da planilha → SQLite
     ├── routers/
     │   ├── auth.py            login/cadastro/logout     (≈ Auth.gs)
@@ -101,6 +102,43 @@ e o `api.js` converte para os endpoints acima (mapa `REST_MAP`). O formato
 legado de actions do Apps Script (`POST /api/{acao}`) foi removido. Swagger
 do FastAPI: expor a porta 8000 do container `api` e abrir `/api/docs`.
 
+## SSO corporativo — Microsoft Entra ID (híbrido)
+
+Login alternativo "Entrar com Microsoft": o usuário entra com a conta do
+Entra ID (e-mail @ms.senai.br), sem senha interna. Senhas locais continuam
+valendo (híbrido). Na 1ª entrada, a conta é provisionada automaticamente
+(perfil UserISI_IST, igual ao auto-cadastro) — contas com o mesmo e-mail são
+atreladas em vez de duplicadas.
+
+### Configurar no Entra (uma vez)
+
+1. portal.azure.com → Microsoft Entra ID → **App registrations** → New registration
+2. Name: "Projeto Compras"; Supported accounts: accounts in this org only
+3. **Redirect URI (tipo Web)**: `https://SEU-DOMINIO/api/auth/sso/callback`
+4. Copie o **Application (client) ID**; em Certificates & secrets, crie um
+   **Client secret** (copie o Value); no Overview, copie o **Directory (tenant) ID**
+5. `.env` do servidor:
+   ```
+   OIDC_ENABLED=true
+   OIDC_ISSUER=https://login.microsoftonline.com/<TENANT-ID>/v2.0
+   OIDC_CLIENT_ID=<client-id>
+   OIDC_CLIENT_SECRET=<secret>
+   OIDC_REDIRECT_URI=https://SEU-DOMINIO/api/auth/sso/callback
+   OIDC_SPA_BASE=https://SEU-DOMINIO
+   SECRET_KEY=<string longa aleatória>
+   ```
+6. `docker compose up -d` → o botão "Entrar com Microsoft" aparece no login
+
+### Segurança
+
+- `state` do OAuth assinado com HMAC (SECRET_KEY) e validade de 5 min —
+  bloqueia CSRF/forgery e replay
+- `id_token` validado contra o JWKS do Entra com algoritmos assimétricos
+  (RS256/ES256); iss, aud e exp conferidos
+- Contas provisionadas **sem senha interna** (autenticam só via SSO)
+- Usuário inativo no sistema é rejeitado mesmo com conta válida no Entra
+- Fluxo: `#/sso/{token}` na SPA grava a sessão e `#/sso/erro` mostra falha
+
 ## Testes
 
 ```bash
@@ -108,6 +146,7 @@ do FastAPI: expor a porta 8000 do container `api` e abrir `/api/docs`.
 cd backend && python -m venv .venv && .venv/bin/pip install -r requirements.txt httpx
 DATA_DIR=$(mktemp -d) .venv/bin/python test_rest.py      # fluxo completo REST (55)
 DATA_DIR=$(mktemp -d) .venv/bin/python test_import.py    # migração CSV (17)
+DATA_DIR=$(mktemp -d) .venv/bin/python test_sso.py       # SSO Entra (24, IdP mockado)
 
 # teste do adapter do frontend contra o stack Docker rodando:
 node test_frontend_adapter.mjs                            # fluxo completo (21)
