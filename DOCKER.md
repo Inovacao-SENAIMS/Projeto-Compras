@@ -48,6 +48,7 @@ backend/
 ├── Dockerfile                 python:3.12-slim + uvicorn
 ├── requirements.txt           fastapi, sqlalchemy, bcrypt, uvicorn
 ├── test_smoke.py              teste do fluxo completo (36 checks)
+├── test_import.py             teste da migração CSV → SQLite (17 checks)
 └── app/
     ├── main.py                roteador de ações (≈ Code.gs ROTAS_API)
     ├── config.py              settings por env (≈ Config.gs/Properties)
@@ -56,6 +57,8 @@ backend/
     ├── security.py            bcrypt + sessões + tokens (≈ Utils.gs)
     ├── deps.py                permissões/grupos/histórico (≈ Utils.gs)
     ├── storage.py             anexos no volume (≈ Anexos.gs/Drive)
+    ├── seed.py                conta ADMIN idempotente (≈ criarGestorInicial)
+    ├── import_csv.py          migração CSV da planilha → SQLite
     ├── routers/
     │   ├── auth.py            login/cadastro/logout     (≈ Auth.gs)
     │   ├── pedidos.py         domínio central           (≈ Pedidos.gs)
@@ -81,12 +84,27 @@ cd backend && python -m venv .venv && .venv/bin/pip install -r requirements.txt 
 DATA_DIR=$(mktemp -d) .venv/bin/python test_smoke.py
 ```
 
-## Migração de dados da planilha (opcional)
+## Migração de dados da planilha (implementada)
 
-Não houve migração na v1 Google (dados de teste). Se houver dados reais na
-planilha "Compras_DB" a portar, exporte cada aba como CSV e rode um script
-de import (a criar em `backend/app/import_csv.py`) — o hash de senha legado
-é reconhecido e atualizado para bcrypt no primeiro login de cada usuário.
+```bash
+# 1) Na planilha "Compras_DB": Arquivo → Download → CSV para cada aba
+#    (Usuarios.csv, Pedidos.csv, HistoricoStatus.csv, AnexosAudit.csv)
+# 2) Opcional — arquivos de anexo: baixe a pasta "Compras Anexos" do Drive
+# 3) Copie para o container e rode:
+docker compose cp ./import compras-api:/data/import
+docker compose exec api python -m app.import_csv /data/import \
+       --anexos-dir /data/import/anexos
+# Para apagar o banco atual e importar do zero: adicione --recriar
+```
+
+- Senhas legadas (SHA-256+salt do Apps Script) são preservadas e migram
+  para bcrypt no 1º login de cada usuário;
+- IDs de requisição (`REQ-xxxxxx`) e de anexo (`ANX-xxxxxx`) são mantidos;
+- Anexos são casados por nome com os arquivos baixados do Drive (padrão
+  `REQ-xxxxxx_<timestamp>_<nome>` usado pelo Apps Script, ou `drive_file_id`);
+- Sem os arquivos do Drive, o download do anexo responde "Arquivo
+  indisponível" — rode novamente com `--anexos-dir` e `--recriar`;
+- O import é transacional: ou entra tudo, ou nada.
 
 ## Segurança
 

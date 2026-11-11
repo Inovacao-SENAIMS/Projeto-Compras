@@ -12,10 +12,11 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from . import config, security
+from . import config
 from .database import Base, engine, get_db
-from .deps import ErroNegocio, buscar_usuario, usuario_autenticado
+from .deps import ErroNegocio, usuario_autenticado
 from .models import Usuario
+from .seed import garantir_admin
 
 from .routers import agregacoes, anexos, auth, pedidos, reset, usuarios
 from .routers.auth import api_login, api_logout, api_cadastrar_usuario
@@ -130,18 +131,7 @@ def inicializar() -> None:
 
     db = SessionLocal()
     try:
-        if not buscar_usuario(db, config.ADMIN_EMAIL):
-            db.add(Usuario(
-                nome_completo="Administrador do Sistema",
-                email=config.ADMIN_EMAIL,
-                grupo="Manager_Compras",
-                senha_hash=security.hash_bcrypt(config.ADMIN_SENHA_PADRAO),
-                area_atuacao="Gestão", cargo="Administrador",
-                instituto=config.INSTITUTOS[0], ativo=True,
-            ))
-            db.commit()
-            log.info("Administrador criado: %s (trocar a senha no 1º login)",
-                     config.ADMIN_EMAIL)
+        garantir_admin(db)
     finally:
         db.close()
 
