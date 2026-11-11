@@ -27,10 +27,30 @@ services:
     build: ./frontend
     container_name: compras-web
     restart: unless-stopped
-    ports:
-      - "${PORTA_WEB:-8080}:80"
+    # Sem porta publicada: o proxy (Caddy) fica na frente com TLS.
+    # Para depurar o nginx sem o proxy, descomente:
+    # ports:
+    #   - "8080:80"
     depends_on:
       - api
 
+  proxy:
+    image: caddy:2-alpine
+    container_name: compras-proxy
+    restart: unless-stopped
+    ports:
+      - "${PORTA_HTTP:-80}:80"
+      - "${PORTA_HTTPS:-443}:443"
+    environment:
+      DOMINIO: ${CADDY_DOMAIN:-localhost}
+    volumes:
+      - ./proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data      # certificados (Let's Encrypt ou CA interna)
+      - caddy-config:/config
+    depends_on:
+      - web
+
 volumes:
   compras-data:
+  caddy-data:
+  caddy-config:

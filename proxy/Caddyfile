@@ -1,0 +1,18 @@
+# proxy/Caddyfile — TLS automático na frente do nginx (SPA + /api).
+#
+# - CADDY_DOMAIN=localhost  → certificado interno (autoassinado), ideal p/ dev
+# - CADDY_DOMAIN=compras.suaempresa.com.br → Let's Encrypt (precisa do domínio
+#   apontando para este host + portas 80/443 acessíveis da internet)
+#
+# A variável DOMINIO é injetada pelo docker-compose (environment).
+
+{$DOMINIO} {
+	# Tudo (SPA estática e API) passa pelo nginx existente —
+	# o chain fica: cliente → caddy (TLS) → nginx → api.
+	reverse_proxy web:80
+
+	# Logs de acesso no stdout do container (docker compose logs proxy)
+	log {
+		output stdout
+	}
+}

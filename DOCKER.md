@@ -8,9 +8,11 @@ são idênticos, então **as views do frontend não mudaram**.
 ## Arquitetura
 
 ```
-[compras-web  nginx:80] ──► [compras-api  FastAPI:8000] ──► [volume compras-data]
-  SPA (pasta frontend/)        /api/{acao}                  /data/compras.db
-  proxy /api/ ──────────────┘  (fetch direto, sem Bridge)   /data/anexos/REQ-xxx/
+                       ┌─ :80  (redirect)
+[compras-proxy Caddy] ─┤
+                       └─ :443 (TLS) ─► [compras-web nginx] ─► [compras-api FastAPI] ─► [volume compras-data]
+                                          SPA (pasta frontend/)  /api/{acao}              /data/compras.db
+                                          proxy /api/ ──────────┘  (fetch direto, sem Bridge)  /data/anexos/REQ-xxx/
 ```
 
 | Antes (Google)                          | Agora                                     |
@@ -22,17 +24,22 @@ são idênticos, então **as views do frontend não mudaram**.
 | `LockService` (assunção atômica)        | `UPDATE` condicional com `rowcount`       |
 | SHA-256(salt+senha)                     | bcrypt (hashes legados migram no 1º login)|
 | `MailApp` (reset de senha)              | SMTP opcional (`SMTP_*`); sem SMTP, link no log |
-| GitHub Pages                            | nginx no container `web`                  |
+| GitHub Pages                            | nginx no container `web` (atrás do Caddy) |
 
 ## Rodando
 
 ```bash
-docker compose up -d --build     # sobe web (:8080) e api
+docker compose up -d --build     # sobe proxy (:80/:443), web e api
 ```
 
-Acesse `http://localhost:8080`. Login inicial: `admin@ms.senai.br` /
-`admin123` (trocar no 1º login). A porta é configurável em `.env` (ver
-`.env.example`).
+Acesse `https://localhost` (cert interno do Caddy; aceite o aviso ou instale
+a CA local). Login inicial: `admin@ms.senai.br` / `admin123` (trocar no
+1º login). Variáveis em `.env` (ver `.env.example`):
+
+- `CADDY_DOMAIN=localhost` → TLS interno. Com um **domínio real** apontando
+  para o host, ex.: `CADDY_DOMAIN=compras.suaempresa.com.br`, o Caddy emite
+  certificado **Let's Encrypt** automaticamente (portas 80/443 públicas).
+- `PORTA_HTTP` / `PORTA_HTTPS` — portas publicadas do proxy.
 
 ## Estrutura
 
@@ -61,6 +68,8 @@ backend/
 frontend/                      cópia de docs/ com js/api.js reescrito (fetch)
                                e config.js com API_URL="" (mesma origem)
 
+proxy/Caddyfile                TLS automático (Let's Encrypt ou interno)
+
 docs/ + google-apps-script/    versão Google — mantida como legado/referência
 ```
 
@@ -87,5 +96,5 @@ de import (a criar em `backend/app/import_csv.py`) — o hash de senha legado
   invalida as demais sessões.
 - O nginx limita `client_max_body_size 15m` e a API nunca fica exposta
   diretamente (rede interna do compose).
-- Em produção, defina `ADMIN_SENHA_PADRAO` e `SMTP_*` no `.env` e coloque
-  TLS na frente (traefik/caddy ou proxy corporativo).
+- TLS termina no Caddy (renovação automática); em produção defina
+  `CADDY_DOMAIN` com domínio real, `ADMIN_SENHA_PADRAO` e `SMTP_*` no `.env`.
