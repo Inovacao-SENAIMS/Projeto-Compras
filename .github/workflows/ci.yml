@@ -34,9 +34,6 @@ jobs:
       - name: Instalar dependências
         run: pip install -r requirements.txt httpx
 
-      - name: Fluxo completo via actions (test_smoke)
-        run: python test_smoke.py
-
       - name: Fluxo completo via REST (test_rest)
         run: python test_rest.py
 

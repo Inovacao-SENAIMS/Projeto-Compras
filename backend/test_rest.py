@@ -1,8 +1,5 @@
-"""Teste da superfície REST (Task 3): Bearer token, status codes e fluxo completo.
-
-Confirma que: login via /api/auth/login → Bearer; 401 sem token; 400 em regra
-de negócio; 201 em criação; download binário com Content-Disposition; e que
-o endpoint legado POST /api/{acao} continua respondendo (compatibilidade).
+"""Teste da superfície REST (Task 3 + degola do legado): Bearer token,
+status codes e fluxo completo. Os "actions" do Apps Script não existem mais.
 """
 import base64
 import os
@@ -158,17 +155,86 @@ with TestClient(app, raise_server_exceptions=False) as c:
     r = c.get(f"{B}/config")
     check("GET config público", r.status_code == 200 and "institutos" in r.json())
 
-    print("— compatibilidade (actions legados) —")
+    print("— actions legados removidos (Task: degola) —")
     r = c.post(f"{B}/listarPedidos", json={"token": bia, "payload": {}})
-    check("POST /api/listarPedidos segue ok", r.status_code == 200
-          and r.json()["ok"] and len(r.json()["data"]) == 1)
-    r = c.post(f"{B}/dashboard", json={"token": "", "payload": {}})
-    check("action sem sessão → erro de sessão", r.json()["ok"] is False)
+    check("POST /api/{acao} não existe mais (404/405)", r.status_code in (404, 405))
 
     print("— exclusão REST —")
     r = c.delete(f"{B}/usuarios/bia@ms.senai.br", headers=HA)
     check("DELETE usuário com pedido → 400 PROTECT", r.status_code == 400
           and "requisições vinculadas" in r.json()["detail"])
+
+    print("— regras preservadas (ex-smoke) —")
+    # flag de senha padrão do ADMIN
+    r = c.post(f"{B}/auth/login", json={"email": "admin@ms.senai.br", "senha": "admin123"})
+    check("flag troca senha obrigatória", r.json()["troca_senha_obrigatoria"] is True)
+
+    # auto-gerenciamento bloqueado
+    r = c.patch(f"{B}/usuarios/admin@ms.senai.br", headers=HA, json={"grupo": "Time_Compras"})
+    check("auto-gerenciamento bloqueado", r.status_code == 400)
+    r = c.patch(f"{B}/usuarios/admin@ms.senai.br", headers=HA, json={"ativo": False})
+    check("ADMIN não pode ser inativado", r.status_code == 400)
+    r = c.delete(f"{B}/usuarios/admin@ms.senai.br", headers=HA)
+    check("ADMIN ineliminável", r.status_code == 400)
+
+    # exclusão de usuário sem vínculos funciona
+    r = c.post(f"{B}/usuarios", headers=HA, json={
+        "email": "temp@ms.senai.br", "nome_completo": "Temp", "senha": "senha123"})
+    check("criar usuário temporário", r.status_code == 201)
+    r = c.delete(f"{B}/usuarios/temp@ms.senai.br", headers=HA)
+    check("DELETE usuário sem vínculos ok", r.status_code == 200)
+
+    # solicitante puro: não assume e não vê documentos da equipe
+    r = c.post(f"{B}/usuarios", headers=HA, json={
+        "email": "solic@ms.senai.br", "nome_completo": "Solic", "senha": "senha123",
+        "grupo": "UserISI_IST"})
+    check("criar solicitante", r.status_code == 201)
+    sol = c.post(f"{B}/auth/login",
+                 json={"email": "solic@ms.senai.br", "senha": "senha123"}).json()["token"]
+    HS = {"Authorization": f"Bearer {sol}"}
+    r = c.post(f"{B}/pedidos/REQ-000001/assumir", headers=HS)
+    check("solicitante não assume", r.status_code == 400)
+    r = c.get(f"{B}/documentos", headers=HS)
+    check("documentos bloqueado p/ solicitante", r.status_code == 400)
+
+    # troca de senha + sessões
+    r = c.post(f"{B}/auth/senha", headers=HA, json={
+        "senha_atual": "admin123", "senha_nova": "nova12345", "senha_nova2": "nova12345"})
+    check("trocar senha via REST", r.status_code == 200, r.json().get("detail", ""))
+    r = c.get(f"{B}/me", headers=HA)
+    check("sessão atual sobrevive à troca", r.status_code == 200)
+    r = c.post(f"{B}/auth/login", json={"email": "admin@ms.senai.br", "senha": "nova12345"})
+    check("relogin com nova senha", r.status_code == 200)
+    check("flag troca obrigatória desligada",
+          r.json()["troca_senha_obrigatoria"] is False)
+    r = c.post(f"{B}/auth/senha", headers=HA, json={
+        "senha_atual": "nova12345", "senha_nova": "admin123", "senha_nova2": "admin123"})
+    check("volta senha admin123 (p/ próximos testes)", r.status_code == 200)
+
+    # logout invalida o token
+    r = c.post(f"{B}/auth/logout", headers=HB)
+    check("logout ok", r.status_code == 200)
+    r = c.get(f"{B}/me", headers=HB)
+    check("token invalidado após logout", r.status_code == 401)
+
+    # reset de senha: solicitar → redefinir → login
+    r = c.post(f"{B}/auth/reset/solicitar", json={
+        "email": "solic@ms.senai.br", "base_url": "https://localhost"})
+    check("reset solicitado (resposta padrão)", r.status_code == 200)
+    from app.models import ResetSenha
+    from app.database import SessionLocal as SL
+    dbr = SL()
+    tok = dbr.query(ResetSenha).filter(ResetSenha.email == "solic@ms.senai.br").first().token
+    dbr.close()
+    check("token gravado no banco", bool(tok))
+    r = c.post(f"{B}/auth/reset/redefinir", json={
+        "token": tok, "senha": "novadesenha", "senha2": "novadesenha"})
+    check("redefinir senha", r.status_code == 200)
+    r = c.post(f"{B}/auth/reset/redefinir", json={
+        "token": tok, "senha": "outrasenha", "senha2": "outrasenha"})
+    check("reuso do token bloqueado", r.status_code == 400 and "utilizado" in r.json()["detail"])
+    r = c.post(f"{B}/auth/login", json={"email": "solic@ms.senai.br", "senha": "novadesenha"})
+    check("login com senha redefinida", r.status_code == 200)
 
 print()
 if falhas:

@@ -155,8 +155,7 @@ const API = (() => {
   }
 
   /** baixarArquivo via REST binário → converte para o envelope base64
-   *  que as views esperam ({nome, mime, base64}). */
-  async function baixarArquivoRest(payload, token) {
+   *  que as views esperam ({nome, mime, base64}). */  async function baixarArquivoRest(payload, token) {
     try {
       const r = await fetchComTimeout(
         urlBase() + "/anexos/" + enc(payload.id) + "/arquivo",
@@ -190,30 +189,13 @@ const API = (() => {
     }
   }
 
-  /** Fallback: endpoint legado POST /api/{acao} (envelope {ok,data,erro}). */
-  async function chamarLegado(acao, payload, token) {
-    try {
-      const r = await fetchComTimeout(urlBase() + "/" + encodeURIComponent(acao), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: token || "", payload }),
-      });
-      return await r.json().catch(() => ({ ok: false, erro: "Resposta inválida da API." }));
-    } catch (e) {
-      return {
-        ok: false,
-        erro: e && e.name === "AbortError"
-          ? "A API não respondeu (tempo esgotado). Tente novamente."
-          : "Falha de conexão com a API. Verifique se o serviço está no ar.",
-      };
-    }
-  }
-
   /** Chamada REST (Task 3): retorna o mesmo envelope {ok, data|erro}. */
   async function chamarRest(acao, payload, token) {
     if (acao === "baixarArquivo") return baixarArquivoRest(payload, token);
     const map = REST_MAP[acao];
-    if (!map) return chamarLegado(acao, payload, token);
+    if (!map && acao !== "baixarArquivo") {
+      return { ok: false, erro: "Ação desconhecida: " + acao };
+    }
 
     const { m, u, b } = map(payload);
     try {

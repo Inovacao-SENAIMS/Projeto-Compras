@@ -65,8 +65,9 @@ def rest_cadastro(body: dict, db: Session = Depends(get_db)):
 
 
 @router.post("/auth/logout")
-def rest_logout(request: Request, db: Session = Depends(get_db)):
-    return _rodar(auth.api_logout, db, {"_token": _token(request)})
+def rest_logout(request: Request, db: Session = Depends(get_db),
+                usuario=Depends(_usuario)):
+    return _rodar(auth.api_logout, db, usuario, {"_token": _token(request)})
 
 
 @router.post("/auth/senha")

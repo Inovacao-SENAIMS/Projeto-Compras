@@ -47,10 +47,10 @@ a CA local). Login inicial: `admin@ms.senai.br` / `admin123` (trocar no
 backend/
 ├── Dockerfile                 python:3.12-slim + uvicorn
 ├── requirements.txt           fastapi, sqlalchemy, bcrypt, uvicorn
-├── test_smoke.py              teste do fluxo completo (36 checks)
+├── test_rest.py               teste do fluxo completo via REST (55 checks)
 ├── test_import.py             teste da migração CSV → SQLite (17 checks)
 └── app/
-    ├── main.py                roteador de ações (≈ Code.gs ROTAS_API)
+    ├── main.py                 app FastAPI + inicialização (rest.py tem as rotas)
     ├── config.py              settings por env (≈ Config.gs/Properties)
     ├── database.py            engine/sessão SQLAlchemy
     ├── models.py              6 tabelas (≈ abas da planilha)
@@ -76,11 +76,11 @@ proxy/Caddyfile                TLS automático (Let's Encrypt ou interno)
 docs/ + google-apps-script/    versão Google — mantida como legado/referência
 ```
 
-## API — duas superfícies (Task 3)
+## API
 
-**RESTful** (recomendada para novos clientes/integrações): Bearer token no
-header `Authorization`, códigos HTTP corretos (400 regra, 401 sessão,
-404 não achado), dados diretos sem envelope:
+RESTful: Bearer token no header `Authorization`, códigos HTTP corretos
+(400 regra de negócio, 401 sessão, 404 não achado), dados diretos no corpo
+(sem envelope):
 
 ```
 POST /api/auth/login | /auth/cadastro | /auth/logout | /auth/senha
@@ -96,24 +96,21 @@ GET  /api/usuarios    POST /api/usuarios
 PATCH /api/usuarios/{email} ({grupo}|{ativo})   DELETE /api/usuarios/{email}
 ```
 
-**Actions legados** (compatibilidade): `POST /api/{acao}` com
-`{token, payload}` → envelope `{ok, data, erro}` — é o formato do Apps
-Script; as views do frontend usam-no transparentemente via `API.chamar()`
-(o `api.js` converte para REST por baixo). O Swagger do FastAPI documenta
-ambas: `http://<host>/api/docs` aponta ao container `api` (expor a porta
-8000 para acessar).
+O frontend fala REST por completo: as views chamam `API.chamar(acao, payload)`
+e o `api.js` converte para os endpoints acima (mapa `REST_MAP`). O formato
+legado de actions do Apps Script (`POST /api/{acao}`) foi removido. Swagger
+do FastAPI: expor a porta 8000 do container `api` e abrir `/api/docs`.
 
 ## Testes
 
 ```bash
 # testes locais (sem Docker):
 cd backend && python -m venv .venv && .venv/bin/pip install -r requirements.txt httpx
-DATA_DIR=$(mktemp -d) .venv/bin/python test_smoke.py      # fluxo via actions (36)
-DATA_DIR=$(mktemp -d) .venv/bin/python test_rest.py       # fluxo via REST (38)
-DATA_DIR=$(mktemp -d) .venv/bin/python test_import.py     # migração CSV (17)
+DATA_DIR=$(mktemp -d) .venv/bin/python test_rest.py      # fluxo completo REST (55)
+DATA_DIR=$(mktemp -d) .venv/bin/python test_import.py    # migração CSV (17)
 
 # teste do adapter do frontend contra o stack Docker rodando:
-node test_frontend_adapter.mjs                            # fluxo completo (20)
+node test_frontend_adapter.mjs                            # fluxo completo (21)
 ```
 
 ## Migração de dados da planilha (implementada)
