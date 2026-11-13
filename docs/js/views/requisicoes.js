@@ -33,6 +33,7 @@ ROTAS["#/requisicoes"] = async function () {
   qs("#btn-nova").addEventListener("click", modalNovaRequisicao);
 
   const r = await API.chamar("listarPedidos");
+  if (!qs("#req-loading")) return;
   qs("#req-loading").hidden = true;
   if (!r.ok) { mostrarMensagem("error", r.erro); return; }
   REQ_CACHE = r.data;
