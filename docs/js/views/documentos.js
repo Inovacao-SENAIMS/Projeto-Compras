@@ -30,6 +30,7 @@ ROTAS["#/documentos"] = async function () {
     <div id="doc-conteudo" hidden></div>`;
 
   const r = await API.chamar("listarDocumentos");
+  if (!qs("#doc-loading")) return;
   qs("#doc-loading").hidden = true;
   if (!r.ok) {
     qs("#doc-conteudo").hidden = false;
