@@ -17,7 +17,7 @@ const API = (() => {
   const m = ev.data;
   if (!m) return;
   if (m.type === "BRIDGE_READY") console.log("[API] bridge pronta");
-  if (m.type === "API_RESP") console.log("[API] resposta chegou:", m.id);
+  if (m.type === "API_RESP") console.log("[API] resp:", m.id, String(JSON.stringify(m.resp)).slice(0, 300));
 });
   /** Evento para "sessão expirou" (o app ouve e volta ao login). */
   const EV_SESSAO_EXPIRADA = "api:sessao-expirada";
