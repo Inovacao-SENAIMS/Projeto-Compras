@@ -102,6 +102,7 @@ const API = (() => {
       item.resolve({ ok: false, erro: "Ponte da API indisponível. Recarregue a página." });
       return;
     }
+    console.log("[API] enviando:", item.acao, item.id);
     alvo.postMessage(
       { type: "API_CALL", id: item.id, action: item.acao, token: item.token, payload: item.payload },
       "*"
