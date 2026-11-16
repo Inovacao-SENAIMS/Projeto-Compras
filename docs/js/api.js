@@ -13,6 +13,12 @@
  *                     { type: "API_RESP", id, resp } para cada chamada.
  */
 const API = (() => {
+  window.addEventListener("message", (ev) => {
+  const m = ev.data;
+  if (!m) return;
+  if (m.type === "BRIDGE_READY") console.log("[API] bridge pronta");
+  if (m.type === "API_RESP") console.log("[API] resposta chegou:", m.id);
+});
   /** Evento para "sessão expirou" (o app ouve e volta ao login). */
   const EV_SESSAO_EXPIRADA = "api:sessao-expirada";
 
