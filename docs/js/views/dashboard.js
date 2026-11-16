@@ -16,7 +16,8 @@ ROTAS["#/home"] = async function () {
     <div id="dash-conteudo" hidden></div>`;
 
   const r = await API.chamar("dashboard");
-  if (!r.ok) { qs("#dash-loading").hidden = true; mostrarMensagem("error", r.erro); return; }
+   if (!qs("#dash-conteudo")) return; /* usuário já saiu da Home antes da resposta */
+   if (!r.ok) { qs("#dash-loading").hidden = true; mostrarMensagem("error", r.erro); return; }
   const DADOS = r.data || {};
 
   const card = (titulo, valor, icone, rodape) => `
